@@ -1,0 +1,168 @@
+<ENTRY>
+{
+ "thisFile": "/home/CONNECT/xmeng027/work/FHE-BERT-Tiny/openfhe-development-1.4.0/src/fpga_backend/temp.xo.compile_summary",
+ "connectId": "",
+ "serverToken": "",
+ "timestamp": "0"
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_CmdStep",
+ "dateTimestamp": "Sat Dec 13 17:31:22 2025",
+ "timestampMillis": "1765618282309",
+ "buildStep": {
+  "cmdId": "643afa5c-ebba-4a41-a780-8a0cfc8c5720",
+  "name": "v++",
+  "logFile": "/home/CONNECT/xmeng027/work/FHE-BERT-Tiny/openfhe-development-1.4.0/src/fpga_backend/_x/temp/temp.steps.log",
+  "commandLine": "/data-hdd/opt/Xilinx/Vitis/2024.1/bin/unwrapped/lnx64.o/v++  --vivado.prop \"run.__KERNEL__.{STEPS.SYNTH_DESIGN.ARGS.MORE OPTIONS}={-directive sdx_optimization_effort_high}\" --advanced.misc \"report=type report_timing_summary name impl_report_timing_summary_route_design_summary steps {route_design} runs {impl_1} options {-max_paths 10}\" --advanced.misc \"report=type report_timing_summary name impl_report_timing_summary_post_route_phys_opt_design_summary steps {post_route_phys_opt_design} runs {impl_1} options {-max_paths 10}\" -c -t sw_emu --platform xilinx_u55c_gen3x16_xdma_3_202210_1 --save-temps -I./include -I./src -k Top -o temp.xo src/top.cpp ",
+  "args": [
+   "-c",
+   "-t",
+   "sw_emu",
+   "--platform",
+   "xilinx_u55c_gen3x16_xdma_3_202210_1",
+   "--save-temps",
+   "-I./include",
+   "-I./src",
+   "-k",
+   "Top",
+   "-o",
+   "temp.xo",
+   "src/top.cpp"
+  ],
+  "iniFiles": [],
+  "cwd": "/home/CONNECT/xmeng027/work/FHE-BERT-Tiny/openfhe-development-1.4.0/src/fpga_backend"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Dec 13 17:31:22 2025",
+ "timestampMillis": "1765618282343",
+ "status": {
+  "cmdId": "643afa5c-ebba-4a41-a780-8a0cfc8c5720",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_FlowMetaData",
+ "dateTimestamp": "Sat Dec 13 17:31:30 2025",
+ "timestampMillis": "1765618290427",
+ "buildSummary": {
+  "hardwarePlatform": "xilinx_u55c_gen3x16_xdma_3_202210_1.xpfm",
+  "hardwareDsa": "",
+  "platformDirectory": "/opt/xilinx/platforms/xilinx_u55c_gen3x16_xdma_3_202210_1",
+  "runtime": "OpenCL",
+  "systemConfig": "Linux",
+  "flow": "BF_COMPILE",
+  "target": "TT_SW_EMU",
+  "kernels": [
+   {
+    "base": {
+     "type": "KERNEL",
+     "name": "Top",
+     "file": "/home/CONNECT/xmeng027/work/FHE-BERT-Tiny/openfhe-development-1.4.0/src/fpga_backend/temp.xo",
+     "reports": [],
+     "uuid": ""
+    },
+    "sources": [
+     "/home/CONNECT/xmeng027/work/FHE-BERT-Tiny/openfhe-development-1.4.0/src/fpga_backend/src/top.cpp"
+    ],
+    "psSources": [],
+    "cuNames": [],
+    "type": "HLS",
+    "frequency": 0,
+    "freqUnits": ""
+   }
+  ],
+  "toolVersion": "Vitis V++ Compiler Release 2024.1. SW Build 5074859 on 2024-05-20-23:21:20"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_SubCmdStep",
+ "dateTimestamp": "Sat Dec 13 17:31:30 2025",
+ "timestampMillis": "1765618290448",
+ "buildStep": {
+  "cmdId": "fbda064e-fd17-4975-8d6c-877cda6aba80",
+  "name": "vitis_hls",
+  "logFile": "/home/CONNECT/xmeng027/work/FHE-BERT-Tiny/openfhe-development-1.4.0/src/fpga_backend/_x/temp/Top/vitis_hls.log",
+  "commandLine": "vitis_hls -f /home/CONNECT/xmeng027/work/FHE-BERT-Tiny/openfhe-development-1.4.0/src/fpga_backend/_x/temp/Top/Top.tcl -messageDb vitis_hls.pb",
+  "args": [
+   "vitis_hls",
+   "-f",
+   "/home/CONNECT/xmeng027/work/FHE-BERT-Tiny/openfhe-development-1.4.0/src/fpga_backend/_x/temp/Top/Top.tcl",
+   "-messageDb",
+   "vitis_hls.pb"
+  ],
+  "iniFiles": [],
+  "cwd": "/home/CONNECT/xmeng027/work/FHE-BERT-Tiny/openfhe-development-1.4.0/src/fpga_backend"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Dec 13 17:31:30 2025",
+ "timestampMillis": "1765618290451",
+ "status": {
+  "cmdId": "fbda064e-fd17-4975-8d6c-877cda6aba80",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Dec 13 17:32:07 2025",
+ "timestampMillis": "1765618327059",
+ "status": {
+  "cmdId": "fbda064e-fd17-4975-8d6c-877cda6aba80",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Dec 13 17:32:07 2025",
+ "timestampMillis": "1765618327169",
+ "status": {
+  "cmdId": "643afa5c-ebba-4a41-a780-8a0cfc8c5720",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Dec 13 17:32:07 2025",
+ "timestampMillis": "1765618327516",
+ "report": {
+  "path": "/home/CONNECT/xmeng027/work/FHE-BERT-Tiny/openfhe-development-1.4.0/src/fpga_backend/_x/reports/temp/v++_compile_temp_guidance.html",
+  "name": "",
+  "fileType": "HTML",
+  "reportType": "GLOBAL_RULECHECK_GUIDANCE",
+  "cmdId": ""
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Dec 13 17:32:07 2025",
+ "timestampMillis": "1765618327522",
+ "report": {
+  "path": "/home/CONNECT/xmeng027/work/FHE-BERT-Tiny/openfhe-development-1.4.0/src/fpga_backend/_x/v++_compile_temp_guidance.pb3",
+  "name": "",
+  "fileType": "BINARY_PROTOBUF",
+  "reportType": "GLOBAL_RULECHECK_GUIDANCE",
+  "cmdId": ""
+ }
+}
+</ENTRY>
