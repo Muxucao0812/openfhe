@@ -143,6 +143,12 @@ void Top(
             Store(poly_buffer_1, mem_out, num_active_limbs, mod_index);
             break;
 
+        // case OP_BCONV:
+            // Load
+            // BConv
+            // Store
+            // break;
+
     }
 
                 

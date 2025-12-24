@@ -43,6 +43,7 @@
 #define OP_MULT   3
 #define OP_NTT    4
 #define OP_INTT   5
+#define OP_BCONV  6
 
 #define MAX_LIMBS 5 
 #define FPGA_RING_DIM  4096
@@ -52,9 +53,13 @@ inline std::string GetXclbinPath() {
     const char* mode = std::getenv("XCL_EMULATION_MODE");
     // 请根据你的实际路径修改 Base Path
     std::string base = "/home/CONNECT/xmeng027/work/FHE-BERT-Tiny/openfhe-development-1.4.0/src/fpga_backend/";
-    if (mode && std::string(mode) == "sw_emu") return base + "fhe_kernels_sw_emu.xclbin";
-    if (mode && std::string(mode) == "hw_emu") return base + "fhe_kernels_hw_emu.xclbin";
-    return base + "fhe_kernels_hw.xclbin";
+    if (mode && std::string(mode) == "sw_emu") 
+        return base + "fhe_kernels_sw_emu.xclbin";
+    else if (mode && std::string(mode) == "hw_emu") 
+        return base + "fhe_kernels_hw_emu.xclbin";
+    else if (mode && std::string(mode) == "hw") 
+        return base + "fhe_kernels_hw.xclbin";
+    else return base + "fhe_kernels_sw_emu.xclbin";
 }
 
 // =============================================================
@@ -391,6 +396,9 @@ public:
         int mod_idx = GetModIndex(modulus);
         Execute(OP_SUB, a, b, result, 1, mod_idx);
     }
+
+
+    // void BConvOffload(...) 
 
 private:
 #ifdef OPENFHE_FPGA_ENABLE

@@ -7,17 +7,12 @@
 # ===================================================================
 
 # # --- 1. 基础配置 ---
-# PLATFORM ?= xilinx_u250_gen3x16_xdma_4_1_202210_1
-# # HLS 需要具体的 Part Number，这里对应 U250
-# HLS_PART := xcu250-figd2104-2L-e 
+PLATFORM ?= xilinx_u250_gen3x16_xdma_4_1_202210_1
+HLS_PART := xcu250-figd2104-2L-e 
 
-
-PLATFORM ?= xilinx_u55c_gen3x16_xdma_3_202210_1
-
-# [修改点 2] U55C 的 FPGA 芯片具体型号
+# PLATFORM ?= xilinx_u55c_gen3x16_xdma_3_202210_1
 # U55C 使用的是 UltraScale+ XCU55C 芯片
-HLS_PART := xcu55c-fsvh2892-2L-e
-
+# HLS_PART := xcu55c-fsvh2892-2L-e
 
 TARGET   ?= hw
 
@@ -25,7 +20,7 @@ TARGET   ?= hw
 SRC_DIR    := ./src
 INC_DIR    := ./include
 
-# 源文件定义
+# 源文件定义 (主要用于 Vitis Flow 打包，HLS Flow 依赖你的 TCL 脚本配置)
 KERNEL_SRC := $(SRC_DIR)/top.cpp 
 # KERNEL_SRC += $(SRC_DIR)/arithmetic.cpp
 KERNEL_SRC += $(SRC_DIR)/load.cpp
@@ -33,13 +28,7 @@ KERNEL_SRC += $(SRC_DIR)/mod_add_kernel.cpp
 KERNEL_SRC += $(SRC_DIR)/mod_mult_kernel.cpp
 KERNEL_SRC += $(SRC_DIR)/mod_sub_kernel.cpp
 
-
 KERNEL_NAME := Top
-
-# [测试平台]: 仅用于 make csim
-# 如果你的 testbench 写在 top.cpp 里(有main函数)，这里可以是空的
-# 否则指向你的测试文件，例如: $(SRC_DIR)/testbench.cpp
-TB_SRC     := 
 
 # OpenFHE 路径
 OPENFHE_ROOT := /home/CONNECT/xmeng027/work/FHE-BERT-Tiny/openfhe-development-1.4.0
@@ -65,16 +54,13 @@ HOST_LIB := libfpga_backend.a
 CXXFLAGS := -std=c++17 -O3 -g -Wall -DOPENFHE_FPGA_ENABLE -fPIC
 CXXFLAGS += -I$(INC_DIR) $(OPENFHE_INC) $(XRT_INC)
 
-
-# Kernel 编译选项
-
+# Kernel 编译选项 (Vitis Flow)
 VPP_FLAGS := -t $(TARGET) --platform $(PLATFORM) --save-temps
-
 VPP_FLAGS += -I$(INC_DIR) -I$(SRC_DIR)
 
 
 # ===================================================================
-# 2. 构建规则 (Vitis Flow)
+# 2. 构建规则 (Vitis Flow - 保持不变)
 # ===================================================================
 
 .PHONY: all clean emconfig xclbin sw_emu hw_emu hw csim csynth
@@ -102,48 +88,42 @@ emconfig:
 	emconfigutil --platform $(PLATFORM) --nd 1
 
 # --- 2.3 Vitis 快捷方式 ---
+# C model sim
 sw_emu:
-	$(MAKE) all TARGET=sw_emu
+	$(MAKE) all TARGET=sw_emu 
 
+# RTL sim
 hw_emu:
 	$(MAKE) all TARGET=hw_emu
 
+# bitstream exe
 hw:
 	$(MAKE) all TARGET=hw
 
 # ===================================================================
 # 3. HLS 独立流程 (csim / csynth)
 # ===================================================================
-# 注意：这里我们动态生成 Tcl 脚本，确保文件列表永远与 Makefile 一致！
 
-# 定义 Tcl 脚本生成函数
-define GEN_HLS_TCL
-	echo "open_project hls_prj_$(1)"; \
-	echo "set_top $(KERNEL_NAME)"; \
-	echo "add_files $(KERNEL_SRC) -cflags \"-I$(INC_DIR)\""; \
-	if [ ! -z "$(TB_SRC)" ]; then \
-		echo "add_files -tb $(TB_SRC) -cflags \"-I$(INC_DIR)\""; \
-	fi; \
-	echo "open_solution solution1"; \
-	echo "set_part $(HLS_PART)"; \
-	echo "create_clock -period 3.33"; \
-	echo "$(2)_design"; \
-	echo "exit"; 
-endef
+# 指定你的现有 TCL 脚本文件名
+CSIM_SCRIPT   := csim.tcl
+CSYNTH_SCRIPT := csynth.tcl
 
 # --- 3.1 C Simulation (验证 C 代码逻辑) ---
 csim:
-	@echo "-> Running HLS C Simulation..."
-	@echo "   (Note: Requires a main() function in $(KERNEL_SRC) or TB_SRC)"
-	@($(call GEN_HLS_TCL,csim,csim)) > run_csim.tcl
-	$(VITIS_HLS) -f run_csim.tcl
+	@echo "-> Running HLS C Simulation using $(CSIM_SCRIPT)..."
+	@if [ ! -f $(CSIM_SCRIPT) ]; then \
+		echo "Error: $(CSIM_SCRIPT) not found!"; exit 1; \
+	fi
+	$(VITIS_HLS) -f $(CSIM_SCRIPT)
 
 # --- 3.2 C Synthesis (查看资源和时序) ---
 csynth:
-	@echo "-> Running HLS C Synthesis..."
-	@($(call GEN_HLS_TCL,csynth,csynth)) > run_csynth.tcl
-	$(VITIS_HLS) -f run_csynth.tcl
-	@echo "-> Report generated at: hls_prj_csynth/solution1/syn/report/$(KERNEL_NAME)_csynth.rpt"
+	@echo "-> Running HLS C Synthesis using $(CSYNTH_SCRIPT)..."
+	@if [ ! -f $(CSYNTH_SCRIPT) ]; then \
+		echo "Error: $(CSYNTH_SCRIPT) not found!"; exit 1; \
+	fi
+	$(VITIS_HLS) -f $(CSYNTH_SCRIPT)
+	@echo "-> Done. Check synthesis reports in your project directory."
 
 # ===================================================================
 # 4. 清理
@@ -155,5 +135,7 @@ clean:
 	@echo "-> Cleaning Vitis/VPP cache..."
 	rm -rf _x v++_*_backup.log
 
-	@echo "-> Cleaning HLS projects & Autopilot DB..."
-	rm -rf hls_prj_* Solution *.autopilot vitis_hls.log
+	@echo "-> Cleaning HLS projects..."
+# 注意：这里会删除生成的工程文件夹 hls_prj_csynth 等
+# 但不会删除你的 run_csynth.tcl 脚本
+	rm -rf hls_prj_* Solution vitis_hls.log

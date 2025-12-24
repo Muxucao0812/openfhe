@@ -19,10 +19,10 @@ void InterLeave(
     #pragma HLS BIND_STORAGE variable=temp_buffer type=ram_2p impl=bram
 
     // 关键：内存切分 (16路并行)，必须与外部传入的 data 的切分方式一致
-    #pragma HLS ARRAY_PARTITION variable=temp_buffer cyclic factor=16 dim=2
+    #pragma HLS ARRAY_PARTITION variable=temp_buffer cyclic factor=SQRT dim=2
     
     // 同时也声明对外部接口的期望 (告诉 HLS 外部传进来的也是切分好的)
-    #pragma HLS ARRAY_PARTITION variable=data cyclic factor=16 dim=2
+    #pragma HLS ARRAY_PARTITION variable=data cyclic factor=SQRT dim=2
 
     const int mask = SQRT - 1; 
 
@@ -37,7 +37,7 @@ void InterLeave(
             
             Shift_Right_Col:
             for (int k = 0; k < SQRT; ++k) {
-                #pragma HLS UNROLL factor=16
+                #pragma HLS UNROLL factor=SQRT
 
                 // 逻辑：Output-Driven
                 // 目标位置 k 的数据，来自源位置 (k - i)
@@ -54,7 +54,7 @@ void InterLeave(
             
             Shift_Left_Col:
             for (int k = 0; k < SQRT; ++k) {
-                #pragma HLS UNROLL factor=16
+                #pragma HLS UNROLL factor=SQRT
 
                 // 目标位置 k 的数据，来自源位置 (k + i)
                 int src_j = (k + i) & mask;
@@ -74,7 +74,7 @@ void InterLeave(
         
         Write_Back_Col:
         for(int j = 0; j < SQRT; j++) {
-            #pragma HLS UNROLL factor=16
+            #pragma HLS UNROLL factor=SQRT
             // 简单的 1-to-1 拷贝，带宽拉满
             data[i][j] = temp_buffer[i][j];
         }

@@ -9,19 +9,19 @@
 <ENTRY>
 {
  "type": "ET_CmdStep",
- "dateTimestamp": "Sun Dec 14 14:25:19 2025",
- "timestampMillis": "1765693519529",
+ "dateTimestamp": "Wed Dec 24 19:50:04 2025",
+ "timestampMillis": "1766577004913",
  "buildStep": {
-  "cmdId": "d65d0bcd-0e91-4da7-be05-d4d3f2e1c71e",
+  "cmdId": "6da72f1b-fede-4012-b4df-10050c2f18f9",
   "name": "v++",
   "logFile": "/home/CONNECT/xmeng027/work/FHE-BERT-Tiny/openfhe-development-1.4.0/src/fpga_backend/_x/temp/temp.steps.log",
-  "commandLine": "/data-hdd/opt/Xilinx/Vitis/2024.1/bin/unwrapped/lnx64.o/v++  --vivado.prop \"run.__KERNEL__.{STEPS.SYNTH_DESIGN.ARGS.MORE OPTIONS}={-directive sdx_optimization_effort_high}\" --advanced.misc \"report=type report_timing_summary name impl_report_timing_summary_route_design_summary steps {route_design} runs {impl_1} options {-max_paths 10}\" --advanced.misc \"report=type report_timing_summary name impl_report_timing_summary_post_route_phys_opt_design_summary steps {post_route_phys_opt_design} runs {impl_1} options {-max_paths 10}\" -c -t sw_emu --platform xilinx_u55c_gen3x16_xdma_3_202210_1 --save-temps -I./include -I./src -k Top -o temp.xo src/top.cpp ",
+  "commandLine": "/data-hdd/opt/Xilinx/Vitis/2024.1/bin/unwrapped/lnx64.o/v++  --vivado.prop \"run.__KERNEL__.{STEPS.SYNTH_DESIGN.ARGS.MORE OPTIONS}={-directive sdx_optimization_effort_high}\" --advanced.misc \"report=type report_timing_summary name impl_report_timing_summary_route_design_summary steps {route_design} runs {impl_1} options {-max_paths 10}\" --advanced.misc \"report=type report_timing_summary name impl_report_timing_summary_post_route_phys_opt_design_summary steps {post_route_phys_opt_design} runs {impl_1} options {-max_paths 10}\" -c -t sw_emu --platform xilinx_u250_gen3x16_xdma_4_1_202210_1 --save-temps -I./include -I./src -k Top -o temp.xo src/top.cpp ",
   "args": [
    "-c",
    "-t",
    "sw_emu",
    "--platform",
-   "xilinx_u55c_gen3x16_xdma_3_202210_1",
+   "xilinx_u250_gen3x16_xdma_4_1_202210_1",
    "--save-temps",
    "-I./include",
    "-I./src",
@@ -39,10 +39,10 @@
 <ENTRY>
 {
  "type": "ET_Status",
- "dateTimestamp": "Sun Dec 14 14:25:19 2025",
- "timestampMillis": "1765693519530",
+ "dateTimestamp": "Wed Dec 24 19:50:04 2025",
+ "timestampMillis": "1766577004914",
  "status": {
-  "cmdId": "d65d0bcd-0e91-4da7-be05-d4d3f2e1c71e",
+  "cmdId": "6da72f1b-fede-4012-b4df-10050c2f18f9",
   "state": "CS_RUNNING"
  }
 }
@@ -50,12 +50,12 @@
 <ENTRY>
 {
  "type": "ET_FlowMetaData",
- "dateTimestamp": "Sun Dec 14 14:25:24 2025",
- "timestampMillis": "1765693524821",
+ "dateTimestamp": "Wed Dec 24 19:50:08 2025",
+ "timestampMillis": "1766577008102",
  "buildSummary": {
-  "hardwarePlatform": "xilinx_u55c_gen3x16_xdma_3_202210_1.xpfm",
+  "hardwarePlatform": "xilinx_u250_gen3x16_xdma_4_1_202210_1.xpfm",
   "hardwareDsa": "",
-  "platformDirectory": "/opt/xilinx/platforms/xilinx_u55c_gen3x16_xdma_3_202210_1",
+  "platformDirectory": "/opt/xilinx/platforms/xilinx_u250_gen3x16_xdma_4_1_202210_1",
   "runtime": "OpenCL",
   "systemConfig": "Linux",
   "flow": "BF_COMPILE",
@@ -86,10 +86,10 @@
 <ENTRY>
 {
  "type": "ET_SubCmdStep",
- "dateTimestamp": "Sun Dec 14 14:25:24 2025",
- "timestampMillis": "1765693524832",
+ "dateTimestamp": "Wed Dec 24 19:50:08 2025",
+ "timestampMillis": "1766577008114",
  "buildStep": {
-  "cmdId": "325b3139-621a-4bdd-ae5f-94cfdc645592",
+  "cmdId": "3e8be618-ab8c-4ed6-bd14-3f1daa937937",
   "name": "vitis_hls",
   "logFile": "/home/CONNECT/xmeng027/work/FHE-BERT-Tiny/openfhe-development-1.4.0/src/fpga_backend/_x/temp/Top/vitis_hls.log",
   "commandLine": "vitis_hls -f /home/CONNECT/xmeng027/work/FHE-BERT-Tiny/openfhe-development-1.4.0/src/fpga_backend/_x/temp/Top/Top.tcl -messageDb vitis_hls.pb",
@@ -108,10 +108,10 @@
 <ENTRY>
 {
  "type": "ET_Status",
- "dateTimestamp": "Sun Dec 14 14:25:24 2025",
- "timestampMillis": "1765693524833",
+ "dateTimestamp": "Wed Dec 24 19:50:08 2025",
+ "timestampMillis": "1766577008115",
  "status": {
-  "cmdId": "325b3139-621a-4bdd-ae5f-94cfdc645592",
+  "cmdId": "3e8be618-ab8c-4ed6-bd14-3f1daa937937",
   "state": "CS_RUNNING"
  }
 }
@@ -119,10 +119,10 @@
 <ENTRY>
 {
  "type": "ET_Status",
- "dateTimestamp": "Sun Dec 14 14:25:59 2025",
- "timestampMillis": "1765693559291",
+ "dateTimestamp": "Wed Dec 24 19:50:37 2025",
+ "timestampMillis": "1766577037235",
  "status": {
-  "cmdId": "325b3139-621a-4bdd-ae5f-94cfdc645592",
+  "cmdId": "3e8be618-ab8c-4ed6-bd14-3f1daa937937",
   "state": "CS_PASSED"
  }
 }
@@ -130,10 +130,10 @@
 <ENTRY>
 {
  "type": "ET_Status",
- "dateTimestamp": "Sun Dec 14 14:25:59 2025",
- "timestampMillis": "1765693559340",
+ "dateTimestamp": "Wed Dec 24 19:50:37 2025",
+ "timestampMillis": "1766577037277",
  "status": {
-  "cmdId": "d65d0bcd-0e91-4da7-be05-d4d3f2e1c71e",
+  "cmdId": "6da72f1b-fede-4012-b4df-10050c2f18f9",
   "state": "CS_PASSED"
  }
 }
@@ -141,8 +141,8 @@
 <ENTRY>
 {
  "type": "ET_Report",
- "dateTimestamp": "Sun Dec 14 14:25:59 2025",
- "timestampMillis": "1765693559493",
+ "dateTimestamp": "Wed Dec 24 19:50:37 2025",
+ "timestampMillis": "1766577037431",
  "report": {
   "path": "/home/CONNECT/xmeng027/work/FHE-BERT-Tiny/openfhe-development-1.4.0/src/fpga_backend/_x/reports/temp/v++_compile_temp_guidance.html",
   "name": "",
@@ -155,8 +155,8 @@
 <ENTRY>
 {
  "type": "ET_Report",
- "dateTimestamp": "Sun Dec 14 14:25:59 2025",
- "timestampMillis": "1765693559496",
+ "dateTimestamp": "Wed Dec 24 19:50:37 2025",
+ "timestampMillis": "1766577037433",
  "report": {
   "path": "/home/CONNECT/xmeng027/work/FHE-BERT-Tiny/openfhe-development-1.4.0/src/fpga_backend/_x/v++_compile_temp_guidance.pb3",
   "name": "",

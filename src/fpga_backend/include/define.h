@@ -29,7 +29,7 @@ static const int BU_NUM = 32;
 static const int LIMB_Q = 3;
 static const int LIMB_P = 2;
 
-static const int STAGE = 12;
+static const int STAGE = 12; //log2(RING_DIM)
 
 #define MAX_LIMBS (LIMB_Q + LIMB_P)
 
