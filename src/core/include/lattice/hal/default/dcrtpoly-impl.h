@@ -419,30 +419,34 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::Minus(const DCRTPolyImpl& rhs) cons
 
  
 #ifdef OPENFHE_FPGA_ENABLE
-    bool use_fpga = false;
     auto& fpga = FpgaManager::GetInstance();
-    use_fpga = fpga.IsReady();
-
-    if (use_fpga) {
+    if (fpga.IsReady() && size <= 5) {  // 批量处理最多5个limb
+        size_t ringDim = m_vectors[0].GetLength();
+        
+        // 准备连续内存的buffer
+        std::vector<uint64_t> flat_a(size * ringDim);
+        std::vector<uint64_t> flat_b(size * ringDim);
+        std::vector<uint64_t> flat_result(size * ringDim);
+        
+        int mod_idx_start = fpga.GetModIndex(m_vectors[0].GetModulus().ConvertToInt());
+        
+        // 打包所有limb的数据
         for (size_t i = 0; i < size; ++i) {
-            const auto& vec_a = m_vectors[i];
-            const auto& vec_b = rhs.m_vectors[i];
-            auto&       vec_r = tmp.m_vectors[i];
-
-            // 先让 vec_r 拿到正确的长度 / 模数（避免 vec_r[0] 崩溃）
-            vec_r = vec_a;
-
-            size_t   n   = vec_a.GetLength();
-            uint64_t mod = vec_a.GetModulus().ConvertToInt();
-
-            const uint64_t* pa = reinterpret_cast<const uint64_t*>(&vec_a[0]);
-            const uint64_t* pb = reinterpret_cast<const uint64_t*>(&vec_b[0]);
-            uint64_t*       pr = reinterpret_cast<uint64_t*>(&vec_r[0]);
-
-
-            fpga.ModSubOffload(pa, pb, pr, mod, n);
-
-
+            tmp.m_vectors[i] = m_vectors[i];  // 初始化
+            const uint64_t* pa = reinterpret_cast<const uint64_t*>(&m_vectors[i][0]);
+            const uint64_t* pb = reinterpret_cast<const uint64_t*>(&rhs.m_vectors[i][0]);
+            std::memcpy(&flat_a[i * ringDim], pa, ringDim * sizeof(uint64_t));
+            std::memcpy(&flat_b[i * ringDim], pb, ringDim * sizeof(uint64_t));
+        }
+        
+        // 一次FPGA调用处理所有limb
+        fpga.ModOpBatchOffload(OP_SUB, flat_a.data(), flat_b.data(), flat_result.data(),
+                               mod_idx_start, ringDim, size);
+        
+        // 解包结果
+        for (size_t i = 0; i < size; ++i) {
+            uint64_t* pr = reinterpret_cast<uint64_t*>(&tmp.m_vectors[i][0]);
+            std::memcpy(pr, &flat_result[i * ringDim], ringDim * sizeof(uint64_t));
         }
         return tmp;
     }
@@ -681,29 +685,30 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::Plus(const DCRTPolyType& rhs) const
 
  
 #ifdef OPENFHE_FPGA_ENABLE
-    bool use_fpga = false;
     auto& fpga = FpgaManager::GetInstance();
-    use_fpga = fpga.IsReady();
-
-
-    if (use_fpga) {
+    if (fpga.IsReady() && size <= 5) {  // 批量处理最多5个limb
+        size_t ringDim = m_vectors[0].GetLength();
+        
+        std::vector<uint64_t> flat_a(size * ringDim);
+        std::vector<uint64_t> flat_b(size * ringDim);
+        std::vector<uint64_t> flat_result(size * ringDim);
+        
+        int mod_idx_start = fpga.GetModIndex(m_vectors[0].GetModulus().ConvertToInt());
+        
         for (size_t i = 0; i < size; ++i) {
-            const auto& vec_a = m_vectors[i];
-            const auto& vec_b = rhs.m_vectors[i];
-            auto&       vec_r = tmp.m_vectors[i];
-
-            vec_r = vec_a;                         
-
-            size_t   n   = vec_a.GetLength();
-            uint64_t mod = vec_a.GetModulus().ConvertToInt();
-
-            const uint64_t* pa = reinterpret_cast<const uint64_t*>(&vec_a[0]);
-            const uint64_t* pb = reinterpret_cast<const uint64_t*>(&vec_b[0]);
-            uint64_t*       pr = reinterpret_cast<uint64_t*>(&vec_r[0]);
-
-  
-
-            fpga.ModAddOffload(pa, pb, pr, mod, n);
+            tmp.m_vectors[i] = m_vectors[i];
+            const uint64_t* pa = reinterpret_cast<const uint64_t*>(&m_vectors[i][0]);
+            const uint64_t* pb = reinterpret_cast<const uint64_t*>(&rhs.m_vectors[i][0]);
+            std::memcpy(&flat_a[i * ringDim], pa, ringDim * sizeof(uint64_t));
+            std::memcpy(&flat_b[i * ringDim], pb, ringDim * sizeof(uint64_t));
+        }
+        
+        fpga.ModOpBatchOffload(OP_ADD, flat_a.data(), flat_b.data(), flat_result.data(),
+                               mod_idx_start, ringDim, size);
+        
+        for (size_t i = 0; i < size; ++i) {
+            uint64_t* pr = reinterpret_cast<uint64_t*>(&tmp.m_vectors[i][0]);
+            std::memcpy(pr, &flat_result[i * ringDim], ringDim * sizeof(uint64_t));
         }
         return tmp;
     }
@@ -787,29 +792,37 @@ DCRTPolyImpl<VecType> DCRTPolyImpl<VecType>::Times(const std::vector<NativeInteg
         DCRTPolyImpl<VecType> tmp = *this;
         
         auto& fpga = FpgaManager::GetInstance();
-        bool use_fpga = fpga.IsReady();
         size_t size = m_vectors.size();
 
-        for (size_t i = 0; i < size; ++i) {
-            const auto& vec_a = m_vectors[i];
-            const auto& vec_b = element.m_vectors[i];
-            auto& vec_res = tmp.m_vectors[i];
-
-            size_t n = vec_a.GetLength();
-            uint64_t modulus = vec_a.GetModulus().ConvertToInt();
+        if (fpga.IsReady() && size <= 5) {  // 批量处理最多5个limb
+            size_t ringDim = m_vectors[0].GetLength();
             
-            if (use_fpga) {
+            std::vector<uint64_t> flat_a(size * ringDim);
+            std::vector<uint64_t> flat_b(size * ringDim);
+            std::vector<uint64_t> flat_result(size * ringDim);
             
-                const uint64_t* ptr_a = reinterpret_cast<const uint64_t*>(&vec_a[0]);
-                const uint64_t* ptr_b = reinterpret_cast<const uint64_t*>(&vec_b[0]);
-                uint64_t* ptr_res     = reinterpret_cast<uint64_t*>(&vec_res[0]);
-                
-                fpga.ModMultOffload(ptr_a, ptr_b, ptr_res, modulus, n);
-
-            } else {
-                // Fallback to CPU implementation
-                tmp.m_vectors[i] = m_vectors[i].Times(element.m_vectors[i]);
+            int mod_idx_start = fpga.GetModIndex(m_vectors[0].GetModulus().ConvertToInt());
+            
+            for (size_t i = 0; i < size; ++i) {
+                const uint64_t* pa = reinterpret_cast<const uint64_t*>(&m_vectors[i][0]);
+                const uint64_t* pb = reinterpret_cast<const uint64_t*>(&element.m_vectors[i][0]);
+                std::memcpy(&flat_a[i * ringDim], pa, ringDim * sizeof(uint64_t));
+                std::memcpy(&flat_b[i * ringDim], pb, ringDim * sizeof(uint64_t));
             }
+            
+            fpga.ModOpBatchOffload(OP_MULT, flat_a.data(), flat_b.data(), flat_result.data(),
+                                   mod_idx_start, ringDim, size);
+            
+            for (size_t i = 0; i < size; ++i) {
+                uint64_t* pr = reinterpret_cast<uint64_t*>(&tmp.m_vectors[i][0]);
+                std::memcpy(pr, &flat_result[i * ringDim], ringDim * sizeof(uint64_t));
+            }
+            return tmp;
+        }
+
+        // Fallback to CPU implementation
+        for (size_t i = 0; i < size; ++i) {
+            tmp.m_vectors[i] = m_vectors[i].Times(element.m_vectors[i]);
         }
         return tmp;
     }

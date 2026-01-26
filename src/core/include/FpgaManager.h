@@ -394,6 +394,9 @@ public:
         Execute(OP_INTT, in, nullptr, out, 1, mod_idx);
     }
 
+    // ============================================================
+    // 单limb操作（保留向后兼容）
+    // ============================================================
     void ModMultOffload(
         const uint64_t* a, 
         const uint64_t* b, 
@@ -402,7 +405,6 @@ public:
         size_t n
     ) {
         int mod_idx = GetModIndex(modulus);
-        std::cout << "=== [FPGA] Execute Mult === mod=" << modulus << ", idx=" << mod_idx << std::endl;
         Execute(OP_MULT, a, b, result, 1, mod_idx);
     }
 
@@ -413,7 +415,6 @@ public:
         uint64_t modulus, 
         size_t n
     ) {
-        std::cout << "=== [FPGA] Execute Add ===" << std::endl;
         int mod_idx = GetModIndex(modulus);
         Execute(OP_ADD, a, b, result, 1, mod_idx);
     }
@@ -425,9 +426,55 @@ public:
         uint64_t modulus, 
         size_t n
     ) {
-        std::cout << "=== [FPGA] Execute Sub ===" << std::endl;
         int mod_idx = GetModIndex(modulus);
         Execute(OP_SUB, a, b, result, 1, mod_idx);
+    }
+
+    // ============================================================
+    // 批量limb操作（一次kernel调用处理所有limb）
+    // 要求：所有limb的模数索引是连续的（从mod_idx_start开始）
+    // ============================================================
+    void ModOpBatchOffload(
+        int opcode,             // OP_ADD, OP_SUB, or OP_MUL (注意是OP_MUL不是OP_MULT)
+        const uint64_t* a,      // [numLimbs × ringDim]
+        const uint64_t* b,      // [numLimbs × ringDim]
+        uint64_t* result,       // [numLimbs × ringDim]
+        int mod_idx_start,      // 起始模数索引
+        size_t ringDim,
+        size_t numLimbs
+    ) {
+    #ifdef OPENFHE_FPGA_ENABLE
+        if (!m_is_ready) return;
+        
+        std::cout << "=== [FPGA] Batch Op=" << opcode << " numLimbs=" << numLimbs 
+                  << " modStart=" << mod_idx_start << " ===" << std::endl;
+
+        try {
+            size_t total_size = numLimbs * ringDim * sizeof(uint64_t);
+            
+            auto bo_a = xrt::bo(m_device, total_size, m_kernel_top.group_id(0));
+            auto bo_b = xrt::bo(m_device, total_size, m_kernel_top.group_id(1));
+            auto bo_out = xrt::bo(m_device, total_size, m_kernel_top.group_id(2));
+
+            // 一次性传输所有数据
+            bo_a.write(a);
+            bo_a.sync(XCL_BO_SYNC_BO_TO_DEVICE);
+            
+            bo_b.write(b);
+            bo_b.sync(XCL_BO_SYNC_BO_TO_DEVICE);
+
+            // 一次kernel调用处理所有limb
+            // num_active_limbs = numLimbs, mod_index = mod_idx_start
+            auto run = m_kernel_top(bo_a, bo_b, bo_out, opcode, (int)numLimbs, mod_idx_start);
+            run.wait();
+
+            // 一次性读取所有结果
+            bo_out.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
+            bo_out.read(result);
+        } catch (const std::exception& e) {
+            std::cerr << "[FPGA Batch Op Error] " << e.what() << std::endl;
+        }
+    #endif
     }
 
     // BConv with dynamic output moduli
