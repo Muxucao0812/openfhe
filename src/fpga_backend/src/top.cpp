@@ -7,6 +7,7 @@
 #include "../include/mod_add_kernel.h"
 #include "../include/mod_sub_kernel.h"
 #include "../include/bconv.h"
+#include "../include/auto.h"
 
 
 
@@ -196,6 +197,16 @@ void Top(
                     }
                 }
             }
+            break;
+        }
+
+        case OP_AUTO: {
+            // mem_in1 = polynomial (all limbs), mem_in2 = [k, kinv] (two uint64_t)
+            Load(mem_in1, poly_buffer_1, num_active_limbs, mod_index);
+            uint32_t k    = (uint32_t)mem_in2[0];
+            uint32_t kinv = (uint32_t)mem_in2[1];
+            Compute_Auto(poly_buffer_1, k, kinv, result_buffer, MODULUS, num_active_limbs, mod_index);
+            Store(result_buffer, mem_out, num_active_limbs, mod_index);
             break;
         }
 

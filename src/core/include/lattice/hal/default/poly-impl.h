@@ -365,17 +365,36 @@ PolyImpl<VecType> PolyImpl<VecType>::AutomorphismTransform(uint32_t k) const {
 template <typename VecType>
 PolyImpl<VecType> PolyImpl<VecType>::AutomorphismTransform(uint32_t k, const std::vector<uint32_t>& precomp) const {
     // Xiangchen: These is the precomputed AutomorphismTransform
-
+    (void)precomp;  // use INTT->Auto->NTT pipeline instead of precomputed permutation
+    std::cout << "Auto" << std::endl;
     if ((m_format != Format::EVALUATION) || (m_params->GetRingDimension() != (m_params->GetCyclotomicOrder() >> 1)))
         OPENFHE_THROW("Automorphism Poly Format not EVALUATION or not power-of-two");
     if (k % 2 == 0)
         OPENFHE_THROW("Automorphism index not odd\n");
-    PolyImpl<VecType> tmp(m_params, m_format, true);
+
     uint32_t n = m_params->GetRingDimension();
-    for (uint32_t j = 0; j < n; ++j)
-        (*tmp.m_values)[j] = (*m_values)[precomp[j]];
-    return tmp;
+    uint32_t m = m_params->GetCyclotomicOrder();
+    uint32_t logm = lbcrypto::GetMSB(m) - 1;
+    uint32_t logn = logm - 1;
+    uint32_t mask = (uint32_t(1) << logn) - 1;
+    auto q = m_params->GetModulus();
+    
+    // Step 1: INTT (Eval -> Coef)
+    PolyImpl<VecType> tmp(*this);
+    tmp.SwitchFormat();  // now tmp is COEFFICIENT
+
+    // Step 2: Auto (coefficient-domain automorphism)
+    PolyImpl<VecType> result(m_params, Format::COEFFICIENT, true);
+    for (uint32_t j = 0, jk = 0; j < n; ++j, jk += k)
+        (*result.m_values)[jk & mask] =
+            ((jk >> logn) & 0x1) ? q - (*tmp.m_values)[j] : (*tmp.m_values)[j];
+
+    // Step 3: NTT (Coef -> Eval)
+    result.SwitchFormat();  // now result is EVALUATION
+    std::cout << "Finish Auto" << std::endl;
+    return result;
 }
+
 
 template <typename VecType>
 PolyImpl<VecType> PolyImpl<VecType>::MultiplicativeInverse() const {

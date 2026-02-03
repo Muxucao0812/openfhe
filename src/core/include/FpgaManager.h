@@ -44,6 +44,7 @@
 #define OP_NTT    4
 #define OP_INTT   5
 #define OP_BCONV  6
+#define OP_AUTO   7
 
 #define MAX_LIMBS 5 
 #define FPGA_RING_DIM  4096
@@ -392,6 +393,23 @@ public:
         std::cout << "=== [FPGA] Execute INTT ===" << std::endl;
         int mod_idx = GetModIndex(modulus);
         Execute(OP_INTT, in, nullptr, out, 1, mod_idx);
+    }
+
+    void AutoOffload(
+        const uint64_t* in,
+        uint64_t* out,
+        uint32_t k,
+        uint32_t kinv,
+        uint64_t modulus,
+        size_t n
+    ) {
+        std::cout << "=== [FPGA] Execute Auto (k=" << k << ", kinv=" << kinv << ") ===" << std::endl;
+        int mod_idx = GetModIndex(modulus);
+        size_t meta_size = FPGA_RING_DIM;  // Execute expects in2 same size as poly
+        std::vector<uint64_t> meta(meta_size, 0);
+        meta[0] = (uint64_t)k;
+        meta[1] = (uint64_t)kinv;
+        Execute(OP_AUTO, in, meta.data(), out, 1, mod_idx);
     }
 
     // ============================================================

@@ -67,7 +67,7 @@ VPP_FLAGS += -I$(INC_DIR) -I$(SRC_DIR)
 # 2. 构建规则 (Vitis Flow - 保持不变)
 # ===================================================================
 
-.PHONY: all clean emconfig xclbin sw_emu hw_emu hw csim csynth
+.PHONY: all clean emconfig xclbin sw_emu hw_emu hw csim csynth test_auto
 
 all: $(HOST_LIB) $(XCLBIN) emconfig
 
@@ -140,6 +140,4 @@ clean:
 	rm -rf _x v++_*_backup.log
 
 	@echo "-> Cleaning HLS projects..."
-# 注意：这里会删除生成的工程文件夹 hls_prj_csynth 等
-# 但不会删除你的 run_csynth.tcl 脚本
 	rm -rf hls_prj_* Solution vitis_hls.log

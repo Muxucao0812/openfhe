@@ -15,6 +15,6 @@
 #define OP_NTT  4
 #define OP_INTT 5
 #define OP_BCONV 6
-
+#define OP_AUTO  7
 
 #endif // OPCODE_H

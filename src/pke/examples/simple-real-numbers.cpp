@@ -162,5 +162,13 @@ int main() {
     result->SetLength(batchSize);
     std::cout << "x1 * x2 = " << result << std::endl;
 
+    cc->Decrypt(keys.secretKey, cRot1, &result);
+    result->SetLength(batchSize);
+    std::cout << "x1 rotated by 1 = " << result << std::endl;
+
+    cc->Decrypt(keys.secretKey, cRot2, &result);
+    result->SetLength(batchSize);
+    std::cout << "x1 rotated by -2 = " << result << std::endl;
+
     return 0;
 }

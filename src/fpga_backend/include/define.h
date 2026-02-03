@@ -6,12 +6,14 @@
 #include <cmath>
 #include <array>
 #include <algorithm>
+#ifndef FPGA_STANDALONE_TEST
 #include <ap_int.h>
+#endif
 
 // =========================================================
 // 1. 类型定义
 // =========================================================
-#ifdef __SYNTHESIS__
+#if defined(__SYNTHESIS__) && !defined(FPGA_STANDALONE_TEST)
   typedef ap_uint<128> uint128_t;
 #else
   typedef unsigned __int128 uint128_t;
