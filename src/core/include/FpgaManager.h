@@ -381,7 +381,17 @@ public:
     ) {
         std::cout << "=== [FPGA] Execute NTT ===" << std::endl;
         int mod_idx = GetModIndex(modulus);
-        Execute(OP_NTT, in, nullptr, out, 1, mod_idx); 
+        if (n != FPGA_RING_DIM) {
+            std::cerr << "[FPGA Warning] NTT size " << n << " != FPGA_RING_DIM " << FPGA_RING_DIM << std::endl;
+            return;
+        }
+        Execute(OP_NTT, in, nullptr, out, 1, mod_idx);
+        if (std::getenv("OPENFHE_NTT_DUMP")) {
+            const size_t dumpLen = std::min(n, (size_t)16);
+            std::cerr << "[NTT_DUMP] NTT forward first " << dumpLen << " in/out (mod=" << modulus << "):" << std::endl;
+            std::cerr << "  in :"; for (size_t i = 0; i < dumpLen; ++i) std::cerr << " " << in[i]; std::cerr << std::endl;
+            std::cerr << "  out:"; for (size_t i = 0; i < dumpLen; ++i) std::cerr << " " << out[i]; std::cerr << std::endl;
+        }
     }
 
     void NttInverseOffload(
@@ -393,6 +403,12 @@ public:
         std::cout << "=== [FPGA] Execute INTT ===" << std::endl;
         int mod_idx = GetModIndex(modulus);
         Execute(OP_INTT, in, nullptr, out, 1, mod_idx);
+        if (std::getenv("OPENFHE_NTT_DUMP")) {
+            const size_t dumpLen = std::min(n, (size_t)16);
+            std::cerr << "[NTT_DUMP] INTT first " << dumpLen << " in/out (mod=" << modulus << "):" << std::endl;
+            std::cerr << "  in :"; for (size_t i = 0; i < dumpLen; ++i) std::cerr << " " << in[i]; std::cerr << std::endl;
+            std::cerr << "  out:"; for (size_t i = 0; i < dumpLen; ++i) std::cerr << " " << out[i]; std::cerr << std::endl;
+        }
     }
 
     void AutoOffload(

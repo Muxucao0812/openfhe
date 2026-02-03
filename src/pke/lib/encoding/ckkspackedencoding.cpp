@@ -450,13 +450,13 @@ bool CKKSPackedEncoding::Decode(size_t noiseScaleDeg, double scalingFactor, Scal
         // Xiangchen: This is checking the precision of the approximation error
         // Can't be commented out because it's used to check the precision of the approximation error
         
-        // if (ckksDataType == REAL) {
-        //     //   If less than 5 bits of precision is observed
-        //     if (logstd > p - 5.0)
-        //         OPENFHE_THROW(
-        //             "The decryption failed because the approximation error is "
-        //             "too high. Check the parameters. ");
-        // }
+        if (ckksDataType == REAL) {
+            //   If less than 5 bits of precision is observed
+            if (logstd > p - 5.0)
+                OPENFHE_THROW(
+                    "The decryption failed because the approximation error is "
+                    "too high. Check the parameters. ");
+        }
 
         // real values
         std::vector<std::complex<double>> realValues(slots);

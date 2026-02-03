@@ -38,6 +38,10 @@
 
 #include "lattice/hal/default/poly.h"
 
+#ifdef OPENFHE_FPGA_ENABLE
+#include "FpgaManager.h"
+#endif
+
 #include "utils/debug.h"
 #include "utils/exception.h"
 #include "utils/inttypes.h"
@@ -365,34 +369,84 @@ PolyImpl<VecType> PolyImpl<VecType>::AutomorphismTransform(uint32_t k) const {
 template <typename VecType>
 PolyImpl<VecType> PolyImpl<VecType>::AutomorphismTransform(uint32_t k, const std::vector<uint32_t>& precomp) const {
     // Xiangchen: These is the precomputed AutomorphismTransform
-    (void)precomp;  // use INTT->Auto->NTT pipeline instead of precomputed permutation
-    std::cout << "Auto" << std::endl;
+
     if ((m_format != Format::EVALUATION) || (m_params->GetRingDimension() != (m_params->GetCyclotomicOrder() >> 1)))
         OPENFHE_THROW("Automorphism Poly Format not EVALUATION or not power-of-two");
     if (k % 2 == 0)
         OPENFHE_THROW("Automorphism index not odd\n");
-
+    PolyImpl<VecType> tmp(m_params, m_format, true);
     uint32_t n = m_params->GetRingDimension();
-    uint32_t m = m_params->GetCyclotomicOrder();
-    uint32_t logm = lbcrypto::GetMSB(m) - 1;
-    uint32_t logn = logm - 1;
+   
+    // SwitchFormat to COEFFICIENT
+#ifdef OPENFHE_FPGA_ENABLE
+    {
+        FpgaManager &fpga = FpgaManager::GetInstance();
+        if (fpga.IsReady() && n == FPGA_RING_DIM) {
+            std::cout << "Execute NTT on FPGA" << std::endl;
+            using IntType = typename VecType::Integer;
+            std::vector<uint64_t> inBuf(n), outBuf(n);
+            for (uint32_t i = 0; i < n; ++i)
+                inBuf[i] = (*tmp.m_values)[i].ConvertToInt();
+            uint64_t q = static_cast<uint64_t>(m_params->GetModulus().ConvertToInt());
+            fpga.NttForwardOffload(inBuf.data(), outBuf.data(), q, n);
+            for (uint32_t i = 0; i < n; ++i)
+                (*tmp.m_values)[i] = IntType(outBuf[i]);
+        }
+    }
+#endif
+    {
+        tmp.SwitchFormat();
+    }
+
+
+    // Execute Automorphism Transform on FPGA
+    uint32_t logn = lbcrypto::GetMSB(n) - 1;
     uint32_t mask = (uint32_t(1) << logn) - 1;
     auto q = m_params->GetModulus();
-    
-    // Step 1: INTT (Eval -> Coef)
-    PolyImpl<VecType> tmp(*this);
-    tmp.SwitchFormat();  // now tmp is COEFFICIENT
+    #ifdef OPENFHE_FPGA_ENABLE
+    if (FpgaManager::GetInstance().IsReady() && n == FPGA_RING_DIM) {
+        std::cout << "Execute Automorphism Transform on FPGA" << std::endl;
+        using Integer = typename VecType::Integer;
+        Integer kinvInt = Integer(k).ModInverse(Integer(2 * n));
+        uint32_t kinv = kinvInt.ConvertToInt();
+        std::vector<uint64_t> inBuf(n), outBuf(n);
+        for (uint32_t i = 0; i < n; ++i)
+            inBuf[i] = (*tmp.m_values)[i].ConvertToInt();
+        uint64_t modVal = q.ConvertToInt();
+        FpgaManager::GetInstance().AutoOffload(inBuf.data(), outBuf.data(), k, kinv, modVal, n);
+        for (uint32_t i = 0; i < n; ++i)
+            (*tmp.m_values)[i] = Integer(outBuf[i]);
+    } else
+#endif
+    {
+        for (uint32_t j = 0, jk = 0; j < n; ++j, jk += k)
+            (*tmp.m_values)[jk & mask] =
+                ((jk >> logn) & 0x1) ? q - (*tmp.m_values)[j] : (*tmp.m_values)[j];
+    }
 
-    // Step 2: Auto (coefficient-domain automorphism)
-    PolyImpl<VecType> result(m_params, Format::COEFFICIENT, true);
-    for (uint32_t j = 0, jk = 0; j < n; ++j, jk += k)
-        (*result.m_values)[jk & mask] =
-            ((jk >> logn) & 0x1) ? q - (*tmp.m_values)[j] : (*tmp.m_values)[j];
+    // SwitchFormat to EVALUATION
+#ifdef OPENFHE_FPGA_ENABLE
+    {
+        FpgaManager &fpga = FpgaManager::GetInstance();
+        if (fpga.IsReady() && n == FPGA_RING_DIM) {
+            std::cout << "Execute INTT on FPGA" << std::endl;
+            using IntType = typename VecType::Integer;
+            uint64_t q = static_cast<uint64_t>(m_params->GetModulus().ConvertToInt());
+            std::vector<uint64_t> inBuf(n), outBuf(n);
+            for (uint32_t i = 0; i < n; ++i)
+                inBuf[i] = (*tmp.m_values)[i].ConvertToInt();            
+            fpga.NttInverseOffload(inBuf.data(), outBuf.data(), q, n);
+            for (uint32_t i = 0; i < n; ++i)
+                (*tmp.m_values)[i] = IntType(outBuf[i]);
+        }
+    }
+#endif     
+    {
+        tmp.SwitchFormat();
+    }
 
-    // Step 3: NTT (Coef -> Eval)
-    result.SwitchFormat();  // now result is EVALUATION
-    std::cout << "Finish Auto" << std::endl;
-    return result;
+
+    return tmp;
 }
 
 

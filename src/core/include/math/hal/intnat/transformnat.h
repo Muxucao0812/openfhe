@@ -347,6 +347,30 @@ public:
    */
     void Reset();
 
+    /**
+   * Get inverse tables for NTT verification (e.g. FPGA vs SW round-trip).
+   * @param modulus the prime modulus
+   * @param n element length (CycloOrder/2)
+   * @param[out] outInvTable pointer to inverse root table (or nullptr if not needed)
+   * @param[out] outPreconInvTable pointer to precon inverse root table (or nullptr)
+   * @param[out] outCycloOrderInv cyclo order inverse (1/n mod modulus)
+   * @param[out] outPreconCycloOrderInv precon for cyclo order inverse
+   * @return true if tables exist for this modulus and length
+   */
+    static bool GetInverseTablesForVerification(const IntType& modulus, usint n,
+                                                const VecType** outInvTable,
+                                                const VecType** outPreconInvTable,
+                                                IntType* outCycloOrderInv,
+                                                IntType* outPreconCycloOrderInv);
+
+    /**
+   * Get forward (NTT) tables for verification.
+   * @return true if tables exist for this modulus and length n
+   */
+    static bool GetForwardTablesForVerification(const IntType& modulus, usint n,
+                                               const VecType** outFwdTable,
+                                               const VecType** outPreconFwdTable);
+
     /// map to store the cyclo order inverse with modulus as a key
     /// For inverse FTT, we also need #m_cycloOrderInversePreconTableByModulus (this is to use an N-size NTT for FTT instead of 2N-size NTT).
     static std::map<IntType, VecType> m_cycloOrderInverseTableByModulus;

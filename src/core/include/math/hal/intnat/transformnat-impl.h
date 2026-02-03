@@ -46,6 +46,7 @@
 #include "utils/inttypes.h"
 #include "utils/utilities.h"
 
+#include <algorithm>
 #include <map>
 #include <vector>
 
@@ -315,11 +316,10 @@ void NumberTheoreticTransformNat<VecType>::ForwardTransformToBitReverseInPlace(
     const VecType& preconRootOfUnityTable,
     VecType* element) {
 
-    std::cout << "NTT" << std::endl;
+
 
     using IntType = typename VecType::Integer;
     const IntType modulus = element->GetModulus();
-    // const uint32_t len    = static_cast<uint32_t>(element->GetLength());
 
     // ---------- CPU reference NTT (bit-reverse output) ----------
     auto cpu_ntt = [&](VecType& a) {
@@ -375,24 +375,21 @@ void NumberTheoreticTransformNat<VecType>::ForwardTransformToBitReverseInPlace(
         #endif
         }
     };
-    const uint32_t len     = static_cast<uint32_t>(element->GetLength());
-
+    
+    // Xiangchen: Implement NTT on FPGA
 #ifdef OPENFHE_FPGA_ENABLE
     {
         FpgaManager& fm = FpgaManager::GetInstance();
         if (fm.IsReady()) {
-            VecType fpgaVec(*element); 
+            const uint32_t len = static_cast<uint32_t>(element->GetLength());
             std::vector<uint64_t> in(len), out(len);
             for (uint32_t i = 0; i < len; ++i)
-                in[i] = fpgaVec[i].ConvertToInt();
-
+                in[i] = (*element)[i].ConvertToInt();
             uint64_t q = static_cast<uint64_t>(modulus.ConvertToInt());
             fm.NttForwardOffload(in.data(), out.data(), q, static_cast<size_t>(len));
-
-            for (uint32_t i = 0; i < len; ++i){
-                fpgaVec[i] = IntType(out[i]);
-            }
-            *element = fpgaVec;
+            for (uint32_t i = 0; i < len; ++i)
+                (*element)[i] = IntType(out[i]);
+            return;
         }
     }
 #endif
@@ -536,34 +533,15 @@ void NumberTheoreticTransformNat<VecType>::ForwardTransformToBitReverse(const Ve
 }
 
 template <typename VecType>
-void NumberTheoreticTransformNat<VecType>::InverseTransformFromBitReverseInPlace(const VecType& rootOfUnityInverseTable,
-                                                                                 const IntType& cycloOrderInv,
-                                                                                 VecType* element) {
+void NumberTheoreticTransformNat<VecType>::InverseTransformFromBitReverseInPlace(
+    const VecType& rootOfUnityInverseTable,
+    const IntType& cycloOrderInv,
+    VecType* element
+) {
+
     usint n         = element->GetLength();
     IntType modulus = element->GetModulus();
     IntType mu      = modulus.ComputeMu();
-    const uint32_t len     = static_cast<uint32_t>(element->GetLength());
-#ifdef OPENFHE_FPGA_ENABLE
-    {
-        
-        FpgaManager& fm = FpgaManager::GetInstance();
-        if (fm.IsReady()) {
-            VecType fpgaVec(*element);  
-            
-            std::vector<uint64_t> in(len), out(len);
-            for (uint32_t i = 0; i < len; ++i) {
-                in[i] = fpgaVec[i].ConvertToInt();
-            }
-            uint64_t q = static_cast<uint64_t>(modulus.ConvertToInt());
-            fm.NttInverseOffload(in.data(), out.data(), q, static_cast<size_t>(len));
-            for (uint32_t i = 0; i < len; ++i) {
-                fpgaVec[i] = IntType(out[i]);
-            }      
-            *element = fpgaVec;  
-            return;            
-        }
-    }
-#endif
 
     IntType loVal, hiVal, omega, omegaFactor;
     usint i, m, j1, j2, indexOmega, indexLo, indexHi;
@@ -593,7 +571,7 @@ void NumberTheoreticTransformNat<VecType>::InverseTransformFromBitReverseInPlace
                 loVal += hiVal;
                 if (loVal >= modulus) {
                     loVal -= modulus;
-                }
+                } 
 
                 omegaFactor.ModMulFastEq(omega, modulus, mu);
 
@@ -636,27 +614,27 @@ template <typename VecType>
 void NumberTheoreticTransformNat<VecType>::InverseTransformFromBitReverseInPlace(
     const VecType& rootOfUnityInverseTable, const VecType& preconRootOfUnityInverseTable, const IntType& cycloOrderInv,
     const IntType& preconCycloOrderInv, VecType* element) {
-    //
-    // INTT based on the Gentleman-Sande (GS) butterfly
-    // Inputs: element (vector of size n in bit-reversed ordering)
-    //         rootOfUnityInverseTable (precomputed roots of unity in bit-reversed ordering)
-    //         cycloOrderInv (n inverse)
-    // Output: INTT(element) in standard ordering
-    //
-    // for (m = n/2, t = 1, logt = 1; m >= 1; m=m/2, t=2*t, ++logt) do
-    //     for (i = 0; i < m; ++i) do
-    //         omega = rootOfUnityInverseTable[i + m]
-    //         for (j1 = (i << logt), j2 = (j1 + t); j1 < j2; ++j1) do
-    //             loVal = element[j1 + 0]
-    //             hiVal = element[j1 + t]
-    //             element[j1 + 0] = (loVal + hiVal) mod modulus
-    //             element[j1 + t] = (loVal - hiVal)*omega mod modulus
-    // for (i = 0; i < n; ++i) do
-    //     element[i] = element[i]*cycloOrderInv mod modulus
-    //
+  
 
     auto modulus{element->GetModulus()};
     uint32_t n(element->GetLength());
+
+#ifdef OPENFHE_FPGA_ENABLE
+    {
+        FpgaManager& fm = FpgaManager::GetInstance();
+        if (fm.IsReady()) {
+            const uint32_t len = static_cast<uint32_t>(n);
+            std::vector<uint64_t> in_buf(len), fpga_out_buf(len);
+            for (uint32_t i = 0; i < len; ++i)
+                in_buf[i] = (*element)[i].ConvertToInt();
+            uint64_t q = static_cast<uint64_t>(modulus.ConvertToInt());
+            fm.NttInverseOffload(in_buf.data(), fpga_out_buf.data(), q, static_cast<size_t>(len));
+            for (uint32_t i = 0; i < len; ++i)
+                (*element)[i] = IntType(fpga_out_buf[i]);
+            return;
+        }
+    }
+#endif
 
     // precomputed omega[bitreversed(1)] * (n inverse). used in final stage of intt.
     auto omega1Inv{rootOfUnityInverseTable[1].ModMulFastConst(cycloOrderInv, modulus, preconCycloOrderInv)};
@@ -896,6 +874,35 @@ void ChineseRemainderTransformFTTNat<VecType>::InverseTransformFromBitReverse(co
         m_cycloOrderInverseTableByModulus[modulus][msb], m_cycloOrderInversePreconTableByModulus[modulus][msb], result);
 
     return;
+}
+
+template <typename VecType>
+bool ChineseRemainderTransformFTTNat<VecType>::GetInverseTablesForVerification(
+    const IntType& modulus, usint n, const VecType** outInvTable, const VecType** outPreconInvTable,
+    IntType* outCycloOrderInv, IntType* outPreconCycloOrderInv) {
+    auto itInv = m_rootOfUnityInverseReverseTableByModulus.find(modulus);
+    if (itInv == m_rootOfUnityInverseReverseTableByModulus.end() || itInv->second.GetLength() != n)
+        return false;
+    usint msb = GetMSB(n - 1);
+    auto itCyclo = m_cycloOrderInverseTableByModulus.find(modulus);
+    if (itCyclo == m_cycloOrderInverseTableByModulus.end() || itCyclo->second.GetLength() <= msb)
+        return false;
+    *outInvTable              = &itInv->second;
+    *outPreconInvTable        = &m_rootOfUnityInversePreconReverseTableByModulus[modulus];
+    *outCycloOrderInv         = m_cycloOrderInverseTableByModulus[modulus][msb];
+    *outPreconCycloOrderInv   = m_cycloOrderInversePreconTableByModulus[modulus][msb];
+    return true;
+}
+
+template <typename VecType>
+bool ChineseRemainderTransformFTTNat<VecType>::GetForwardTablesForVerification(
+    const IntType& modulus, usint n, const VecType** outFwdTable, const VecType** outPreconFwdTable) {
+    auto itFwd = m_rootOfUnityReverseTableByModulus.find(modulus);
+    if (itFwd == m_rootOfUnityReverseTableByModulus.end() || itFwd->second.GetLength() != n)
+        return false;
+    *outFwdTable      = &itFwd->second;
+    *outPreconFwdTable = &m_rootOfUnityPreconReverseTableByModulus[modulus];
+    return true;
 }
 
 template <typename VecType>
