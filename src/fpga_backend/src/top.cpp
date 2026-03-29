@@ -12,7 +12,7 @@
 
 
 // -------------------------
-// Store the Memory--TODO：testing
+// Store the Memory
 // -------------------------
 static uint64_t poly_buffer_1[MAX_LIMBS][SQRT][SQRT];
 static uint64_t poly_buffer_2[MAX_LIMBS][SQRT][SQRT];
@@ -185,7 +185,6 @@ void Top(
                 std::cout << "  out_mod[" << p << "] = " << out_mod[p] << std::endl;
             }
             #endif
-            
             // 计算 BConv, 结果写到 poly_buffer_1[LIMB_Q..LIMB_Q+sizeP-1]
             Compute_BConv(poly_buffer_1, in_w, out_mod, sizeP);
             

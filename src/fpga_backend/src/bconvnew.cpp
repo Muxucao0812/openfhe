@@ -1,25 +1,26 @@
-#include "../include/bconv.h"
+#include "../include/bconvnew.h"
 #include <hls_stream.h>
+#include <iostream>
 
-static const int TOTAL_CYCLES = LIMB_Q + RING_DIM + MAX_OUT_COLS - 1;
+static const int TOTAL_CYCLES = LIMB_Q + RING_DIM +MAX_OUT_COLS - 1;
 
 void bconv_systolic(
     uint64_t in_x[MAX_LIMBS][SQRT][SQRT],
     const uint64_t in_w[LIMB_Q][MAX_OUT_COLS],
     const uint64_t out_mod[MAX_OUT_COLS],
     int sizeP
-) {
+){
 #pragma HLS INTERFACE m_axi port=in_x   bundle=gmem0
 #pragma HLS INTERFACE m_axi port=in_w   bundle=gmem1
-#pragma HLS INTERFACE s_axilite port=out_mod bundle=control 
+#pragma HLS INTERFACE s_axilite port=out_mod bundle=control
 #pragma HLS INTERFACE s_axilite port=sizeP bundle=control
 #pragma HLS INTERFACE s_axilite port=return bundle=control
 
     ap_uint<64> local_w[LIMB_Q][MAX_OUT_COLS];
 #pragma HLS ARRAY_PARTITION variable=local_w complete dim=0
-    
-    Load_W: for (int q = 0; q < LIMB_Q; ++q) {
-        for (int p = 0; p < MAX_OUT_COLS; ++p) {
+
+    Load_W: for(int q = 0; q < LIMB_Q; ++q){
+        for(int p = 0; p < MAX_OUT_COLS; ++p){
 #pragma HLS PIPELINE II=1
             local_w[q][p] = in_w[q][p];
         }
@@ -33,29 +34,29 @@ void bconv_systolic(
         local_mod[p] = out_mod[p];
     }
 
-    ap_uint<64> x_reg[LIMB_Q][MAX_OUT_COLS + 1];
-    ap_uint<128> sum_reg[MAX_OUT_COLS][LIMB_Q + 1];
-    
+   ap_uint<64> x_reg[LIMB_Q][MAX_OUT_COLS + 1];
+   ap_uint<128> sum_reg[MAX_OUT_COLS][LIMB_Q + 1];
+
 #pragma HLS ARRAY_PARTITION variable=x_reg complete dim=0
 #pragma HLS ARRAY_PARTITION variable=sum_reg complete dim=0
 
-    Init_X_Reg: for (int q = 0; q < LIMB_Q; ++q) {
+    Init_X_Reg: for(int q = 0; q < LIMB_Q; ++q){
 #pragma HLS UNROLL
-        for (int p = 0; p <= MAX_OUT_COLS; ++p) {
+        for(int p = 0; p <= MAX_OUT_COLS; ++p){
 #pragma HLS UNROLL
             x_reg[q][p] = 0;
         }
     }
-    
-    Init_Sum_Reg: for (int p = 0; p < MAX_OUT_COLS; ++p) {
+
+    Init_Sum_Reg: for(int p = 0; p < MAX_OUT_COLS; ++p){
 #pragma HLS UNROLL
-        for (int q = 0; q <= LIMB_Q; ++q) {
+        for(int q = 0; q <=LIMB_Q; ++q){
 #pragma HLS UNROLL
             sum_reg[p][q] = 0;
-        }
+        }   
     }
 
-    int valid_count[MAX_OUT_COLS];
+        int valid_count[MAX_OUT_COLS];
 #pragma HLS ARRAY_PARTITION variable=valid_count complete
 
     Init_Count: for (int p = 0; p < MAX_OUT_COLS; ++p) {
@@ -63,14 +64,13 @@ void bconv_systolic(
         valid_count[p] = 0;
     }
 
-    Systolic_Loop: for (int t = 0; t < TOTAL_CYCLES; ++t) {
+    Systolic_Loop: for (int t = 0; t < TOTAL_CYCLES; ++t){
 #pragma HLS PIPELINE II=1
-        
+
         ap_uint<64> x_curr[LIMB_Q][MAX_OUT_COLS + 1];
         ap_uint<128> sum_curr[MAX_OUT_COLS][LIMB_Q + 1];
 #pragma HLS ARRAY_PARTITION variable=x_curr complete dim=0
 #pragma HLS ARRAY_PARTITION variable=sum_curr complete dim=0
-        
         Save_X: for (int q = 0; q < LIMB_Q; ++q) {
 #pragma HLS UNROLL
             for (int p = 0; p <= MAX_OUT_COLS; ++p) {
@@ -144,16 +144,23 @@ void bconv_systolic(
             }
         }
     }
+    
 }
 
-// =================================================
-// Host Side Wrapper
-// =================================================
-void Compute_BConv(
+void Compute_BConvNew(
     uint64_t in_x[MAX_LIMBS][SQRT][SQRT], 
-    const uint64_t in_w[LIMB_Q][MAX_OUT_COLS], 
-    const uint64_t out_mod[MAX_OUT_COLS],
-    int sizeP
-) {
-    bconv_systolic(in_x, in_w, out_mod, sizeP);
+        const uint64_t in_w[LIMB_Q][MAX_OUT_COLS], 
+        const uint64_t out_mod[MAX_OUT_COLS],
+        int sizeP
+){
+
+    std::cout << "New Operation is working!" << std::endl;
+    
+    //in_x *= in_x;
+    std::cout << "reuslt of in_x *= in_x: " << in_x[0][0][0] << std::endl;
+
+    sizeP = in_x[0][0][0] +1;
+    std::cout << "sizeP is set to: " << sizeP << std::endl;
+
+    std::cout << "New Operation finished!" << std::endl;
 }

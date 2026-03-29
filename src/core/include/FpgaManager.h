@@ -52,7 +52,7 @@
 
 inline std::string GetXclbinPath() {
     const char* mode = std::getenv("XCL_EMULATION_MODE");
-    std::string base = "/home/CONNECT/xmeng027/work/FHE-BERT-Tiny/openfhe/src/fpga_backend/";
+    std::string base = "/home/timhan/FHE/openfhe-for-HKS-ACC/src/fpga_backend/";
     if (mode && std::string(mode) == "sw_emu") 
         return base + "fhe_kernels_sw_emu.xclbin";
     else if (mode && std::string(mode) == "hw_emu") 
@@ -191,30 +191,30 @@ public:
 
     bool IsReady() const { return m_is_ready; }
 
- // ----------------------------------------------------------------------
-    // InitModuli: Compute -> Index -> Permute -> Pack
-    // ----------------------------------------------------------------------
-    void InitModuli(const std::vector<uint64_t>& q_mods, const std::vector<uint64_t>& p_mods) {
+// ----------------------------------------------------------------------
+// InitModuli: 接收 CPU 的 Roots -> Index -> Permute -> Pack
+// ----------------------------------------------------------------------
+    void InitModuli(const std::vector<uint64_t>& q_mods, const std::vector<uint64_t>& p_mods,
+                    const std::vector<uint64_t>& q_roots, const std::vector<uint64_t>& p_roots) {
     #ifdef OPENFHE_FPGA_ENABLE
         if (!m_is_ready) return;
         
-        // 简单布局：Q(0,1,2) + P(3,4)，无padding
         size_t n_q = q_mods.size();
         size_t n_p = p_mods.size();
         size_t total_limbs = n_q + n_p;
-        
         const int N = FPGA_RING_DIM;
 
-        std::cout << "[Host] InitModuli: Q=" << n_q << " (idx 0-" << (n_q-1) << ")"
-                  << ", P=" << n_p << " (idx " << n_q << "-" << (total_limbs-1) << ")" << std::endl;
+        std::cout << "[Host] InitModuli: Q=" << n_q << ", P=" << n_p << std::endl;
 
-        // 1. 存储模数 (用于 GetModIndex 查找)
-        // 布局: [Q0, Q1, Q2, P0, P1] -> 索引 0, 1, 2, 3, 4
         m_stored_moduli.clear();
         m_stored_moduli.insert(m_stored_moduli.end(), q_mods.begin(), q_mods.end());
         m_stored_moduli.insert(m_stored_moduli.end(), p_mods.begin(), p_mods.end());
 
-        // 2. 计算 Barrett 参数 K 和 M
+        // 🔥 将从 CPU 传来的单位根合并
+        std::vector<uint64_t> combined_roots;
+        combined_roots.insert(combined_roots.end(), q_roots.begin(), q_roots.end());
+        combined_roots.insert(combined_roots.end(), p_roots.begin(), p_roots.end());
+
         std::vector<uint64_t> K_vals(total_limbs), M_vals(total_limbs);
         for(size_t i=0; i<total_limbs; i++) {
             uint64_t p = m_stored_moduli[i];
@@ -223,19 +223,17 @@ public:
             uint64_t m = (uint64_t)(power / p);
             K_vals[i] = k;
             M_vals[i] = m;
-            
-            std::cout << "  [Barrett] idx=" << i << ": mod=" << p 
-                      << ", k=" << k << ", m=" << m << std::endl;
+            std::cout << "  [Barrett] idx=" << i << ": mod=" << p << ", k=" << k << ", m=" << m << std::endl;
         }
 
-        // 3. 计算 Twiddle Factors
         std::vector<uint64_t> all_ntt_twiddles(total_limbs * N);
         std::vector<uint64_t> all_intt_twiddles(total_limbs * N);
 
         for(size_t limb = 0; limb < total_limbs; limb++) {
             uint64_t mod = m_stored_moduli[limb];
-
-            uint64_t psi = MathUtils::Find2NthRootOfUnity(mod, N); 
+            
+            // 🔥 直接使用 CPU 提取好的单位根，绝对不再自己瞎算！
+            uint64_t psi = combined_roots[limb]; 
             uint64_t psi_inv = MathUtils::ModInverse(psi, mod);
 
             uint64_t w = 1;
@@ -249,7 +247,6 @@ public:
             }
         }
 
-        // 4. Permute Twiddles
         std::vector<int> perm_index = MathUtils::GenerateTwiddleIndices(N);
         std::vector<uint64_t> permuted_ntt(total_limbs * N);
         std::vector<uint64_t> permuted_intt(total_limbs * N);
@@ -262,47 +259,29 @@ public:
             }
         }
 
-        // ============================================================
-        // 5. Pack Buffers (发送给 FPGA)
-        // ============================================================
-        const int PARAMS_PER_LIMB = 3; // MOD, K, M
-        
-        // --- Buffer 1 (Q Params + NTT Twiddles) ---
-        // 布局: [Q0_mod, Q1_mod, Q2_mod, Q0_k, Q1_k, Q2_k, Q0_m, Q1_m, Q2_m, twiddles...]
+        const int PARAMS_PER_LIMB = 3; 
         size_t buf1_size = n_q * PARAMS_PER_LIMB + total_limbs * N;
         std::vector<uint64_t> buf1_Q(buf1_size);
-
         for(size_t i=0; i<n_q; i++) {
-            buf1_Q[i] = m_stored_moduli[i];           // MOD
-            buf1_Q[n_q + i] = K_vals[i];              // K
-            buf1_Q[n_q*2 + i] = M_vals[i];            // M
+            buf1_Q[i] = m_stored_moduli[i];           
+            buf1_Q[n_q + i] = K_vals[i];              
+            buf1_Q[n_q*2 + i] = M_vals[i];            
         }
-        // Copy NTT Twiddles
-        memcpy(
-            buf1_Q.data() + n_q * PARAMS_PER_LIMB, 
-            permuted_ntt.data(), 
-            total_limbs * N * sizeof(uint64_t)
-        );
+        memcpy(buf1_Q.data() + n_q * PARAMS_PER_LIMB, permuted_ntt.data(), total_limbs * N * sizeof(uint64_t));
 
-        // --- Buffer 2 (P Params + INTT Twiddles) ---
-        // 布局: [P0_mod, P1_mod, P0_k, P1_k, P0_m, P1_m, twiddles...]
         size_t buf2_size = n_p * PARAMS_PER_LIMB + total_limbs * N;
         std::vector<uint64_t> buf2_P(buf2_size);
-
         for(size_t i=0; i<n_p; i++) {
-            // P 在 stored_moduli 中的索引从 n_q 开始
             size_t global_idx = n_q + i; 
-            buf2_P[i] = m_stored_moduli[global_idx];        // MOD
-            buf2_P[n_p + i] = K_vals[global_idx];           // K
-            buf2_P[n_p*2 + i] = M_vals[global_idx];         // M
+            buf2_P[i] = m_stored_moduli[global_idx];        
+            buf2_P[n_p + i] = K_vals[global_idx];           
+            buf2_P[n_p*2 + i] = M_vals[global_idx];         
         }
-        // Copy INTT Twiddles
-        memcpy(buf2_P.data() + n_p * PARAMS_PER_LIMB, 
-               permuted_intt.data(), 
-               total_limbs * N * sizeof(uint64_t)
-            );
+        memcpy(buf2_P.data() + n_p * PARAMS_PER_LIMB, permuted_intt.data(), total_limbs * N * sizeof(uint64_t));
 
-        // 7. Send to FPGA (OP_INIT)
+        // 探针：如果这里打印出来了，说明准备工作完毕，即将呼叫硬件
+        std::cout << "[DEBUG] Ready to allocate XRT buffers..." << std::endl;
+
         auto bo_1 = xrt::bo(m_device, buf1_Q.size() * sizeof(uint64_t), m_kernel_top.group_id(0));
         auto bo_2 = xrt::bo(m_device, buf2_P.size() * sizeof(uint64_t), m_kernel_top.group_id(1));
         auto bo_out = xrt::bo(m_device, 8, m_kernel_top.group_id(2)); 
@@ -575,8 +554,9 @@ private:
     xrt::device m_device;
     xrt::kernel m_kernel_top;
 #endif
-    bool m_is_ready = false;
+    bool m_is_ready = true;                    // FIX control the fpga ?
     std::vector<uint64_t> m_stored_moduli;
+    std::vector<uint64_t> m_stored_roots; // <--- 新增
 
     FpgaManager() {
 #ifdef OPENFHE_FPGA_ENABLE

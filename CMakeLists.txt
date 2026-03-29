@@ -693,7 +693,7 @@ endif()
 # ========================================
 # Add FPGA Support
 # ========================================
-option(OPENFHE_FPGA_ENABLE "Enable FPGA acceleration support" OFF)
+option(OPENFHE_FPGA_ENABLE "Enable FPGA acceleration support" ON)
 
 if(OPENFHE_FPGA_ENABLE)
     message(STATUS "FPGA acceleration enabled")

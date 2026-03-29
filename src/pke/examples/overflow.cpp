@@ -50,6 +50,8 @@
      // 1. 准备容器
      std::vector<uint64_t> fpga_q_mods;
      std::vector<uint64_t> fpga_p_mods;
+     std::vector<uint64_t> fpga_q_roots;
+     std::vector<uint64_t> fpga_p_roots;
  
      // 获取degree
      auto ringDim = cc->GetRingDimension();
@@ -63,8 +65,7 @@
     for (size_t i = 0; i < rnsParams.size(); i++) {
         uint64_t q_val = rnsParams[i]->GetModulus().ConvertToInt();
         fpga_q_mods.push_back(q_val);
-        // 打印前几个看看
-    
+        fpga_q_roots.push_back(rnsParams[i]->GetRootOfUnity().ConvertToInt());
         std::cout << "  Q[" << i << "]: " << q_val << std::endl;
     
      }
@@ -80,6 +81,7 @@
          for (size_t i = 0; i < rnsParamsP.size(); i++) {
              uint64_t p_val = rnsParamsP[i]->GetModulus().ConvertToInt();
              fpga_p_mods.push_back(p_val);
+             fpga_p_roots.push_back(rnsParamsP[i]->GetRootOfUnity().ConvertToInt());
              std::cout << "  P[" << i << "]: " << p_val << std::endl;
          }
      } else {
@@ -91,7 +93,7 @@
      // 这会将 Q 和 P 发送到 FPGA 的 BRAM/URAM
      if (FpgaManager::GetInstance().IsReady()) {
          std::cout << "[Host] Sending moduli to FPGA..." << std::endl;
-         FpgaManager::GetInstance().InitModuli(fpga_q_mods, fpga_p_mods);
+         FpgaManager::GetInstance().InitModuli(fpga_q_mods, fpga_p_mods, fpga_q_roots, fpga_p_roots);
          std::cout << "[Host] FPGA Initialization Done." << std::endl;
      } else {
          std::cerr << "\n[CRITICAL WARNING] FPGA not ready! Calculations will fail or fallback." << std::endl;

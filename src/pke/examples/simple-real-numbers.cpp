@@ -47,58 +47,58 @@ int main() {
     std::cout << "       FPGA Initialization & Debug Info         " << std::endl;
     std::cout << "################################################" << std::endl;
 
-    // 1. 准备容器
+    // 1. 准备容器 (增加 root 容器)
     std::vector<uint64_t> fpga_q_mods;
     std::vector<uint64_t> fpga_p_mods;
+    std::vector<uint64_t> fpga_q_roots; 
+    std::vector<uint64_t> fpga_p_roots; 
 
     // 获取degree
     auto ringDim = cc->GetRingDimension();
     std::cout << "[Host] Ring Dimension: " << ringDim << std::endl;
 
-    // 2. 提取 Q 模数 (Ciphertext Moduli)
+    // 2. 提取 Q 模数及其对应的单位根
     auto elementParams = cc->GetElementParams();
     const auto& rnsParams = elementParams->GetParams();
     
-    std::cout << "[Host] Extracting Q (Ciphertext Moduli)..." << std::endl;
+    std::cout << "[Host] Extracting Q (Ciphertext Moduli and Roots)..." << std::endl;
     for (size_t i = 0; i < rnsParams.size(); i++) {
         uint64_t q_val = rnsParams[i]->GetModulus().ConvertToInt();
+        uint64_t q_root = rnsParams[i]->GetRootOfUnity().ConvertToInt(); 
         fpga_q_mods.push_back(q_val);
-        // 打印前几个看看
+        fpga_q_roots.push_back(q_root); 
         if (i < 3 || i == rnsParams.size() - 1) {
-            std::cout << "  Q[" << i << "]: " << q_val << std::endl;
+            std::cout << "  Q[" << i << "]: " << q_val << " (Root: " << q_root << ")" << std::endl;
         }
     }
     std::cout << "  Total Q Limbs: " << fpga_q_mods.size() << std::endl;
 
-    // 3. 提取 P 模数 (Auxiliary Moduli for Keyswitching/Bootstrapping)
+    // 3. 提取 P 模数及其对应的单位根
     auto cryptoParams = std::dynamic_pointer_cast<CryptoParametersCKKSRNS>(cc->GetCryptoParameters());
     auto paramsP = cryptoParams->GetParamsP();
     
-    std::cout << "[Host] Extracting P (Auxiliary Moduli)..." << std::endl;
+    std::cout << "[Host] Extracting P (Auxiliary Moduli and Roots)..." << std::endl;
     if (paramsP) {
         const auto& rnsParamsP = paramsP->GetParams();
         for (size_t i = 0; i < rnsParamsP.size(); i++) {
             uint64_t p_val = rnsParamsP[i]->GetModulus().ConvertToInt();
+            uint64_t p_root = rnsParamsP[i]->GetRootOfUnity().ConvertToInt(); 
             fpga_p_mods.push_back(p_val);
-            std::cout << "  P[" << i << "]: " << p_val << std::endl;
+            fpga_p_roots.push_back(p_root); 
+            std::cout << "  P[" << i << "]: " << p_val << " (Root: " << p_root << ")" << std::endl;
         }
-    } else {
-        std::cout << "  [Warning] No P modulus found (Config might use specific security level)." << std::endl;
     }
-    std::cout << "  Total P Limbs: " << fpga_p_mods.size() << std::endl;
 
     // 4. 调用 FPGA Init
-    // 这会将 Q 和 P 发送到 FPGA 的 BRAM/URAM
     if (FpgaManager::GetInstance().IsReady()) {
-        std::cout << "[Host] Sending moduli to FPGA..." << std::endl;
-        FpgaManager::GetInstance().InitModuli(fpga_q_mods, fpga_p_mods);
+        std::cout << "[Host] Sending moduli and roots to FPGA..." << std::endl;
+        // 把 roots 一起传进去！
+        FpgaManager::GetInstance().InitModuli(fpga_q_mods, fpga_p_mods, fpga_q_roots, fpga_p_roots);
         std::cout << "[Host] FPGA Initialization Done." << std::endl;
-    } else {
-        std::cerr << "\n[CRITICAL WARNING] FPGA not ready! Calculations will fail or fallback." << std::endl;
-        // 如果你想在没有 FPGA 时终止程序，取消下面注释
-        // return 1; 
     }
-    std::cout << "################################################\n" << std::endl;
+    else {
+            std::cout << "[Host] FPGA not ready. Skipping FPGA initialization." << std::endl;
+    }
     // ======================================================================
     // Init FPGA
     // ======================================================================

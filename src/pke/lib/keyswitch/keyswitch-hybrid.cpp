@@ -36,6 +36,7 @@
 #define PROFILE
 
 #include "keyswitch/keyswitch-hybrid.h"
+#include "keyswitch/hks_strategy.h"
 
 #include "key/privatekey.h"
 #include "key/publickey.h"
@@ -379,32 +380,160 @@ std::shared_ptr<std::vector<DCRTPoly>> KeySwitchHYBRID::EvalKeySwitchPrecomputeC
     std::vector<DCRTPoly> partsCtCompl(numPartQl);
     std::vector<DCRTPoly> partsCtExt(numPartQl);
 
-    for (uint32_t part = 0; part < numPartQl; part++) {
-        auto partCtClone = partsCt[part].Clone();
-        partCtClone.SetFormat(Format::COEFFICIENT);
+    HKSStrategy strategy = GetHKSStrategy();
 
-        uint32_t sizePartQl = partsCt[part].GetNumOfElements();
-        partsCtCompl[part]  = partCtClone.ApproxSwitchCRTBasis(
-            cryptoParams->GetParamsPartQ(part), cryptoParams->GetParamsComplPartQ(sizeQl - 1, part),
-            cryptoParams->GetPartQlHatInvModq(part, sizePartQl - 1),
-            cryptoParams->GetPartQlHatInvModqPrecon(part, sizePartQl - 1),
-            cryptoParams->GetPartQlHatModp(sizeQl - 1, part),
-            cryptoParams->GetmodComplPartqBarrettMu(sizeQl - 1, part));
+    // Capture parameters into stats
+    auto& stats       = GetHKSStats();
+    stats.num_digits  = (int)numPartQl;
+    stats.size_ql     = (int)sizeQl;
+    stats.size_p      = (int)sizeP;
+    stats.alpha       = (int)alpha;
+    stats.ring_dim    = (int)paramsQl->GetCyclotomicOrder() / 2;
 
-        partsCtCompl[part].SetFormat(Format::EVALUATION);
-
-        partsCtExt[part] = DCRTPoly(paramsQlP, Format::EVALUATION, true);
-
-        usint startPartIdx = alpha * part;
-        usint endPartIdx   = startPartIdx + sizePartQl;
-        for (usint i = 0; i < startPartIdx; i++) {
-            partsCtExt[part].SetElementAtIndex(i, partsCtCompl[part].GetElementAtIndex(i));
+    // -----------------------------------------------------------------------
+    // MP: Phase 1 - INTT all digits first (global barrier before BConv)
+    // -----------------------------------------------------------------------
+    if (strategy == HKSStrategy::MP) {
+        for (uint32_t part = 0; part < numPartQl; part++) {
+            partsCt[part].SetFormat(Format::COEFFICIENT);
+            stats.intt_poly++;
         }
-        for (usint i = startPartIdx, idx = 0; i < endPartIdx; i++, idx++) {
-            partsCtExt[part].SetElementAtIndex(i, partsCt[part].GetElementAtIndex(idx));
+    }
+
+    // Set peak_p_towers for DC and MP here (OC sets it to 1 in its branch)
+    if (strategy == HKSStrategy::DC)
+        stats.peak_p_towers = (int)sizeP;
+    else if (strategy == HKSStrategy::MP)
+        stats.peak_p_towers = (int)(numPartQl * sizeP);
+
+    // -----------------------------------------------------------------------
+    // DC / MP: BConv phase (DC interleaves with INTT/NTT; MP does all BConv here)
+    // OC: skipped here, handled separately below
+    // -----------------------------------------------------------------------
+    if (strategy == HKSStrategy::DC || strategy == HKSStrategy::MP) {
+        for (uint32_t part = 0; part < numPartQl; part++) {
+            // DC: INTT happens per-digit before BConv
+            if (strategy == HKSStrategy::DC) {
+                partsCt[part].SetFormat(Format::COEFFICIENT);
+                stats.intt_poly++;
+            }
+
+            uint32_t sizePartQl = partsCt[part].GetNumOfElements();
+            partsCtCompl[part]  = partsCt[part].ApproxSwitchCRTBasis(
+                cryptoParams->GetParamsPartQ(part), cryptoParams->GetParamsComplPartQ(sizeQl - 1, part),
+                cryptoParams->GetPartQlHatInvModq(part, sizePartQl - 1),
+                cryptoParams->GetPartQlHatInvModqPrecon(part, sizePartQl - 1),
+                cryptoParams->GetPartQlHatModp(sizeQl - 1, part),
+                cryptoParams->GetmodComplPartqBarrettMu(sizeQl - 1, part));
+            stats.bconv++;
+
+            // DC: NTT happens per-digit after BConv; MP: NTT in Phase 3 below
+            if (strategy == HKSStrategy::DC) {
+                partsCtCompl[part].SetFormat(Format::EVALUATION);
+                stats.ntt_poly++;
+            }
         }
-        for (usint i = endPartIdx; i < sizeQlP; ++i) {
-            partsCtExt[part].SetElementAtIndex(i, partsCtCompl[part].GetElementAtIndex(i - sizePartQl));
+
+        // MP: Phase 3 - NTT all complement towers (global barrier)
+        if (strategy == HKSStrategy::MP) {
+            for (uint32_t part = 0; part < numPartQl; part++) {
+                partsCtCompl[part].SetFormat(Format::EVALUATION);
+                stats.ntt_poly++;
+            }
+        }
+
+        // Assemble partsCtExt from Q-side digit + P-side complement towers
+        for (uint32_t part = 0; part < numPartQl; part++) {
+            // Both DC and MP: Q-side needs NTT before assembly
+            partsCt[part].SetFormat(Format::EVALUATION);
+            stats.ntt_poly++;
+
+            uint32_t sizePartQl = partsCt[part].GetNumOfElements();
+            partsCtExt[part]    = DCRTPoly(paramsQlP, Format::EVALUATION, true);
+
+            usint startPartIdx = alpha * part;
+            usint endPartIdx   = startPartIdx + sizePartQl;
+            for (usint i = 0; i < startPartIdx; i++) {
+                partsCtExt[part].SetElementAtIndex(i, partsCtCompl[part].GetElementAtIndex(i));
+            }
+            for (usint i = startPartIdx, idx = 0; i < endPartIdx; i++, idx++) {
+                partsCtExt[part].SetElementAtIndex(i, partsCt[part].GetElementAtIndex(idx));
+            }
+            for (usint i = endPartIdx; i < sizeQlP; ++i) {
+                partsCtExt[part].SetElementAtIndex(i, partsCtCompl[part].GetElementAtIndex(i - sizePartQl));
+            }
+        }
+    }
+    else {
+        // -------------------------------------------------------------------
+        // OC: Output-Centric - process one P-tower at a time across all digits
+        // Minimizes peak SRAM: only one complement tower lives in memory at once
+        // -------------------------------------------------------------------
+
+        // Pre-allocate partsCtExt and fill Q-side while partsCt is still in EVALUATION
+        for (uint32_t part = 0; part < numPartQl; part++) {
+            uint32_t sizePartQl = partsCt[part].GetNumOfElements();
+            partsCtExt[part]    = DCRTPoly(paramsQlP, Format::EVALUATION, true);
+
+            usint startPartIdx = alpha * part;
+            usint endPartIdx   = startPartIdx + sizePartQl;
+            for (usint i = startPartIdx, idx = 0; i < endPartIdx; i++, idx++) {
+                partsCtExt[part].SetElementAtIndex(i, partsCt[part].GetElementAtIndex(idx));
+            }
+            // P-side towers will be filled tower-by-tower below (default zero)
+
+            // INTT once for BConv (no redundant round-trip)
+            partsCt[part].SetFormat(Format::COEFFICIENT);
+            stats.intt_poly++;
+        }
+        stats.peak_p_towers = 1;  // OC: one P-tower held at a time
+
+        // Outer loop over each P output tower (one at a time → minimal peak SRAM)
+        for (usint p = 0; p < sizeP; p++) {
+            for (uint32_t part = 0; part < numPartQl; part++) {
+                uint32_t sizePartQl = partsCt[part].GetNumOfElements();
+
+                // BConv: compute full complement, then pick only tower p
+                // (True OC would call BConvOffload with sizeP=1 directly on FPGA;
+                //  here we use the existing ApproxSwitchCRTBasis and discard other towers)
+                DCRTPoly fullCompl = partsCt[part].ApproxSwitchCRTBasis(
+                    cryptoParams->GetParamsPartQ(part), cryptoParams->GetParamsComplPartQ(sizeQl - 1, part),
+                    cryptoParams->GetPartQlHatInvModq(part, sizePartQl - 1),
+                    cryptoParams->GetPartQlHatInvModqPrecon(part, sizePartQl - 1),
+                    cryptoParams->GetPartQlHatModp(sizeQl - 1, part),
+                    cryptoParams->GetmodComplPartqBarrettMu(sizeQl - 1, part));
+                stats.bconv++;
+
+                // Tower p in QlP space is at index sizeQl+p.
+                // The assembly mapping (same as DC): compl[i - sizePartQl] → ext[i] for i>=endPartIdx
+                // → compl index for P-tower p = (sizeQl + p) - sizePartQl
+                usint startPartIdx = alpha * part;
+                usint endPartIdx   = startPartIdx + sizePartQl;
+                usint extPIdx  = sizeQl + p;
+                usint complIdx = extPIdx - sizePartQl;
+
+                // On first P-tower: also fill Q complement towers (outside digit's own Q range)
+                if (p == 0) {
+                    for (usint i = 0; i < startPartIdx; i++) {
+                        auto t = fullCompl.GetElementAtIndex(i);
+                        t.SetFormat(Format::EVALUATION);
+                        stats.ntt_limb++;
+                        partsCtExt[part].SetElementAtIndex(i, t);
+                    }
+                    for (usint i = endPartIdx; i < sizeQl; i++) {
+                        auto t = fullCompl.GetElementAtIndex(i - sizePartQl);
+                        t.SetFormat(Format::EVALUATION);
+                        stats.ntt_limb++;
+                        partsCtExt[part].SetElementAtIndex(i, t);
+                    }
+                }
+
+                auto tower = fullCompl.GetElementAtIndex(complIdx);
+                tower.SetFormat(Format::EVALUATION);
+                stats.ntt_limb++;
+                partsCtExt[part].SetElementAtIndex(extPIdx, tower);
+            }
+            // After this iteration: tower p is fully assembled across all digits
         }
     }
 
@@ -473,6 +602,8 @@ std::shared_ptr<std::vector<DCRTPoly>> KeySwitchHYBRID::EvalFastKeySwitchCoreExt
             cTilda0.SetElementAtIndex(i, cTilda0.GetElementAtIndex(i) + cji * bji);
             cTilda1.SetElementAtIndex(i, cTilda1.GetElementAtIndex(i) + cji * aji);
         }
+        // 2 multiply-accumulate ops per limb (for cTilda0 and cTilda1)
+        GetHKSStats().modmul_limb += 2 * (int)sizeQlP;
     }
 
     return std::make_shared<std::vector<DCRTPoly>>(
