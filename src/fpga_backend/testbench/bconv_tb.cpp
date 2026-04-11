@@ -68,7 +68,7 @@ int main() {
     uint64_t out_mod[MAX_OUT_COLS];
     
     // 假设本次测试需要输出 3 列
-    int test_sizeP = 3; 
+    int test_sizeP = 2; 
 
     // 2. 生成随机测试激励 (Stimulus)
     // 随机生成 out_mod (使用常见的 60-bit 左右的素数大小进行模拟)

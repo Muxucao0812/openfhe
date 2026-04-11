@@ -161,7 +161,7 @@ void rewrite_data(
     for (int l = 0; l < SQRT; l++) {
         #pragma HLS UNROLL factor=SQRT
         if (j < (STAGE >> 1)) {
-            int WriteAddr = (l - k + SQRT) % (1 << ((STAGE >> 1) - j)) + 
+            int WritnaeAddr = (l - k + SQRT) % (1 << ((STAGE >> 1) - j)) + 
                            (k >> ((STAGE >> 1) - j)) * (SQRT >> j);
 
             DataRAM[WriteAddr][l] = RepermuteData[l];

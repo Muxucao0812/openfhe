@@ -1,6 +1,7 @@
 open_project Solution
 # 设置你的顶层函数名（请确保它与 C++ 代码中的函数名一致）
-set_top Top
+#set_top Top
+set_top testError
 
 set my_cflags "-I./include -I/opt/xilinx/xrt/include"
 
@@ -8,16 +9,17 @@ set my_cflags "-I./include -I/opt/xilinx/xrt/include"
 
 # Add all source files (no comments inside block - TCL treats words as file names)
 add_files {
-    ./src/top.cpp
-    ./src/load.cpp
-    ./src/arithmetic.cpp
-    ./src/bconv.cpp
-    ./src/auto.cpp
-    ./src/mod_add_kernel.cpp
-    ./src/mod_sub_kernel.cpp
-    ./src/mod_mult_kernel.cpp
-    ./src/ntt_kernel.cpp
-    ./src/interleave.cpp
+    #./src/top.cpp
+    #./src/load.cpp
+    #./src/arithmetic.cpp
+    #./src/bconv.cpp
+    #./src/auto.cpp
+    #./src/mod_add_kernel.cpp
+    #./src/mod_sub_kernel.cpp
+    #./src/mod_mult_kernel.cpp
+    #./src/ntt_kernel.cpp
+    #./src/interleave.cpp
+    ./src/testError.cpp
 } -cflags $my_cflags
 
 # ================= 修改结束 =================
