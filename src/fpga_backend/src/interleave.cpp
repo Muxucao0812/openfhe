@@ -53,8 +53,7 @@ void InterLeave(
     } else {
         Shift_Left_Row:
         for (int i = 0; i < SQRT; ++i) {
-            #pragma HLS PIPELINE II=1
-            
+
             Shift_Left_Col:
             for (int k = 0; k < SQRT; ++k) {
                 #pragma HLS PIPELINE II=1
@@ -74,8 +73,7 @@ void InterLeave(
     // 数据已经安全地在 Temp 里排好序了，现在覆盖回原 BRAM
     Write_Back_Row:
     for(int i = 0; i < SQRT; i++) {
-        #pragma HLS PIPELINE II=1
-        
+
         Write_Back_Col:
         for(int j = 0; j < SQRT; j++) {
             #pragma HLS PIPELINE II=1

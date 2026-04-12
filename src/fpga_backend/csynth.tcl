@@ -9,17 +9,16 @@ set my_cflags "-I./include -I/opt/xilinx/xrt/include"
 
 # Add all source files (no comments inside block - TCL treats words as file names)
 add_files {
-    #./src/top.cpp
-    #./src/load.cpp
-    #./src/arithmetic.cpp
-    #./src/bconv.cpp
-    #./src/auto.cpp
-    #./src/mod_add_kernel.cpp
-    #./src/mod_sub_kernel.cpp
-    #./src/mod_mult_kernel.cpp
-    #./src/ntt_kernel.cpp
-    #./src/interleave.cpp
-    ./src/testError.cpp
+    ./src/top.cpp
+    ./src/load.cpp
+    ./src/arithmetic.cpp
+    ./src/bconv.cpp
+    ./src/auto.cpp
+    ./src/mod_add_kernel.cpp
+    ./src/mod_sub_kernel.cpp
+    ./src/mod_mult_kernel.cpp
+    ./src/ntt_kernel.cpp
+    ./src/interleave.cpp
 } -cflags $my_cflags
 
 # ================= 修改结束 =================

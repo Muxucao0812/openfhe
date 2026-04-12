@@ -1,6 +1,7 @@
 #include "../include/ntt_kernel.h"
 
 void compute_indices(int j, int k, int InputIndex[SQRT], int OutputIndex[SQRT]) {
+    #pragma HLS INLINE
     generate_input_index(j, k, InputIndex);
     generate_output_index(j, k, OutputIndex);
 }
@@ -17,7 +18,7 @@ int exact_log2(int x) {
 }
 
 void generate_input_index(int stage, int address, int output_indices[SQRT]) {
-
+    #pragma HLS INLINE
     int stage_cnt = (stage < exact_log2(SQRT)) ? stage : stage - exact_log2(SQRT);
     int ramnum_log = exact_log2(SQRT) - 1;
     int dis_log = ramnum_log - stage_cnt;
@@ -34,7 +35,7 @@ void generate_input_index(int stage, int address, int output_indices[SQRT]) {
 }
 
 void generate_output_index(int stage, int address, int output_indices[SQRT]) {
-
+    #pragma HLS INLINE
     int stage_cnt = (stage < exact_log2(SQRT)) ? stage : stage - exact_log2(SQRT);
     int ramnum_log = exact_log2(SQRT) - 1;
     int dis_log = ramnum_log - stage_cnt;
@@ -55,14 +56,16 @@ void generate_output_index(int stage, int address, int output_indices[SQRT]) {
 }
 
 void read_data(
-    int j, 
-    int k, 
+    int j,
+    int k,
     uint64_t ReadData[SQRT],
     const uint64_t DataRAM[SQRT][SQRT]
 ) {
+    #pragma HLS INLINE
     for (int l = 0; l < SQRT; l++) {
+        #pragma HLS UNROLL
         if (j < (STAGE >> 1)) {
-            int ReadAddr = (l - k + SQRT) % (1 << ((STAGE >> 1) - j)) + 
+            int ReadAddr = (l - k + SQRT) % (1 << ((STAGE >> 1) - j)) +
                            (k >> ((STAGE >> 1) - j)) * (SQRT >> j);
             ReadData[l] = DataRAM[ReadAddr][l];
         } else {
@@ -72,10 +75,11 @@ void read_data(
 }
 
 void permutate_data(
-    uint64_t ReadData[SQRT], 
+    uint64_t ReadData[SQRT],
     uint64_t PermuteData[SQRT],
     int InputIndex[SQRT]
 ) {
+    #pragma HLS INLINE
     for (int l = 0; l < SQRT; l++) {
         #pragma HLS UNROLL factor=SQRT
         PermuteData[l] = ReadData[InputIndex[l]];
@@ -83,6 +87,7 @@ void permutate_data(
 }
 
 void generate_twiddle_index(int j, int k, int TwiddleIndex[BU_NUM]) {
+    #pragma HLS INLINE
     for (int l = 0; l < BU_NUM; l++) {
         #pragma HLS UNROLL factor=BU_NUM
         if (j < (STAGE >> 1)) {
@@ -94,10 +99,11 @@ void generate_twiddle_index(int j, int k, int TwiddleIndex[BU_NUM]) {
 }   
 
 void permute_twiddle_factors(
-    uint64_t TwiddleFactor[BU_NUM], 
-    const uint64_t NTTTWiddleRAM[BU_NUM][RING_DIM], 
+    uint64_t TwiddleFactor[BU_NUM],
+    const uint64_t NTTTWiddleRAM[BU_NUM][RING_DIM],
     int TwiddleIndex[BU_NUM]
 ) {
+    #pragma HLS INLINE
     for (int l = 0; l < BU_NUM; l++) {
         #pragma HLS UNROLL factor=BU_NUM
         TwiddleFactor[l] = NTTTWiddleRAM[l][TwiddleIndex[l]];
@@ -107,9 +113,9 @@ void permute_twiddle_factors(
 
 
 void compute_core(
-    uint64_t PermuteData[SQRT], 
-    uint64_t TwiddleFactor[BU_NUM], 
-    uint64_t NTTData[SQRT], 
+    uint64_t PermuteData[SQRT],
+    uint64_t TwiddleFactor[BU_NUM],
+    uint64_t NTTData[SQRT],
 
     uint64_t modulus,
     uint64_t K_HALF,
@@ -117,6 +123,7 @@ void compute_core(
 
     bool is_ntt
 ) {
+    #pragma HLS INLINE
     int data_pairs_total = SQRT >> 1;
     int pairs_per_pe = data_pairs_total / BU_NUM;
     for (int l = 0; l < BU_NUM; l++) {
@@ -142,10 +149,11 @@ void compute_core(
 }
 
 void repermute_data(
-    uint64_t NTTData[SQRT], 
-    int OutputIndex[SQRT], 
+    uint64_t NTTData[SQRT],
+    int OutputIndex[SQRT],
     uint64_t RepermuteData[SQRT]
 ) {
+    #pragma HLS INLINE
     for (int l = 0; l < SQRT; l++) {
         #pragma HLS UNROLL factor=SQRT
         RepermuteData[l] = NTTData[OutputIndex[l]];
@@ -153,15 +161,16 @@ void repermute_data(
 }
 
 void rewrite_data(
-    int j, 
-    int k, 
-    uint64_t RepermuteData[SQRT],             
+    int j,
+    int k,
+    uint64_t RepermuteData[SQRT],
     uint64_t DataRAM[SQRT][SQRT]
 ) {
+    #pragma HLS INLINE
     for (int l = 0; l < SQRT; l++) {
         #pragma HLS UNROLL factor=SQRT
         if (j < (STAGE >> 1)) {
-            int WritnaeAddr = (l - k + SQRT) % (1 << ((STAGE >> 1) - j)) + 
+            int WriteAddr = (l - k + SQRT) % (1 << ((STAGE >> 1) - j)) + 
                            (k >> ((STAGE >> 1) - j)) * (SQRT >> j);
 
             DataRAM[WriteAddr][l] = RepermuteData[l];
@@ -235,13 +244,26 @@ void NTT_Kernel(
 
     bool is_ntt
 ){
-    // std::cout << "[FPGA] NTT_Kernel: modulus=" << modulus << ", is_ntt=" << is_ntt << std::endl;
-    // std::cout << "[FPGA] K_HALF=" << K_HALF << ", M=" << M << std::endl;
+    // ===== 大数组：按维度分 Bank =====
+    #pragma HLS ARRAY_PARTITION variable=in_memory complete dim=2
+    #pragma HLS ARRAY_PARTITION variable=ntt_twiddle_memory complete dim=1
+    #pragma HLS ARRAY_PARTITION variable=intt_twiddle_memory complete dim=1
+
     int InputIndex[SQRT], OutputIndex[SQRT];
     int TwiddleIndex[BU_NUM];
     int stage_index;
     uint64_t ReadData[SQRT], PermuteData[SQRT], TwiddleFactor[BU_NUM];
     uint64_t NTTData[SQRT], RepermuteData[SQRT];
+
+    // ===== 临时数组：全部打散为寄存器 =====
+    #pragma HLS ARRAY_PARTITION variable=InputIndex complete
+    #pragma HLS ARRAY_PARTITION variable=OutputIndex complete
+    #pragma HLS ARRAY_PARTITION variable=TwiddleIndex complete
+    #pragma HLS ARRAY_PARTITION variable=ReadData complete
+    #pragma HLS ARRAY_PARTITION variable=PermuteData complete
+    #pragma HLS ARRAY_PARTITION variable=TwiddleFactor complete
+    #pragma HLS ARRAY_PARTITION variable=NTTData complete
+    #pragma HLS ARRAY_PARTITION variable=RepermuteData complete
 
     for (int j = 0; j < STAGE; j++){
         for (int k = 0; k < SQRT; k++){
@@ -298,6 +320,10 @@ void Compute_NTT(
     int mod_idx_offset
 
 ) {
+
+    #pragma HLS ARRAY_PARTITION variable=in_memory complete dim=3
+    #pragma HLS ARRAY_PARTITION variable=ntt_twiddle_memory complete dim=2
+    #pragma HLS ARRAY_PARTITION variable=intt_twiddle_memory complete dim=2
 
     for (int l = mod_idx_offset; l < mod_idx_offset + num_active_limbs; l++){
         NTT_Kernel(

@@ -1,12 +1,12 @@
 #include "../include/arithmetic.h"
 
 void AddMod(
-    uint64_t &a,           
-    const uint64_t &b,     
-    const uint64_t &mod,   
-    const bool &is_add     
+    uint64_t &a,
+    const uint64_t &b,
+    const uint64_t &mod,
+    const bool &is_add
 ){
-    // #pragma HLS INLINE
+    #pragma HLS INLINE
     unsigned __int128 temp_res;
     if (is_add) { 
         temp_res = (unsigned __int128)a + b;
@@ -63,9 +63,7 @@ void MultMod(
     uint64_t &res_mod
   
 ){
-    // #pragma HLS INLINE 
-    // 流水线优化：II=1 表示每个时钟周期都能处理一个新的输入
-    #pragma HLS PIPELINE II=1
+    #pragma HLS INLINE
 
 
     // 2. 全精度乘法 (Step 0)
