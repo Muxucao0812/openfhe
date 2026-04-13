@@ -26,7 +26,7 @@ void generate_input_index(int stage, int address, int output_indices[SQRT]) {
     int mask2 = ~((1 << (dis_log + 1)) - 1) & ((1 << exact_log2(SQRT)) - 1);
 
     for (int i = 0; i < SQRT; i++) {
-        #pragma HLS UNROLL
+        #pragma HLS UNROLL factor=8
         int iwire = i;
         int temp2 = (iwire & 1) << dis_log;
         int index = ((iwire & mask2) | temp2 | ((iwire & mask1) >> 1)) + address;
@@ -44,7 +44,7 @@ void generate_output_index(int stage, int address, int output_indices[SQRT]) {
     int mask3 = (~((1 << (dis_log + 1)) - 1)) & ((1 << exact_log2(SQRT)) - 1);
 
     for (int i = 0; i < SQRT; i++) {
-        #pragma HLS UNROLL
+        #pragma HLS UNROLL factor=8
         int shift_amount = exact_log2(SQRT);
         int mask = (1 << shift_amount) - 1;
         int iwire = (i - address ) & mask;
@@ -63,7 +63,7 @@ void read_data(
 ) {
     #pragma HLS INLINE
     for (int l = 0; l < SQRT; l++) {
-        #pragma HLS UNROLL
+        #pragma HLS UNROLL factor=8
         if (j < (STAGE >> 1)) {
             int ReadAddr = (l - k + SQRT) % (1 << ((STAGE >> 1) - j)) +
                            (k >> ((STAGE >> 1) - j)) * (SQRT >> j);
@@ -81,7 +81,7 @@ void permutate_data(
 ) {
     #pragma HLS INLINE
     for (int l = 0; l < SQRT; l++) {
-        #pragma HLS UNROLL factor=SQRT
+        #pragma HLS UNROLL factor=8
         PermuteData[l] = ReadData[InputIndex[l]];
     }
 }
@@ -89,7 +89,7 @@ void permutate_data(
 void generate_twiddle_index(int j, int k, int TwiddleIndex[BU_NUM]) {
     #pragma HLS INLINE
     for (int l = 0; l < BU_NUM; l++) {
-        #pragma HLS UNROLL factor=BU_NUM
+        #pragma HLS UNROLL factor=8
         if (j < (STAGE >> 1)) {
             TwiddleIndex[l] = (1 << j) - 1 + (k >> ((STAGE >> 1) - j)) + (l >> (STAGE - j - 1));
         } else {
@@ -105,7 +105,7 @@ void permute_twiddle_factors(
 ) {
     #pragma HLS INLINE
     for (int l = 0; l < BU_NUM; l++) {
-        #pragma HLS UNROLL factor=BU_NUM
+        #pragma HLS UNROLL factor=8
         TwiddleFactor[l] = NTTTWiddleRAM[l][TwiddleIndex[l]];
     }
 }
@@ -127,7 +127,7 @@ void compute_core(
     int data_pairs_total = SQRT >> 1;
     int pairs_per_pe = data_pairs_total / BU_NUM;
     for (int l = 0; l < BU_NUM; l++) {
-        #pragma HLS UNROLL factor=BU_NUM
+        #pragma HLS UNROLL factor=8
         for (int m = 0; m < pairs_per_pe; m++) {
             
             int global_pair_index = l * pairs_per_pe + m;
@@ -155,7 +155,7 @@ void repermute_data(
 ) {
     #pragma HLS INLINE
     for (int l = 0; l < SQRT; l++) {
-        #pragma HLS UNROLL factor=SQRT
+        #pragma HLS UNROLL factor=8
         RepermuteData[l] = NTTData[OutputIndex[l]];
     }
 }
@@ -168,7 +168,7 @@ void rewrite_data(
 ) {
     #pragma HLS INLINE
     for (int l = 0; l < SQRT; l++) {
-        #pragma HLS UNROLL factor=SQRT
+        #pragma HLS UNROLL factor=8
         if (j < (STAGE >> 1)) {
             int WriteAddr = (l - k + SQRT) % (1 << ((STAGE >> 1) - j)) + 
                            (k >> ((STAGE >> 1) - j)) * (SQRT >> j);
@@ -267,6 +267,8 @@ void NTT_Kernel(
 
     for (int j = 0; j < STAGE; j++){
         for (int k = 0; k < SQRT; k++){
+            #pragma HLS PIPELINE II=1
+            #pragma HLS DEPENDENCE variable=in_memory inter false
             if (is_ntt){
                 stage_index = j;
             }else{

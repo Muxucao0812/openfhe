@@ -12,7 +12,7 @@ add_files ./src/bconv.cpp -cflags $my_cflags
 add_files ./testbench/bconv_tb.cpp -cflags $my_cflags -tb
 
 open_solution "solution1"
-set_part xcu250-figd2104-2l-e
+set_part xcu55c-fsvh2892-2L-e
 create_clock -period 4ns
 
 # 运行 C 仿真

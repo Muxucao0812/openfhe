@@ -1,7 +1,7 @@
 open_project Solution
 # 设置你的顶层函数名（请确保它与 C++ 代码中的函数名一致）
 #set_top Top
-set_top testError
+set_top Top
 
 set my_cflags "-I./include -I/opt/xilinx/xrt/include"
 
@@ -27,7 +27,7 @@ add_files {
 # add_files -tb ./src/testbench.cpp -cflags $my_cflags
 
 open_solution "solution1"
-set_part xcu250-figd2104-2l-e
+set_part xcu55c-fsvh2892-2L-e
 create_clock -period 4ns
 
 csynth_design

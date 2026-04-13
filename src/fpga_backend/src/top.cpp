@@ -54,9 +54,9 @@ void Top(
     #pragma HLS INTERFACE s_axilite port=return    bundle=control
 
 
-    #pragma HLS ARRAY_PARTITION variable=poly_buffer_1 cyclic dim=2 factor=SQRT
-    #pragma HLS ARRAY_PARTITION variable=poly_buffer_2 cyclic dim=2 factor=SQRT
-    #pragma HLS ARRAY_PARTITION variable=result_buffer cyclic dim=2 factor=SQRT
+    #pragma HLS ARRAY_PARTITION variable=poly_buffer_1 cyclic dim=3 factor=SQRT
+    #pragma HLS ARRAY_PARTITION variable=poly_buffer_2 cyclic dim=3 factor=SQRT
+    #pragma HLS ARRAY_PARTITION variable=result_buffer cyclic dim=3 factor=SQRT
 
     #pragma HLS BIND_STORAGE variable=poly_buffer_1 type=ram_2p impl=bram
     #pragma HLS BIND_STORAGE variable=poly_buffer_2 type=ram_2p impl=bram
