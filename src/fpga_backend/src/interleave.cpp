@@ -1,6 +1,6 @@
 #include "../include/interleave.h"
 
-const int PARALLEL_FACTOR = 8;
+const int PARALLEL_FACTOR = PE_PARALLEL;
 
 // In-Place Interleave (原地交织)
 // 输入: data (既是源，也是目的)
@@ -21,8 +21,8 @@ void InterLeave(
     #pragma HLS BIND_STORAGE variable=temp_buffer type=ram_2p impl=bram
 
     // 强制完全切分列维度，彻底消除 HLS 对端口冲突的担忧，并匹配 top.cpp
-    #pragma HLS ARRAY_PARTITION variable=temp_buffer cyclic factor=8 dim=2
-    #pragma HLS ARRAY_PARTITION variable=data cyclic factor=8 dim=2
+    #pragma HLS ARRAY_PARTITION variable=temp_buffer cyclic factor=PE_PARALLEL dim=2
+    #pragma HLS ARRAY_PARTITION variable=data cyclic factor=PE_PARALLEL dim=2
 
     const int mask = SQRT - 1; 
 

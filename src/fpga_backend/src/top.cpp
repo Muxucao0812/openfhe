@@ -28,9 +28,11 @@ static uint64_t M[MAX_LIMBS];
 
 // ------------------------
 // Store the TwiddleFactor
+// PE_PARALLEL 个独立副本消除 UNROLL factor 的 bank 冲突
+// 绑定到 URAM（U55C 有 960 块 URAM ≈ 34MB，远大于 BRAM）
 // ------------------------
-static uint64_t NTTTwiddleFactor[MAX_LIMBS][RING_DIM];
-static uint64_t INTTTwiddleFactor[MAX_LIMBS][RING_DIM];
+static uint64_t NTTTwiddleFactor[MAX_LIMBS][PE_PARALLEL][RING_DIM];
+static uint64_t INTTTwiddleFactor[MAX_LIMBS][PE_PARALLEL][RING_DIM];
 
 void Top(
     const uint64_t *mem_in1,
@@ -54,13 +56,19 @@ void Top(
     #pragma HLS INTERFACE s_axilite port=return    bundle=control
 
 
-    #pragma HLS ARRAY_PARTITION variable=poly_buffer_1 cyclic dim=3 factor=SQRT
-    #pragma HLS ARRAY_PARTITION variable=poly_buffer_2 cyclic dim=3 factor=SQRT
-    #pragma HLS ARRAY_PARTITION variable=result_buffer cyclic dim=3 factor=SQRT
+    #pragma HLS ARRAY_PARTITION variable=poly_buffer_1 cyclic dim=3 factor=PE_PARALLEL
+    #pragma HLS ARRAY_PARTITION variable=poly_buffer_2 cyclic dim=3 factor=PE_PARALLEL
+    #pragma HLS ARRAY_PARTITION variable=result_buffer cyclic dim=3 factor=PE_PARALLEL
 
     #pragma HLS BIND_STORAGE variable=poly_buffer_1 type=ram_2p impl=bram
     #pragma HLS BIND_STORAGE variable=poly_buffer_2 type=ram_2p impl=bram
     #pragma HLS BIND_STORAGE variable=result_buffer type=ram_2p impl=bram
+
+    // Twiddle Factor: 8 个独立副本，complete dim=2 物理隔离，URAM 存储
+    #pragma HLS ARRAY_PARTITION variable=NTTTwiddleFactor complete dim=2
+    #pragma HLS ARRAY_PARTITION variable=INTTTwiddleFactor complete dim=2
+    #pragma HLS BIND_STORAGE variable=NTTTwiddleFactor type=rom_1p impl=uram
+    #pragma HLS BIND_STORAGE variable=INTTTwiddleFactor type=rom_1p impl=uram
 
     switch(opcode) {
         case OP_INIT: {
@@ -110,13 +118,23 @@ void Top(
             init_NTTTwiddle_Loop:
             for (int l = 0; l < MAX_LIMBS; l++){
                 for (int t = 0; t < RING_DIM; t++){
-                    NTTTwiddleFactor[l][t] = mem_in1[NTT_TF_BASE + l * RING_DIM + t];
+                    #pragma HLS PIPELINE II=1
+                    uint64_t tf_val = mem_in1[NTT_TF_BASE + l * RING_DIM + t];
+                    for (int b = 0; b < PE_PARALLEL; b++){
+                        #pragma HLS UNROLL
+                        NTTTwiddleFactor[l][b][t] = tf_val;
+                    }
                 }
             }
             init_INTTTwiddle_Loop:
             for (int l = 0; l < MAX_LIMBS; l++){
                 for (int t = 0; t < RING_DIM; t++){
-                    INTTTwiddleFactor[l][t] = mem_in2[INTT_TF_BASE + l * RING_DIM + t];
+                    #pragma HLS PIPELINE II=1
+                    uint64_t tf_val = mem_in2[INTT_TF_BASE + l * RING_DIM + t];
+                    for (int b = 0; b < PE_PARALLEL; b++){
+                        #pragma HLS UNROLL
+                        INTTTwiddleFactor[l][b][t] = tf_val;
+                    }
                 }
             }
             break;

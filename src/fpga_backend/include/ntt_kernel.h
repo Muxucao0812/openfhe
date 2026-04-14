@@ -41,7 +41,7 @@ extern "C" {
 extern "C" {
     void permute_twiddle_factors(
         uint64_t TwiddleFactor[BU_NUM],
-        const uint64_t NTTTWiddleRAM[RING_DIM],
+        const uint64_t NTTTWiddleRAM[PE_PARALLEL][RING_DIM],
         int TwiddleIndex[BU_NUM]
     );
 }
@@ -118,13 +118,13 @@ extern "C" {
 extern "C" {
     void NTT_Kernel(
         uint64_t in_memory[SQRT][SQRT],
-        
+
         const uint64_t modulus,
         const uint64_t K_HALF,
         const uint64_t M,
-        
-        const uint64_t ntt_twiddle_memory[RING_DIM],
-        const uint64_t intt_twiddle_memory[RING_DIM],
+
+        const uint64_t ntt_twiddle_memory[PE_PARALLEL][RING_DIM],
+        const uint64_t intt_twiddle_memory[PE_PARALLEL][RING_DIM],
 
         bool is_ntt
     );
@@ -136,15 +136,15 @@ extern "C" {
     void Compute_NTT(
         // memory for ntt and tf
         uint64_t in_memory[MAX_LIMBS][SQRT][SQRT],
-        const uint64_t ntt_twiddle_memory[MAX_LIMBS][RING_DIM],
-        const uint64_t intt_twiddle_memory[MAX_LIMBS][RING_DIM],
+        const uint64_t ntt_twiddle_memory[MAX_LIMBS][PE_PARALLEL][RING_DIM],
+        const uint64_t intt_twiddle_memory[MAX_LIMBS][PE_PARALLEL][RING_DIM],
 
         const uint64_t modulus[MAX_LIMBS],
         const uint64_t K_HALF[MAX_LIMBS],
         const uint64_t M[MAX_LIMBS],
 
         bool is_ntt,
-        
+
         int num_active_limbs,
         int mod_idx_offset
 

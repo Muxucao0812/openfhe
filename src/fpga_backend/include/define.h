@@ -28,6 +28,10 @@ static const int LOG_SQRT = 6;
 
 static const int BU_NUM = 32;
 
+// PE 并行度：UNROLL factor / cyclic partition factor / Twiddle 副本数
+// 所有 ARRAY_PARTITION cyclic factor 和 UNROLL factor 统一引用此常量
+static const int PE_PARALLEL = 8;
+
 
 // 维度定义
 static const int LIMB_Q = 3;  // Q模数数量，索引 0, 1, 2
@@ -39,8 +43,10 @@ static const int MAX_OUT_COLS = LIMB_Q + LIMB_P;  // 5
 
 static const int STAGE = 12; //log2(RING_DIM)
 
-// 总limb数 = Q + P = 3 + 2 = 5
-#define MAX_LIMBS (LIMB_Q + LIMB_P)
+// 总limb数：输入 Q limbs + 最多 MAX_OUT_COLS 个输出 limbs
+// Compute_BConv 的 Store_X 写回位置为 in_x[LIMB_Q + p]，p 最大为 MAX_OUT_COLS-1，
+// 因此 in_x 第一维必须为 LIMB_Q + MAX_OUT_COLS。
+#define MAX_LIMBS (LIMB_Q + MAX_OUT_COLS)
 
 // 兼容旧代码的别名 (如果你的代码里混用了 LIMB)
 static const int LIMB = MAX_LIMBS;

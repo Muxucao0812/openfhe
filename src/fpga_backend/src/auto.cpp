@@ -1,4 +1,4 @@
-#include "../include/auto.h"
+#include "auto.h"
 
 // CKKS automorphism in coefficient domain (OpenFHE poly-impl.h style):
 // For each output index o: in_raw = (o * kinv) mod 2N; negate = (in_raw >= N);

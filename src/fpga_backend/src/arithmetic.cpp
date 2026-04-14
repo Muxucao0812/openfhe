@@ -65,6 +65,7 @@ void MultMod(
 ){
     #pragma HLS INLINE off
     #pragma HLS PIPELINE II=1
+    #pragma HLS LATENCY min=4 max=4  // 锁定流水线深度，严格匹配 bconv.cpp 中 MULTMOD_LAT=4
 
 
     // 2. 全精度乘法 (Step 0)

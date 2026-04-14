@@ -2,8 +2,8 @@
 #include <cstdlib>
 #include <cstdint>
 #include <cassert>
-#include "include/auto.h"
-#include "include/define.h"
+#include "../include/auto.h"
+#include "../include/define.h"
 
 // -----------------------------------------------------------------------------
 // Software reference: naive CKKS automorphism on 1D coefficient vector
