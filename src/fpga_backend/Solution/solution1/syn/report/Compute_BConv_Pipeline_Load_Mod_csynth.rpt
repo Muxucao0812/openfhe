@@ -1,0 +1,158 @@
+
+
+================================================================
+== Vitis HLS Report for 'Compute_BConv_Pipeline_Load_Mod'
+================================================================
+* Date:           Mon Apr 13 22:58:12 2026
+
+* Version:        2024.1 (Build 5069499 on May 21 2024)
+* Project:        Solution
+* Solution:       solution1 (Vivado IP Flow Target)
+* Product family: virtexuplusHBM
+* Target device:  xcu55c-fsvh2892-2L-e
+
+
+================================================================
+== Performance Estimates
+================================================================
++ Timing: 
+    * Summary: 
+    +--------+---------+----------+------------+
+    |  Clock |  Target | Estimated| Uncertainty|
+    +--------+---------+----------+------------+
+    |ap_clk  |  4.00 ns|  1.346 ns|     1.08 ns|
+    +--------+---------+----------+------------+
+
++ Latency: 
+    * Summary: 
+    +---------+---------+-----------+-----------+-----+-----+-----------------------------------------------+
+    |  Latency (cycles) |   Latency (absolute)  |  Interval |                    Pipeline                   |
+    |   min   |   max   |    min    |    max    | min | max |                      Type                     |
+    +---------+---------+-----------+-----------+-----+-----+-----------------------------------------------+
+    |        7|        7|  28.000 ns|  28.000 ns|    6|    6|  loop auto-rewind stp(delay=0 clock cycles(s))|
+    +---------+---------+-----------+-----------+-----+-----+-----------------------------------------------+
+
+    + Detail: 
+        * Instance: 
+        N/A
+
+        * Loop: 
+        +------------+---------+---------+----------+-----------+-----------+------+----------+
+        |            |  Latency (cycles) | Iteration|  Initiation Interval  | Trip |          |
+        |  Loop Name |   min   |   max   |  Latency |  achieved |   target  | Count| Pipelined|
+        +------------+---------+---------+----------+-----------+-----------+------+----------+
+        |- Load_Mod  |        5|        5|         2|          1|          1|     5|       yes|
+        +------------+---------+---------+----------+-----------+-----------+------+----------+
+
+
+
+================================================================
+== Utilization Estimates
+================================================================
+* Summary: 
++---------------------+---------+------+---------+---------+-----+
+|         Name        | BRAM_18K|  DSP |    FF   |   LUT   | URAM|
++---------------------+---------+------+---------+---------+-----+
+|DSP                  |        -|     -|        -|        -|    -|
+|Expression           |        -|     -|        0|       22|    -|
+|FIFO                 |        -|     -|        -|        -|    -|
+|Instance             |        -|     -|        -|        -|    -|
+|Memory               |        -|     -|        -|        -|    -|
+|Multiplexer          |        -|     -|        0|       36|    -|
+|Register             |        -|     -|      329|        -|    -|
++---------------------+---------+------+---------+---------+-----+
+|Total                |        0|     0|      329|       58|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available SLR        |     1344|  3008|   869120|   434560|  320|
++---------------------+---------+------+---------+---------+-----+
+|Utilization SLR (%)  |        0|     0|       ~0|       ~0|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available            |     4032|  9024|  2607360|  1303680|  960|
++---------------------+---------+------+---------+---------+-----+
+|Utilization (%)      |        0|     0|       ~0|       ~0|    0|
++---------------------+---------+------+---------+---------+-----+
+
++ Detail: 
+    * Instance: 
+    N/A
+
+    * DSP: 
+    N/A
+
+    * Memory: 
+    N/A
+
+    * FIFO: 
+    N/A
+
+    * Expression: 
+    +----------------------+----------+----+---+----+------------+------------+
+    |     Variable Name    | Operation| DSP| FF| LUT| Bitwidth P0| Bitwidth P1|
+    +----------------------+----------+----+---+----+------------+------------+
+    |add_ln179_fu_128_p2   |         +|   0|  0|  10|           3|           1|
+    |icmp_ln179_fu_122_p2  |      icmp|   0|  0|  10|           3|           3|
+    |ap_enable_pp0         |       xor|   0|  0|   2|           1|           2|
+    +----------------------+----------+----+---+----+------------+------------+
+    |Total                 |          |   0|  0|  22|           7|           6|
+    +----------------------+----------+----+---+----+------------+------------+
+
+    * Multiplexer: 
+    +-------------------------+----+-----------+-----+-----------+
+    |           Name          | LUT| Input Size| Bits| Total Bits|
+    +-------------------------+----+-----------+-----+-----------+
+    |ap_done_int              |   9|          2|    1|          2|
+    |ap_enable_reg_pp0_iter1  |   9|          2|    1|          2|
+    |ap_sig_allocacmp_p_2     |   9|          2|    3|          6|
+    |p_fu_42                  |   9|          2|    3|          6|
+    +-------------------------+----+-----------+-----+-----------+
+    |Total                    |  36|          8|    8|         16|
+    +-------------------------+----+-----------+-----+-----------+
+
+    * Register: 
+    +-------------------------+----+----+-----+-----------+
+    |           Name          | FF | LUT| Bits| Const Bits|
+    +-------------------------+----+----+-----+-----------+
+    |ap_CS_fsm                |   1|   0|    1|          0|
+    |ap_done_reg              |   1|   0|    1|          0|
+    |ap_enable_reg_pp0_iter1  |   1|   0|    1|          0|
+    |local_mod_1_fu_50        |  64|   0|   64|          0|
+    |local_mod_2_fu_54        |  64|   0|   64|          0|
+    |local_mod_3_fu_58        |  64|   0|   64|          0|
+    |local_mod_4_fu_62        |  64|   0|   64|          0|
+    |local_mod_fu_46          |  64|   0|   64|          0|
+    |p_2_reg_226              |   3|   0|    3|          0|
+    |p_fu_42                  |   3|   0|    3|          0|
+    +-------------------------+----+----+-----+-----------+
+    |Total                    | 329|   0|  329|          0|
+    +-------------------------+----+----+-----+-----------+
+
+
+
+================================================================
+== Interface
+================================================================
+* Summary: 
++------------------------+-----+-----+------------+---------------------------------+--------------+
+|        RTL Ports       | Dir | Bits|  Protocol  |          Source Object          |    C Type    |
++------------------------+-----+-----+------------+---------------------------------+--------------+
+|ap_clk                  |   in|    1|  ap_ctrl_hs|  Compute_BConv_Pipeline_Load_Mod|  return value|
+|ap_rst                  |   in|    1|  ap_ctrl_hs|  Compute_BConv_Pipeline_Load_Mod|  return value|
+|ap_start                |   in|    1|  ap_ctrl_hs|  Compute_BConv_Pipeline_Load_Mod|  return value|
+|ap_done                 |  out|    1|  ap_ctrl_hs|  Compute_BConv_Pipeline_Load_Mod|  return value|
+|ap_idle                 |  out|    1|  ap_ctrl_hs|  Compute_BConv_Pipeline_Load_Mod|  return value|
+|ap_ready                |  out|    1|  ap_ctrl_hs|  Compute_BConv_Pipeline_Load_Mod|  return value|
+|local_mod_4_out         |  out|   64|      ap_vld|                  local_mod_4_out|       pointer|
+|local_mod_4_out_ap_vld  |  out|    1|      ap_vld|                  local_mod_4_out|       pointer|
+|local_mod_3_out         |  out|   64|      ap_vld|                  local_mod_3_out|       pointer|
+|local_mod_3_out_ap_vld  |  out|    1|      ap_vld|                  local_mod_3_out|       pointer|
+|local_mod_2_out         |  out|   64|      ap_vld|                  local_mod_2_out|       pointer|
+|local_mod_2_out_ap_vld  |  out|    1|      ap_vld|                  local_mod_2_out|       pointer|
+|local_mod_1_out         |  out|   64|      ap_vld|                  local_mod_1_out|       pointer|
+|local_mod_1_out_ap_vld  |  out|    1|      ap_vld|                  local_mod_1_out|       pointer|
+|local_mod_out           |  out|   64|      ap_vld|                    local_mod_out|       pointer|
+|local_mod_out_ap_vld    |  out|    1|      ap_vld|                    local_mod_out|       pointer|
+|out_mod_address0        |  out|    3|   ap_memory|                          out_mod|         array|
+|out_mod_ce0             |  out|    1|   ap_memory|                          out_mod|         array|
+|out_mod_q0              |   in|   64|   ap_memory|                          out_mod|         array|
++------------------------+-----+-----+------------+---------------------------------+--------------+
+

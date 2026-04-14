@@ -1,0 +1,241 @@
+
+
+================================================================
+== Vitis HLS Report for 'NTT_Kernel_Pipeline_VITIS_LOOP_112_17'
+================================================================
+* Date:           Mon Apr 13 22:58:20 2026
+
+* Version:        2024.1 (Build 5069499 on May 21 2024)
+* Project:        Solution
+* Solution:       solution1 (Vivado IP Flow Target)
+* Product family: virtexuplusHBM
+* Target device:  xcu55c-fsvh2892-2L-e
+
+
+================================================================
+== Performance Estimates
+================================================================
++ Timing: 
+    * Summary: 
+    +--------+---------+----------+------------+
+    |  Clock |  Target | Estimated| Uncertainty|
+    +--------+---------+----------+------------+
+    |ap_clk  |  4.00 ns|  2.453 ns|     1.08 ns|
+    +--------+---------+----------+------------+
+
++ Latency: 
+    * Summary: 
+    +---------+---------+-----------+-----------+-----+-----+-----------------------------------------------+
+    |  Latency (cycles) |   Latency (absolute)  |  Interval |                    Pipeline                   |
+    |   min   |   max   |    min    |    max    | min | max |                      Type                     |
+    +---------+---------+-----------+-----------+-----+-----+-----------------------------------------------+
+    |        8|        8|  32.000 ns|  32.000 ns|    5|    5|  loop auto-rewind stp(delay=0 clock cycles(s))|
+    +---------+---------+-----------+-----------+-----+-----+-----------------------------------------------+
+
+    + Detail: 
+        * Instance: 
+        N/A
+
+        * Loop: 
+        +--------------------+---------+---------+----------+-----------+-----------+------+----------+
+        |                    |  Latency (cycles) | Iteration|  Initiation Interval  | Trip |          |
+        |      Loop Name     |   min   |   max   |  Latency |  achieved |   target  | Count| Pipelined|
+        +--------------------+---------+---------+----------+-----------+-----------+------+----------+
+        |- VITIS_LOOP_112_1  |        6|        6|         4|          1|          1|     4|       yes|
+        +--------------------+---------+---------+----------+-----------+-----------+------+----------+
+
+
+
+================================================================
+== Utilization Estimates
+================================================================
+* Summary: 
++---------------------+---------+------+---------+---------+-----+
+|         Name        | BRAM_18K|  DSP |    FF   |   LUT   | URAM|
++---------------------+---------+------+---------+---------+-----+
+|DSP                  |        -|     -|        -|        -|    -|
+|Expression           |        -|     -|        0|      207|    -|
+|FIFO                 |        -|     -|        -|        -|    -|
+|Instance             |        -|     -|        -|        -|    -|
+|Memory               |        -|     -|        -|        -|    -|
+|Multiplexer          |        -|     -|        0|       36|    -|
+|Register             |        -|     -|       81|       32|    -|
++---------------------+---------+------+---------+---------+-----+
+|Total                |        0|     0|       81|      275|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available SLR        |     1344|  3008|   869120|   434560|  320|
++---------------------+---------+------+---------+---------+-----+
+|Utilization SLR (%)  |        0|     0|       ~0|       ~0|    0|
++---------------------+---------+------+---------+---------+-----+
+|Available            |     4032|  9024|  2607360|  1303680|  960|
++---------------------+---------+------+---------+---------+-----+
+|Utilization (%)      |        0|     0|       ~0|       ~0|    0|
++---------------------+---------+------+---------+---------+-----+
+
++ Detail: 
+    * Instance: 
+    N/A
+
+    * DSP: 
+    N/A
+
+    * Memory: 
+    N/A
+
+    * FIFO: 
+    N/A
+
+    * Expression: 
+    +-----------------------+----------+----+---+----+------------+------------+
+    |     Variable Name     | Operation| DSP| FF| LUT| Bitwidth P0| Bitwidth P1|
+    +-----------------------+----------+----+---+----+------------+------------+
+    |add_ln112_fu_514_p2    |         +|   0|  0|  13|           6|           4|
+    |add_ln114_1_fu_552_p2  |         +|   0|  0|  24|          17|          17|
+    |add_ln114_2_fu_571_p2  |         +|   0|  0|  24|          17|          17|
+    |add_ln114_3_fu_590_p2  |         +|   0|  0|  24|          17|          17|
+    |add_ln114_4_fu_609_p2  |         +|   0|  0|  24|          17|          17|
+    |add_ln114_5_fu_628_p2  |         +|   0|  0|  24|          17|          17|
+    |add_ln114_6_fu_647_p2  |         +|   0|  0|  24|          17|          17|
+    |add_ln114_7_fu_666_p2  |         +|   0|  0|  24|          17|          17|
+    |add_ln114_fu_533_p2    |         +|   0|  0|  24|          17|          17|
+    |ap_enable_pp0          |       xor|   0|  0|   2|           1|           2|
+    +-----------------------+----------+----+---+----+------------+------------+
+    |Total                  |          |   0|  0| 207|         143|         142|
+    +-----------------------+----------+----+---+----+------------+------------+
+
+    * Multiplexer: 
+    +-------------------------+----+-----------+-----+-----------+
+    |           Name          | LUT| Input Size| Bits| Total Bits|
+    +-------------------------+----+-----------+-----+-----------+
+    |ap_done_int              |   9|          2|    1|          2|
+    |ap_enable_reg_pp0_iter1  |   9|          2|    1|          2|
+    |ap_sig_allocacmp_l       |   9|          2|    6|         12|
+    |l_9_fu_104               |   9|          2|    6|         12|
+    +-------------------------+----+-----------+-----+-----------+
+    |Total                    |  36|          8|   14|         28|
+    +-------------------------+----+-----------+-----+-----------+
+
+    * Register: 
+    +----------------------------------+----+----+-----+-----------+
+    |               Name               | FF | LUT| Bits| Const Bits|
+    +----------------------------------+----+----+-----+-----------+
+    |ap_CS_fsm                         |   1|   0|    1|          0|
+    |ap_done_reg                       |   1|   0|    1|          0|
+    |ap_enable_reg_pp0_iter1           |   1|   0|    1|          0|
+    |ap_enable_reg_pp0_iter2           |   1|   0|    1|          0|
+    |ap_enable_reg_pp0_iter3           |   1|   0|    1|          0|
+    |ap_loop_exit_ready_pp0_iter1_reg  |   1|   0|    1|          0|
+    |ap_loop_exit_ready_pp0_iter2_reg  |   1|   0|    1|          0|
+    |l_9_fu_104                        |   6|   0|    6|          0|
+    |lshr_ln112_1_reg_728              |   2|   0|    2|          0|
+    |zext_ln112_reg_740                |   2|   0|   64|         62|
+    |zext_ln112_reg_740                |  64|  32|   64|         62|
+    +----------------------------------+----+----+-----+-----------+
+    |Total                             |  81|  32|  143|        124|
+    +----------------------------------+----+----+-----+-----------+
+
+
+
+================================================================
+== Interface
+================================================================
+* Summary: 
++--------------------------------+-----+-----+------------+---------------------------------------+--------------+
+|            RTL Ports           | Dir | Bits|  Protocol  |             Source Object             |    C Type    |
++--------------------------------+-----+-----+------------+---------------------------------------+--------------+
+|ap_clk                          |   in|    1|  ap_ctrl_hs|  NTT_Kernel_Pipeline_VITIS_LOOP_112_17|  return value|
+|ap_rst                          |   in|    1|  ap_ctrl_hs|  NTT_Kernel_Pipeline_VITIS_LOOP_112_17|  return value|
+|ap_start                        |   in|    1|  ap_ctrl_hs|  NTT_Kernel_Pipeline_VITIS_LOOP_112_17|  return value|
+|ap_done                         |  out|    1|  ap_ctrl_hs|  NTT_Kernel_Pipeline_VITIS_LOOP_112_17|  return value|
+|ap_idle                         |  out|    1|  ap_ctrl_hs|  NTT_Kernel_Pipeline_VITIS_LOOP_112_17|  return value|
+|ap_ready                        |  out|    1|  ap_ctrl_hs|  NTT_Kernel_Pipeline_VITIS_LOOP_112_17|  return value|
+|TwiddleFactor_7_address0        |  out|    2|   ap_memory|                        TwiddleFactor_7|         array|
+|TwiddleFactor_7_ce0             |  out|    1|   ap_memory|                        TwiddleFactor_7|         array|
+|TwiddleFactor_7_we0             |  out|    1|   ap_memory|                        TwiddleFactor_7|         array|
+|TwiddleFactor_7_d0              |  out|   64|   ap_memory|                        TwiddleFactor_7|         array|
+|TwiddleFactor_6_address0        |  out|    2|   ap_memory|                        TwiddleFactor_6|         array|
+|TwiddleFactor_6_ce0             |  out|    1|   ap_memory|                        TwiddleFactor_6|         array|
+|TwiddleFactor_6_we0             |  out|    1|   ap_memory|                        TwiddleFactor_6|         array|
+|TwiddleFactor_6_d0              |  out|   64|   ap_memory|                        TwiddleFactor_6|         array|
+|TwiddleFactor_5_address0        |  out|    2|   ap_memory|                        TwiddleFactor_5|         array|
+|TwiddleFactor_5_ce0             |  out|    1|   ap_memory|                        TwiddleFactor_5|         array|
+|TwiddleFactor_5_we0             |  out|    1|   ap_memory|                        TwiddleFactor_5|         array|
+|TwiddleFactor_5_d0              |  out|   64|   ap_memory|                        TwiddleFactor_5|         array|
+|TwiddleFactor_4_address0        |  out|    2|   ap_memory|                        TwiddleFactor_4|         array|
+|TwiddleFactor_4_ce0             |  out|    1|   ap_memory|                        TwiddleFactor_4|         array|
+|TwiddleFactor_4_we0             |  out|    1|   ap_memory|                        TwiddleFactor_4|         array|
+|TwiddleFactor_4_d0              |  out|   64|   ap_memory|                        TwiddleFactor_4|         array|
+|TwiddleFactor_3_address0        |  out|    2|   ap_memory|                        TwiddleFactor_3|         array|
+|TwiddleFactor_3_ce0             |  out|    1|   ap_memory|                        TwiddleFactor_3|         array|
+|TwiddleFactor_3_we0             |  out|    1|   ap_memory|                        TwiddleFactor_3|         array|
+|TwiddleFactor_3_d0              |  out|   64|   ap_memory|                        TwiddleFactor_3|         array|
+|TwiddleFactor_2_address0        |  out|    2|   ap_memory|                        TwiddleFactor_2|         array|
+|TwiddleFactor_2_ce0             |  out|    1|   ap_memory|                        TwiddleFactor_2|         array|
+|TwiddleFactor_2_we0             |  out|    1|   ap_memory|                        TwiddleFactor_2|         array|
+|TwiddleFactor_2_d0              |  out|   64|   ap_memory|                        TwiddleFactor_2|         array|
+|TwiddleFactor_1_address0        |  out|    2|   ap_memory|                        TwiddleFactor_1|         array|
+|TwiddleFactor_1_ce0             |  out|    1|   ap_memory|                        TwiddleFactor_1|         array|
+|TwiddleFactor_1_we0             |  out|    1|   ap_memory|                        TwiddleFactor_1|         array|
+|TwiddleFactor_1_d0              |  out|   64|   ap_memory|                        TwiddleFactor_1|         array|
+|TwiddleFactor_address0          |  out|    2|   ap_memory|                          TwiddleFactor|         array|
+|TwiddleFactor_ce0               |  out|    1|   ap_memory|                          TwiddleFactor|         array|
+|TwiddleFactor_we0               |  out|    1|   ap_memory|                          TwiddleFactor|         array|
+|TwiddleFactor_d0                |  out|   64|   ap_memory|                          TwiddleFactor|         array|
+|TwiddleIndex_address0           |  out|    2|   ap_memory|                           TwiddleIndex|         array|
+|TwiddleIndex_ce0                |  out|    1|   ap_memory|                           TwiddleIndex|         array|
+|TwiddleIndex_q0                 |   in|   17|   ap_memory|                           TwiddleIndex|         array|
+|intt_twiddle_memory_0_offset    |   in|    3|     ap_none|           intt_twiddle_memory_0_offset|        scalar|
+|intt_twiddle_memory_0_address0  |  out|   17|   ap_memory|                  intt_twiddle_memory_0|         array|
+|intt_twiddle_memory_0_ce0       |  out|    1|   ap_memory|                  intt_twiddle_memory_0|         array|
+|intt_twiddle_memory_0_q0        |   in|   64|   ap_memory|                  intt_twiddle_memory_0|         array|
+|TwiddleIndex_1_address0         |  out|    2|   ap_memory|                         TwiddleIndex_1|         array|
+|TwiddleIndex_1_ce0              |  out|    1|   ap_memory|                         TwiddleIndex_1|         array|
+|TwiddleIndex_1_q0               |   in|   17|   ap_memory|                         TwiddleIndex_1|         array|
+|TwiddleIndex_2_address0         |  out|    2|   ap_memory|                         TwiddleIndex_2|         array|
+|TwiddleIndex_2_ce0              |  out|    1|   ap_memory|                         TwiddleIndex_2|         array|
+|TwiddleIndex_2_q0               |   in|   17|   ap_memory|                         TwiddleIndex_2|         array|
+|TwiddleIndex_3_address0         |  out|    2|   ap_memory|                         TwiddleIndex_3|         array|
+|TwiddleIndex_3_ce0              |  out|    1|   ap_memory|                         TwiddleIndex_3|         array|
+|TwiddleIndex_3_q0               |   in|   17|   ap_memory|                         TwiddleIndex_3|         array|
+|TwiddleIndex_4_address0         |  out|    2|   ap_memory|                         TwiddleIndex_4|         array|
+|TwiddleIndex_4_ce0              |  out|    1|   ap_memory|                         TwiddleIndex_4|         array|
+|TwiddleIndex_4_q0               |   in|   17|   ap_memory|                         TwiddleIndex_4|         array|
+|TwiddleIndex_5_address0         |  out|    2|   ap_memory|                         TwiddleIndex_5|         array|
+|TwiddleIndex_5_ce0              |  out|    1|   ap_memory|                         TwiddleIndex_5|         array|
+|TwiddleIndex_5_q0               |   in|   17|   ap_memory|                         TwiddleIndex_5|         array|
+|TwiddleIndex_6_address0         |  out|    2|   ap_memory|                         TwiddleIndex_6|         array|
+|TwiddleIndex_6_ce0              |  out|    1|   ap_memory|                         TwiddleIndex_6|         array|
+|TwiddleIndex_6_q0               |   in|   17|   ap_memory|                         TwiddleIndex_6|         array|
+|TwiddleIndex_7_address0         |  out|    2|   ap_memory|                         TwiddleIndex_7|         array|
+|TwiddleIndex_7_ce0              |  out|    1|   ap_memory|                         TwiddleIndex_7|         array|
+|TwiddleIndex_7_q0               |   in|   17|   ap_memory|                         TwiddleIndex_7|         array|
+|intt_twiddle_memory_1_offset    |   in|    3|     ap_none|           intt_twiddle_memory_1_offset|        scalar|
+|intt_twiddle_memory_1_address0  |  out|   17|   ap_memory|                  intt_twiddle_memory_1|         array|
+|intt_twiddle_memory_1_ce0       |  out|    1|   ap_memory|                  intt_twiddle_memory_1|         array|
+|intt_twiddle_memory_1_q0        |   in|   64|   ap_memory|                  intt_twiddle_memory_1|         array|
+|intt_twiddle_memory_2_offset    |   in|    3|     ap_none|           intt_twiddle_memory_2_offset|        scalar|
+|intt_twiddle_memory_2_address0  |  out|   17|   ap_memory|                  intt_twiddle_memory_2|         array|
+|intt_twiddle_memory_2_ce0       |  out|    1|   ap_memory|                  intt_twiddle_memory_2|         array|
+|intt_twiddle_memory_2_q0        |   in|   64|   ap_memory|                  intt_twiddle_memory_2|         array|
+|intt_twiddle_memory_3_offset    |   in|    3|     ap_none|           intt_twiddle_memory_3_offset|        scalar|
+|intt_twiddle_memory_3_address0  |  out|   17|   ap_memory|                  intt_twiddle_memory_3|         array|
+|intt_twiddle_memory_3_ce0       |  out|    1|   ap_memory|                  intt_twiddle_memory_3|         array|
+|intt_twiddle_memory_3_q0        |   in|   64|   ap_memory|                  intt_twiddle_memory_3|         array|
+|intt_twiddle_memory_4_offset    |   in|    3|     ap_none|           intt_twiddle_memory_4_offset|        scalar|
+|intt_twiddle_memory_4_address0  |  out|   17|   ap_memory|                  intt_twiddle_memory_4|         array|
+|intt_twiddle_memory_4_ce0       |  out|    1|   ap_memory|                  intt_twiddle_memory_4|         array|
+|intt_twiddle_memory_4_q0        |   in|   64|   ap_memory|                  intt_twiddle_memory_4|         array|
+|intt_twiddle_memory_5_offset    |   in|    3|     ap_none|           intt_twiddle_memory_5_offset|        scalar|
+|intt_twiddle_memory_5_address0  |  out|   17|   ap_memory|                  intt_twiddle_memory_5|         array|
+|intt_twiddle_memory_5_ce0       |  out|    1|   ap_memory|                  intt_twiddle_memory_5|         array|
+|intt_twiddle_memory_5_q0        |   in|   64|   ap_memory|                  intt_twiddle_memory_5|         array|
+|intt_twiddle_memory_6_offset    |   in|    3|     ap_none|           intt_twiddle_memory_6_offset|        scalar|
+|intt_twiddle_memory_6_address0  |  out|   17|   ap_memory|                  intt_twiddle_memory_6|         array|
+|intt_twiddle_memory_6_ce0       |  out|    1|   ap_memory|                  intt_twiddle_memory_6|         array|
+|intt_twiddle_memory_6_q0        |   in|   64|   ap_memory|                  intt_twiddle_memory_6|         array|
+|intt_twiddle_memory_7_offset    |   in|    3|     ap_none|           intt_twiddle_memory_7_offset|        scalar|
+|intt_twiddle_memory_7_address0  |  out|   17|   ap_memory|                  intt_twiddle_memory_7|         array|
+|intt_twiddle_memory_7_ce0       |  out|    1|   ap_memory|                  intt_twiddle_memory_7|         array|
+|intt_twiddle_memory_7_q0        |   in|   64|   ap_memory|                  intt_twiddle_memory_7|         array|
++--------------------------------+-----+-----+------------+---------------------------------------+--------------+
+

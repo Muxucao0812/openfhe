@@ -1,0 +1,94 @@
+<design_size title="Design Size Report">
+    <item name="Total Instructions per Compilation Phase">
+        <table>
+            <keys size="4">Phase, Step, Instructions, Description</keys>
+            <column name="Compile/Link">,   6499, After all functions are compiled and linked into a single design</column>
+            <column name="">, , </column>
+            <column name="Unroll/Inline">, , After user unroll and inline pragmas are applied</column>
+            <column name="">(1) unroll,   7765, user unroll pragmas are applied</column>
+            <column name="">(2) simplification,   6149, simplification of applied user unroll pragmas</column>
+            <column name="">(3) inline,   5841, user inline pragmas are applied</column>
+            <column name="">(4) simplification,   5640, simplification of applied user inline pragmas</column>
+            <column name="">, , </column>
+            <column name="Array/Struct">, , After user array partition and struct aggregate/disaggregate pragmas are applied</column>
+            <column name="">(1) array partition, 255212 *, user array partition pragmas are applied</column>
+            <column name="">(2) simplification, 133512 *, simplification of applied user array partition &amp; struct aggregate/disaggregate pragmas</column>
+            <column name="">(3) aggregate/disaggregate , 133512 *, user struct aggregate/disaggregate pragmas are applied</column>
+            <column name="">(4) array reshape, 133512 *, apply array reshape pragmas</column>
+            <column name="">(5) access patterns, 133651 *, array access pattern optmizations</column>
+            <column name="">, , </column>
+            <column name="Performance">, , After transformations are applied to meet performance pragma targets</column>
+            <column name="">(1) loop simplification, 133588 *, loop and instruction simplification</column>
+            <column name="">(2) parallelization, 133553 *, loops are unrolled or pipelined to meet performance targets</column>
+            <column name="">(3) array partition, 133537 *, arrays are partitioned to meet performance targets</column>
+            <column name="">(4) simplification, 133537 *, simplification of design after performance transformations</column>
+            <column name="">, , </column>
+            <column name="HW Transforms">, , After hardware transfomations</column>
+            <column name="">(1) lowering, 133605 *, initial conversion to HW specific instructions</column>
+            <column name="">(2) optimizations, 132820 *, high level synthesis optimizations</column>
+        </table>
+    </item>
+    <item name="Instructions per Function for each Compilation Phase">
+        <hiertable>
+            <header size="7" col0="Function" col1="Location" col2="Compile/Link" col3="Unroll/Inline" col4="Array/Struct" col5="Performance" col6="HW Transforms"/>
+            <rows>
+                <row id="0" col0="Top" col1="top.cpp:35" col2="6499" col3="5640" col4="133651" col4_note="*" col5="133537" col5_note="*" col6="132820" col6_note="*">
+                    <row id="14" col0="Load" col1="load.cpp:4" col2="440" col2_disp=" 440 (10 calls)" col3="310" col3_disp=" 310 (10 calls)" col4="33680" col4_disp="33,680 (10 calls)" col5="33680" col5_disp="33,680 (10 calls)" col6="33710" col6_disp="33,710 (10 calls)"/>
+                    <row id="11" col0="Compute_Add" col1="mod_add_kernel.cpp:7" col2="123" col3="136" col4="4777" col5="4776" col6="4783">
+                        <row id="6" col0="AddMod" col1="arithmetic.cpp:3" col2="41" col3="" col4="" col5="" col6=""/>
+                    </row>
+                    <row id="23" col0="Store" col1="load.cpp:24" col2="264" col2_disp=" 264 (6 calls)" col3="186" col3_disp=" 186 (6 calls)" col4="6756" col4_disp=" 6,756 (6 calls)" col5="6756" col5_disp=" 6,756 (6 calls)" col6="6780" col6_disp=" 6,780 (6 calls)"/>
+                    <row id="25" col0="Compute_Sub" col1="mod_sub_kernel.cpp:7" col2="123" col3="119" col4="4760" col5="4759" col6="4766">
+                        <row id="6" col0="AddMod" col1="arithmetic.cpp:3" col2="41" col3="" col4="" col5="" col6=""/>
+                    </row>
+                    <row id="1" col0="Compute_Mult" col1="mod_mult_kernel.cpp:3" col2="540" col3="248" col4="4889" col5="4888" col6="4895">
+                        <row id="12" col0="MultMod" col1="arithmetic.cpp:57" col2="441" col3="" col4="" col5="" col6=""/>
+                    </row>
+                    <row id="2" col0="InterLeave" col1="interleave.cpp:8" col2="202" col2_disp=" 202 (2 calls)" col3="436" col3_disp=" 436 (2 calls)" col4="39596" col4_disp="39,596 (2 calls)" col5="39592" col5_disp="39,592 (2 calls)" col6="39640" col6_disp="39,640 (2 calls)"/>
+                    <row id="4" col0="Compute_NTT" col1="ntt_kernel.cpp:319" col2="3418" col2_disp="3,418 (2 calls)" col3="" col4="" col5="" col6="">
+                        <row id="7" col0="NTT_Kernel" col1="ntt_kernel.cpp:243" col2="3352" col2_disp="3,352 (2 calls)" col3="" col4="" col5="" col6="">
+                            <row id="20" col0="compute_indices" col1="ntt_kernel.cpp:3" col2="368" col2_disp=" 368 (2 calls)" col3="" col4="" col5="" col6="">
+                                <row id="17" col0="generate_input_index" col1="ntt_kernel.cpp:20" col2="168" col2_disp=" 168 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="22" col0="exact_log2" col1="ntt_kernel.cpp:11" col2="80" col2_disp="  80 (8 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                                <row id="21" col0="generate_output_index" col1="ntt_kernel.cpp:37" col2="194" col2_disp=" 194 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="22" col0="exact_log2" col1="ntt_kernel.cpp:11" col2="100" col2_disp=" 100 (10 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                            <row id="18" col0="read_data" col1="ntt_kernel.cpp:58" col2="80" col2_disp="  80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                            <row id="9" col0="permutate_data" col1="ntt_kernel.cpp:82" col2="38" col2_disp="  38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                            <row id="10" col0="generate_twiddle_index" col1="ntt_kernel.cpp:94" col2="76" col2_disp="  76 (2 calls)" col3="" col4="" col5="" col6=""/>
+                            <row id="3" col0="permute_twiddle_factors" col1="ntt_kernel.cpp:106" col2="84" col2_disp="  84 (4 calls)" col3="" col4="" col5="" col6=""/>
+                            <row id="24" col0="compute_core" col1="ntt_kernel.cpp:120" col2="2376" col2_disp="2,376 (2 calls)" col3="" col4="" col5="" col6="">
+                                <row id="8" col0="Configurable_PE" col1="ntt_kernel.cpp:191" col2="2288" col2_disp="2,288 (2 calls)" col3="" col4="" col5="" col6="">
+                                    <row id="12" col0="MultMod" col1="arithmetic.cpp:57" col2="1764" col2_disp="1,764 (4 calls)" col3="" col4="" col5="" col6=""/>
+                                    <row id="6" col0="AddMod" col1="arithmetic.cpp:3" col2="328" col2_disp=" 328 (8 calls)" col3="" col4="" col5="" col6=""/>
+                                </row>
+                            </row>
+                            <row id="13" col0="repermute_data" col1="ntt_kernel.cpp:156" col2="38" col2_disp="  38 (2 calls)" col3="" col4="" col5="" col6=""/>
+                            <row id="16" col0="rewrite_data" col1="ntt_kernel.cpp:168" col2="80" col2_disp="  80 (2 calls)" col3="" col4="" col5="" col6=""/>
+                        </row>
+                    </row>
+                    <row id="5" col0="Compute_BConv" col1="bconv.cpp:138" col2="1001" col3="630" col4="4976" col5="4940" col6="4973">
+                        <row id="19" col0="bconv_systolic" col1="bconv.cpp:15" col2="843" col3="" col4="" col5="" col6=""/>
+                    </row>
+                    <row id="15" col0="Compute_Auto" col1="auto.cpp:47" col2="75" col3="47" col4="3958" col5="3894" col6="3902"/>
+                    <row id="7" col0="NTT_Kernel" col1="ntt_kernel.cpp:243" col2="" col3="3250" col3_disp="3,250 (2 calls)" col4="12244" col4_disp="12,244 (2 calls)" col5="12240" col5_disp="12,240 (2 calls)" col6="12342" col6_disp="12,342 (2 calls)">
+                        <row id="18" col0="read_data" col1="ntt_kernel.cpp:58" col2="" col3="298" col3_disp=" 298 (2 calls)" col4="2258" col4_disp=" 2,258 (2 calls)" col5="2258" col5_disp=" 2,258 (2 calls)" col6="2268" col6_disp=" 2,268 (2 calls)"/>
+                        <row id="16" col0="rewrite_data" col1="ntt_kernel.cpp:168" col2="" col3="282" col3_disp=" 282 (2 calls)" col4="5448" col4_disp=" 5,448 (2 calls)" col5="5448" col5_disp=" 5,448 (2 calls)" col6="5458" col6_disp=" 5,458 (2 calls)"/>
+                    </row>
+                </row>
+            </rows>
+            <notes>
+                <note name="*" desc="Exceeded design size warning message threshold"/>
+            </notes>
+        </hiertable>
+    </item>
+    <item name="Design Size Message Settings">
+        <table>
+            <keys size="3">Message Setting, Value, Description</keys>
+            <column name="config_compile -design_size_maximum_warning">100000, Show a warning when total design instructions exceeds this value</column>
+        </table>
+    </item>
+</design_size>
+
