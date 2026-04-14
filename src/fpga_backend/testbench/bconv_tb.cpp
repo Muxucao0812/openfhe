@@ -66,6 +66,8 @@ int main() {
 
     uint64_t in_w[LIMB_Q][MAX_OUT_COLS];
     uint64_t out_mod[MAX_OUT_COLS];
+    uint64_t out_k_half[MAX_OUT_COLS];
+    uint64_t out_m_barrett[MAX_OUT_COLS];
     
     // 假设本次测试需要输出 3 列
     int test_sizeP = 2; 
@@ -75,6 +77,11 @@ int main() {
     for (int p = 0; p < MAX_OUT_COLS; ++p) {
         // 为了防止 % 0 报错，给一个非零的随机模数
         out_mod[p] = (rand() % 100000) + 10000; 
+        uint64_t mod = out_mod[p];
+        int k_half = 64 - __builtin_clzll(mod);
+        unsigned __int128 m_val = ((unsigned __int128)1 << (k_half + 1)) / mod;
+        out_k_half[p] = (uint64_t)k_half;
+        out_m_barrett[p] = (uint64_t)m_val;
     }
 
     // 随机生成权重矩阵 w
@@ -101,7 +108,7 @@ int main() {
 
     // 4. 运行硬件 HLS 模块
     cout << "-> Running Hardware HLS Module..." << endl;
-    Compute_BConv(hw_in_x, in_w, out_mod, test_sizeP);
+    Compute_BConv(hw_in_x, in_w, out_mod, out_k_half, out_m_barrett, test_sizeP);
 
     // 5. 对比验证 (Validation)
     cout << "-> Comparing Results..." << endl;

@@ -7,12 +7,11 @@
 # ===================================================================
 
 # # --- 1. 基础配置 ---
-PLATFORM ?= xilinx_u250_gen3x16_xdma_4_1_202210_1
-HLS_PART := xcu250-figd2104-2L-e 
+PLATFORM ?= xilinx_u55c_gen3x16_xdma_3_202210_1
+HLS_PART := xcu55c-fsvh2892-2L-e 
 
-# PLATFORM ?= xilinx_u55c_gen3x16_xdma_3_202210_1
-# U55C 使用的是 UltraScale+ XCU55C 芯片
-# HLS_PART := xcu55c-fsvh2892-2L-e
+# PLATFORM ?= xilinx_u250_gen3x16_xdma_4_1_202210_1
+# U250 旧平台配置，已改为 U55C
 
 TARGET   ?= hw
 

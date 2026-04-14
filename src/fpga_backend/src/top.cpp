@@ -29,8 +29,8 @@ static uint64_t M[MAX_LIMBS];
 // ------------------------
 // Store the TwiddleFactor
 // ------------------------
-static uint64_t NTTTwiddleFactor[MAX_LIMBS][BU_NUM][RING_DIM];
-static uint64_t INTTTwiddleFactor[MAX_LIMBS][BU_NUM][RING_DIM];
+static uint64_t NTTTwiddleFactor[MAX_LIMBS][RING_DIM];
+static uint64_t INTTTwiddleFactor[MAX_LIMBS][RING_DIM];
 
 void Top(
     const uint64_t *mem_in1,
@@ -43,7 +43,7 @@ void Top(
 
     #pragma HLS INTERFACE m_axi port=mem_in1  offset=slave bundle=gmem0
     #pragma HLS INTERFACE m_axi port=mem_in2  offset=slave bundle=gmem1
-    #pragma HLS INTERFACE m_axi port=mem_out  offset=slave bundle=gmem0
+    #pragma HLS INTERFACE m_axi port=mem_out  offset=slave bundle=gmem2
 
     #pragma HLS INTERFACE s_axilite port=mem_in1  bundle=control
     #pragma HLS INTERFACE s_axilite port=mem_in2  bundle=control
@@ -69,16 +69,20 @@ void Top(
             // 简单布局：Q模数在索引0,1,2，P模数在索引3,4
             // 无padding，与Host端一致
             
-            init_Q_Loop:
+            init_Q_MOD:
             for (int i = 0; i < LIMB_Q; i++){
+                #pragma HLS PIPELINE II=1
                 MODULUS[i] = mem_in1[i];
+            }
+            init_Q_KHALF:
+            for (int i = 0; i < LIMB_Q; i++){
+                #pragma HLS PIPELINE II=1
                 K_HALF[i] = mem_in1[LIMB_Q + i];
+            }
+            init_Q_M:
+            for (int i = 0; i < LIMB_Q; i++){
+                #pragma HLS PIPELINE II=1
                 M[i] = mem_in1[LIMB_Q*2 + i];
-                
-                #ifndef __SYNTHESIS__
-                std::cout << "[FPGA Init] Q[" << i << "]: MOD=" << MODULUS[i] 
-                          << ", K=" << K_HALF[i] << ", M=" << M[i] << std::endl;
-                #endif
             }
             init_P_Loop:
             for (int j = 0; j < LIMB_P; j++){
@@ -93,22 +97,26 @@ void Top(
                           << ", K=" << K_HALF[idx] << ", M=" << M[idx] << std::endl;
                 #endif
             }
+            // mem_in1 布局: [MODULUS×LIMB_Q] [K_HALF×LIMB_Q] [M×LIMB_Q]
+            //               [NTT_TF : MAX_LIMBS × RING_DIM]   ← Host 只传 RING_DIM 个/limb
+            // mem_in2 布局: [MODULUS×LIMB_P] [K_HALF×LIMB_P] [M×LIMB_P]
+            //               [INTT_TF: MAX_LIMBS × RING_DIM]   ← 同上
+            //
+            // BU_NUM 是 FPGA 内部并行度，Host 不感知；
+            // 加载时将每 limb 的 RING_DIM 个 TF 广播给所有 BU。
+            static const int NTT_TF_BASE  = LIMB_Q * 3;   // mem_in1 中 NTT_TF 起始偏移
+            static const int INTT_TF_BASE = LIMB_P * 3;   // mem_in2 中 INTT_TF 起始偏移
+
             init_NTTTwiddle_Loop:
-            for (int l = 0; l < LIMB_Q + LIMB_P; l++){
-                int offset = LIMB_Q * 3;
-                for (int b = 0; b < BU_NUM; b++){
-                    for (int t = 0; t < RING_DIM; t++){
-                        NTTTwiddleFactor[l][b][t] = mem_in1[offset + l*RING_DIM + t];
-                    }
+            for (int l = 0; l < MAX_LIMBS; l++){
+                for (int t = 0; t < RING_DIM; t++){
+                    NTTTwiddleFactor[l][t] = mem_in1[NTT_TF_BASE + l * RING_DIM + t];
                 }
             }
             init_INTTTwiddle_Loop:
-            for (int l = 0; l < LIMB_Q + LIMB_P; l++){
-                int offset = LIMB_P * 3;
-                for (int b = 0; b < BU_NUM; b++){
-                    for (int t = 0; t < RING_DIM; t++){
-                        INTTTwiddleFactor[l][b][t] = mem_in2[offset + l*RING_DIM + t];
-                    }
+            for (int l = 0; l < MAX_LIMBS; l++){
+                for (int t = 0; t < RING_DIM; t++){
+                    INTTTwiddleFactor[l][t] = mem_in2[INTT_TF_BASE + l * RING_DIM + t];
                 }
             }
             break;
@@ -128,7 +136,7 @@ void Top(
             Store(result_buffer, mem_out, num_active_limbs, mod_index);
             break;
 
-        case OP_MUL:
+        case OP_MULT:
             Load(mem_in1, poly_buffer_1, num_active_limbs, mod_index);
             Load(mem_in2, poly_buffer_2, num_active_limbs, mod_index);
             Compute_Mult(poly_buffer_1, poly_buffer_2, result_buffer, MODULUS, K_HALF, M, num_active_limbs, mod_index);
@@ -174,19 +182,25 @@ void Top(
             }
             
             static uint64_t out_mod[MAX_OUT_COLS];
+            static uint64_t out_k_half[MAX_OUT_COLS];
+            static uint64_t out_m_barrett[MAX_OUT_COLS];
             int mod_offset = LIMB_Q * MAX_OUT_COLS;
+            int khalf_offset = mod_offset + MAX_OUT_COLS;
+            int m_offset     = khalf_offset + MAX_OUT_COLS;
             for (int p = 0; p < MAX_OUT_COLS; p++){
-                out_mod[p] = mem_in2[mod_offset + p];
+                out_mod[p]      = mem_in2[mod_offset + p];
+                out_k_half[p]   = mem_in2[khalf_offset + p];
+                out_m_barrett[p]= mem_in2[m_offset + p];
             }
             
             #ifndef __SYNTHESIS__
             std::cout << "[BCONV] sizeP=" << sizeP << std::endl;
             for (int p = 0; p < sizeP; p++) {
-                std::cout << "  out_mod[" << p << "] = " << out_mod[p] << std::endl;
+                std::cout << "  out_mod[" << p << "] = " << out_mod[p] << ", k_half=" << out_k_half[p] << ", m_barrett=" << out_m_barrett[p] << std::endl;
             }
             #endif
             // 计算 BConv, 结果写到 poly_buffer_1[LIMB_Q..LIMB_Q+sizeP-1]
-            Compute_BConv(poly_buffer_1, in_w, out_mod, sizeP);
+            Compute_BConv(poly_buffer_1, in_w, out_mod, out_k_half, out_m_barrett, sizeP);
             
             // Store sizeP limbs (输出)
             for (int l = 0; l < sizeP; l++) {

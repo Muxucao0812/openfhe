@@ -55,15 +55,16 @@ void Karatsuba(
 // Barrett Modular Multiplication (纯 DSP 版本)
 // =================================================
 void MultMod(
-    const uint64_t &a,           
-    const uint64_t &b,  
+    const uint64_t &a,
+    const uint64_t &b,
     const uint64_t &mod,
     const uint64_t &m,
     const uint64_t &k_half,
     uint64_t &res_mod
-  
+
 ){
-    #pragma HLS INLINE
+    #pragma HLS INLINE off
+    #pragma HLS PIPELINE II=1
 
 
     // 2. 全精度乘法 (Step 0)

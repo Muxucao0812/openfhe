@@ -19,6 +19,8 @@ extern "C" {
         uint64_t in_x[MAX_LIMBS][SQRT][SQRT], 
         const uint64_t in_w[LIMB_Q][MAX_OUT_COLS], 
         const uint64_t out_mod[MAX_OUT_COLS],
+        const uint64_t out_k_half[MAX_OUT_COLS],
+        const uint64_t out_m_barrett[MAX_OUT_COLS],
         int sizeP
     );
 }

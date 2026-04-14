@@ -105,13 +105,13 @@ void generate_twiddle_index(int j, int k, int TwiddleIndex[BU_NUM]) {
 
 void permute_twiddle_factors(
     uint64_t TwiddleFactor[BU_NUM],
-    const uint64_t NTTTWiddleRAM[BU_NUM][RING_DIM],
+    const uint64_t NTTTWiddleRAM[RING_DIM],
     int TwiddleIndex[BU_NUM]
 ) {
     #pragma HLS INLINE
     for (int l = 0; l < BU_NUM; l++) {
         #pragma HLS UNROLL factor=8
-        TwiddleFactor[l] = NTTTWiddleRAM[l][TwiddleIndex[l]];
+        TwiddleFactor[l] = NTTTWiddleRAM[TwiddleIndex[l]];
     }
 }
 
@@ -247,14 +247,14 @@ void NTT_Kernel(
     const uint64_t K_HALF,
     const uint64_t M,
     
-    const uint64_t ntt_twiddle_memory[BU_NUM][RING_DIM],
-    const uint64_t intt_twiddle_memory[BU_NUM][RING_DIM],
+    const uint64_t ntt_twiddle_memory[RING_DIM],
+    const uint64_t intt_twiddle_memory[RING_DIM],
 
     bool is_ntt
 ){
     // in_memory[SQRT][SQRT]：内层循环按列（dim=2）展开，cyclic factor=8 匹配 UNROLL
     #pragma HLS ARRAY_PARTITION variable=in_memory cyclic factor=8 dim=2
-    // twiddle[BU_NUM][RING_DIM]：按 BU_NUM（dim=1）展开访问，cyclic factor=8 匹配 UNROLL
+    // twiddle[RING_DIM]：按扇区展开访问，cyclic factor=8 匹配 UNROLL
     #pragma HLS ARRAY_PARTITION variable=ntt_twiddle_memory cyclic factor=8 dim=1
     #pragma HLS ARRAY_PARTITION variable=intt_twiddle_memory cyclic factor=8 dim=1
 
@@ -319,8 +319,8 @@ void NTT_Kernel(
 void Compute_NTT(
     // memory for ntt and tf
     uint64_t in_memory[MAX_LIMBS][SQRT][SQRT],
-    const uint64_t ntt_twiddle_memory[MAX_LIMBS][BU_NUM][RING_DIM],
-    const uint64_t intt_twiddle_memory[MAX_LIMBS][BU_NUM][RING_DIM],
+    const uint64_t ntt_twiddle_memory[MAX_LIMBS][RING_DIM],
+    const uint64_t intt_twiddle_memory[MAX_LIMBS][RING_DIM],
 
     const uint64_t modulus[MAX_LIMBS],
     const uint64_t K_HALF[MAX_LIMBS],
@@ -336,7 +336,7 @@ void Compute_NTT(
     // in_memory[MAX_LIMBS][SQRT][SQRT]：并行访问最内层列（dim=3）
     #pragma HLS ARRAY_PARTITION variable=in_memory cyclic factor=8 dim=3
 
-    // twiddle_memory[MAX_LIMBS][BU_NUM][RING_DIM]：按 BU_NUM 展开访问（dim=2）
+    // twiddle_memory[MAX_LIMBS][RING_DIM]：按 RING_DIM 展开访问（dim=2）
     #pragma HLS ARRAY_PARTITION variable=ntt_twiddle_memory cyclic factor=8 dim=2
     #pragma HLS ARRAY_PARTITION variable=intt_twiddle_memory cyclic factor=8 dim=2
 

@@ -21,8 +21,8 @@ void InterLeave(
     #pragma HLS BIND_STORAGE variable=temp_buffer type=ram_2p impl=bram
 
     // 强制完全切分列维度，彻底消除 HLS 对端口冲突的担忧，并匹配 top.cpp
-    #pragma HLS ARRAY_PARTITION variable=temp_buffer complete dim=2
-    #pragma HLS ARRAY_PARTITION variable=data complete dim=2
+    #pragma HLS ARRAY_PARTITION variable=temp_buffer cyclic factor=8 dim=2
+    #pragma HLS ARRAY_PARTITION variable=data cyclic factor=8 dim=2
 
     const int mask = SQRT - 1; 
 

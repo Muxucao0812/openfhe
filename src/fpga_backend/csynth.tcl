@@ -28,7 +28,7 @@ add_files {
 
 open_solution "solution1"
 set_part xcu55c-fsvh2892-2L-e
-create_clock -period 4ns
+create_clock -period 5ns
 
 csynth_design
 exit
