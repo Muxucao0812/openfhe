@@ -20,11 +20,9 @@ void InterLeave(
     // 绑定到 BRAM (如果 SQRT 很大导致 BRAM 不够，可改用 uram)
     #pragma HLS BIND_STORAGE variable=temp_buffer type=ram_2p impl=bram
 
-    // 关键：内存切分 (16路并行)，必须与外部传入的 data 的切分方式一致
-    #pragma HLS ARRAY_PARTITION variable=temp_buffer cyclic factor=PARALLEL_FACTOR dim=2
-    
-    // 同时也声明对外部接口的期望 (告诉 HLS 外部传进来的也是切分好的)
-    #pragma HLS ARRAY_PARTITION variable=data cyclic factor=PARALLEL_FACTOR dim=2
+    // 强制完全切分列维度，彻底消除 HLS 对端口冲突的担忧，并匹配 top.cpp
+    #pragma HLS ARRAY_PARTITION variable=temp_buffer complete dim=2
+    #pragma HLS ARRAY_PARTITION variable=data complete dim=2
 
     const int mask = SQRT - 1; 
 
