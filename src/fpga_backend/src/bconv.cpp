@@ -7,20 +7,21 @@ static const int TOTAL_CYCLES = LIMB_Q + RING_DIM + MAX_OUT_COLS - 1;
 // bconv_systolic: 脉动阵列核心计算
 // =============================================================
 // 设计思路：
-//   顶层 local_in_x 定义为 1D [MAX_LIMBS][RING_DIM]，dim=1 complete
-//   partition 后每个 limb 是独立 BRAM bank。
-//   Systolic_Loop 内用线性下标 data_idx / valid_count[p] 直接访问，
-//   每个 bank 每周期最多 1 读或 1 写，不会触发 full array load/store。
+//   输入和输出使用独立数组，避免 HLS full array load/store 错误。
+//   in_x [LIMB_Q][RING_DIM]  —— 只读，partition dim=1 complete
+//   out_x[MAX_OUT_COLS][RING_DIM] —— 只写，partition dim=1 complete
+//   每个 bank 每周期最多 1 次读或 1 次写，访问模式清晰无冲突。
 // =============================================================
 void bconv_systolic(
-    uint64_t in_x[MAX_LIMBS][RING_DIM],       // 1D 线性化
+    const uint64_t in_x[LIMB_Q][RING_DIM],    // 输入只读
+    uint64_t out_x[MAX_OUT_COLS][RING_DIM],    // 输出只写
     const uint64_t in_w[LIMB_Q][MAX_OUT_COLS],
     const uint64_t out_mod[MAX_OUT_COLS],
     int sizeP
 ) {
     #pragma HLS INLINE
 
-    // in_x 继承调用方的 partition 属性，不再重复声明
+    // 输入输出分离，各自继承调用方的 partition 属性
     #pragma HLS ARRAY_PARTITION variable=in_w complete dim=0
     #pragma HLS ARRAY_PARTITION variable=out_mod complete dim=0
 
@@ -58,7 +59,7 @@ void bconv_systolic(
 
     // ---------------------------------------------------------
     // 主脉动循环
-    // in_x 已是 1D，线性下标访问，每个 bank 每周期最多 1 次读/写
+    // in_x 只读，out_x 只写，访问模式清晰无冲突
     // ---------------------------------------------------------
     Systolic_Loop: for (int t = 0; t < TOTAL_CYCLES; ++t) {
     #pragma HLS PIPELINE II=1
@@ -85,7 +86,7 @@ void bconv_systolic(
             }
         }
 
-        // 从 in_x 喂数据：in_x[q][data_idx]，每个 q bank 最多 1 次读
+        // 从 in_x 喂数据：in_x[q][data_idx]，只读访问
         Feed_X: for (int q = 0; q < LIMB_Q; ++q) {
         #pragma HLS UNROLL
             int data_idx = t - q;
@@ -118,13 +119,13 @@ void bconv_systolic(
             }
         }
 
-        // 收集输出：in_x[LIMB_Q+p][valid_count[p]]，每个 p bank 最多 1 次写
+        // 收集输出：写入 out_x[p][valid_count[p]]，只写访问
         Collect: for (int p = 0; p < MAX_OUT_COLS; ++p) {
         #pragma HLS UNROLL
             int latency = LIMB_Q + p;
             if (p < sizeP && t >= latency && valid_count[p] < RING_DIM) {
                 ap_uint<128> result = sum_reg[p][LIMB_Q];
-                in_x[LIMB_Q + p][valid_count[p]] = (uint64_t)(result);
+                out_x[p][valid_count[p]] = (uint64_t)(result);
                 valid_count[p]++;
             }
         }
@@ -147,13 +148,17 @@ void Compute_BConv(
     #pragma HLS INTERFACE s_axilite port=return bundle=control
 
     // ----------------------------------------------
-    // 1. 片上存储空间
+    // 1. 片上存储空间（输入/输出分离，避免 full array load/store）
     // ----------------------------------------------
-    // 1D 线性化：[MAX_LIMBS][RING_DIM]，dim=1 complete partition
-    // 每个 limb 是独立 BRAM bank，pipeline 内线性下标访问无冲突
-    uint64_t local_in_x[MAX_LIMBS][RING_DIM];
+    // 输入数组：只读，LIMB_Q 个 bank，每个 bank RING_DIM
+    uint64_t local_in_x[LIMB_Q][RING_DIM];
     #pragma HLS BIND_STORAGE variable=local_in_x type=ram_2p impl=bram
     #pragma HLS ARRAY_PARTITION variable=local_in_x type=complete dim=1
+
+    // 输出数组：只写，MAX_OUT_COLS 个 bank，每个 bank RING_DIM
+    uint64_t local_out_x[MAX_OUT_COLS][RING_DIM];
+    #pragma HLS BIND_STORAGE variable=local_out_x type=ram_2p impl=bram
+    #pragma HLS ARRAY_PARTITION variable=local_out_x type=complete dim=1
 
     // 权重和模数数据量小，完全打散成寄存器
     uint64_t local_w[LIMB_Q][MAX_OUT_COLS];
@@ -176,7 +181,7 @@ void Compute_BConv(
         local_mod[p] = out_mod[p];
     }
 
-    // DDR 是 2D [SQRT][SQRT]，线性化搬入 1D [RING_DIM]
+    // DDR 是 2D [SQRT][SQRT]，线性化搬入 1D [RING_DIM]（只搬输入 limbs）
     Load_X: for (int l = 0; l < LIMB_Q; ++l) {
         for (int r = 0; r < SQRT; ++r) {
             for (int c = 0; c < SQRT; ++c) {
@@ -187,18 +192,18 @@ void Compute_BConv(
     }
 
     // -----------------------------------------
-    // 3. Compute Phase: 纯片上脉动阵列计算
+    // 3. Compute Phase: 输入只读，输出只写，无冲突
     // -----------------------------------------
-    bconv_systolic(local_in_x, local_w, local_mod, sizeP);
+    bconv_systolic(local_in_x, local_out_x, local_w, local_mod, sizeP);
 
     // -----------------------------------------
-    // 4. Store Phase: 片上 1D → DDR 2D
+    // 4. Store Phase: 片上 1D → DDR 2D（从 local_out_x 搬出）
     // -----------------------------------------
     Store_X: for (int p = 0; p < sizeP; ++p) {
         for (int r = 0; r < SQRT; ++r) {
             for (int c = 0; c < SQRT; ++c) {
                 #pragma HLS PIPELINE II=1
-                in_x[LIMB_Q + p][r][c] = local_in_x[LIMB_Q + p][r * SQRT + c];
+                in_x[LIMB_Q + p][r][c] = local_out_x[p][r * SQRT + c];
             }
         }
     }

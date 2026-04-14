@@ -12,23 +12,25 @@ void Compute_Sub(
     int num_active_limbs,                // 当前有效层数 (比如 44)
     int mod_idx_offset                // 如果有模数偏移 (通常是 0)
 ) {
-
-
+    // 将最内层维度 (dim=3) 按 cyclic factor=8 划分，提供 8 个并行 BRAM bank
+    // 与 NTT 核心的 factor=8 保持一致，避免顶层整合时产生 MUX 冲突
+    #pragma HLS ARRAY_PARTITION variable=in1 cyclic factor=8 dim=3
+    #pragma HLS ARRAY_PARTITION variable=in2 cyclic factor=8 dim=3
+    #pragma HLS ARRAY_PARTITION variable=out cyclic factor=8 dim=3
 
     Limb_Loop:
     for (int r = mod_idx_offset; r < num_active_limbs + mod_idx_offset; r++) {
         uint64_t q = MODULUS[r];
         Row_Loop:
         for (int i = 0; i < SQRT; i++) {
-            
             Col_Loop:
             for (int j = 0; j < SQRT; j++) {
                 #pragma HLS PIPELINE II=1
-                #pragma HLS UNROLL factor=16 
-      
+                #pragma HLS UNROLL factor=8
+
                 uint64_t a = in1[r][i][j];
                 uint64_t b = in2[r][i][j];
-                
+
                 AddMod(a, b, q, false);
 
                 out[r][i][j] = a;

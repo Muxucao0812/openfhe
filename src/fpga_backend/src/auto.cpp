@@ -60,22 +60,23 @@ void Compute_Auto(
 
     (void)k;
 
-ROW:
-    for (int row = 0; row < M; ++row) {
-    COL:
-        for (int col = 0; col < M; ++col) {
+ROW_COL:
+    for (int idx = 0; idx < M * M; ++idx) {
 #pragma HLS PIPELINE II=1
 
-            int out_idx = row * M + col;
-            uint64_t in_raw = ((uint64_t)out_idx * (uint64_t)kinv) % (uint64_t)N2;
-            bool negate     = (in_raw >= (uint64_t)N);
-            int in_idx      = negate ? (int)(in_raw - N) : (int)in_raw;
-            int in_row      = in_idx / M;
-            int in_col      = in_idx % M;
+        int row = idx >> LOG_SQRT;     // idx / M
+        int col = idx & (M - 1);       // idx % M
 
-        LIMB:
-            for (int l = mod_index; l < mod_index + num_active_limbs; ++l) {
+        uint64_t in_raw = ((uint64_t)idx * (uint64_t)kinv) % (uint64_t)N2;
+        bool negate     = (in_raw >= (uint64_t)N);
+        int in_idx      = negate ? (int)(in_raw - N) : (int)in_raw;
+        int in_row      = in_idx >> LOG_SQRT;
+        int in_col      = in_idx & (M - 1);
+
+    LIMB:
+        for (int l = 0; l < MAX_LIMBS; ++l) {
 #pragma HLS UNROLL
+            if (l >= mod_index && l < mod_index + num_active_limbs) {
                 uint64_t v = input[l][in_row][in_col];
                 uint64_t q = MODULUS[l];
                 output[l][row][col] = negate ? (v == 0 ? 0 : (q - v)) : v;
