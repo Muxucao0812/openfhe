@@ -1,0 +1,88 @@
+[HKS-Bench] Strategy: OC  Iters: 20
+
+[FPGA] Device connected: xilinx_u2_gen3x4_xdma_gc_base_2
+[Host] FPGA not available, running on CPU.
+
+
+====================================================
+  HKS Strategy Evaluation Report
+====================================================
+  Strategy        : OC
+  Ring Dim (N)    : 4096
+  sizeQl          : 3
+  sizeP           : 2
+  Digits          : 2  (alpha=2)
+----------------------------------------------------
+  [Operation Counts per KeySwitch]
+  INTT (poly)     : 2
+  NTT  (poly)     : 0
+  NTT  (limb, OC) : 7
+  BConv           : 4
+  ModMul (limb)   : 20
+----------------------------------------------------
+  [Peak SRAM - P-tower complement buffer]
+  P-towers held   : 1
+  Buffer size     : 32768 bytes  (32 KB)
+----------------------------------------------------
+  [Timing (20 iters)]
+  Total           : 76.8404 ms
+  Avg per op      : 3.84202 ms
+====================================================
+[HKS-Bench] Strategy: MP  Iters: 20
+
+[FPGA] Device connected: xilinx_u2_gen3x4_xdma_gc_base_2
+[Host] FPGA not available, running on CPU.
+
+
+====================================================
+  HKS Strategy Evaluation Report
+====================================================
+  Strategy        : MP
+  Ring Dim (N)    : 4096
+  sizeQl          : 3
+  sizeP           : 2
+  Digits          : 2  (alpha=2)
+----------------------------------------------------
+  [Operation Counts per KeySwitch]
+  INTT (poly)     : 2
+  NTT  (poly)     : 4
+  BConv           : 2
+  ModMul (limb)   : 20
+----------------------------------------------------
+  [Peak SRAM - P-tower complement buffer]
+  P-towers held   : 4
+  Buffer size     : 131072 bytes  (128 KB)
+----------------------------------------------------
+  [Timing (20 iters)]
+  Total           : 78.4993 ms
+  Avg per op      : 3.92496 ms
+====================================================
+[HKS-Bench] Strategy: DC  Iters: 20
+
+[FPGA] Device connected: xilinx_u2_gen3x4_xdma_gc_base_2
+[Host] FPGA not available, running on CPU.
+
+
+====================================================
+  HKS Strategy Evaluation Report
+====================================================
+  Strategy        : DC
+  Ring Dim (N)    : 4096
+  sizeQl          : 3
+  sizeP           : 2
+  Digits          : 2  (alpha=2)
+----------------------------------------------------
+  [Operation Counts per KeySwitch]
+  INTT (poly)     : 2
+  NTT  (poly)     : 4
+  BConv           : 2
+  ModMul (limb)   : 20
+----------------------------------------------------
+  [Peak SRAM - P-tower complement buffer]
+  P-towers held   : 2
+  Buffer size     : 65536 bytes  (64 KB)
+----------------------------------------------------
+  [Timing (20 iters)]
+  Total           : 83.1902 ms
+  Avg per op      : 4.15951 ms
+====================================================
