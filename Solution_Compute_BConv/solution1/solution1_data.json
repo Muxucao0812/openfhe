@@ -1,0 +1,1023 @@
+{
+  "Top": "Compute_BConv",
+  "RtlTop": "Compute_BConv",
+  "RtlPrefix": "",
+  "RtlSubPrefix": "Compute_BConv_",
+  "SourceLanguage": "cpp",
+  "HostMachineBits": "64",
+  "FunctionProtocol": "ap_ctrl_hs",
+  "ResetStyle": "control",
+  "Target": {
+    "Family": "virtexuplushbm",
+    "Device": "xcu55c",
+    "Package": "-fsvh2892",
+    "Speed": "-2L-e",
+    "Triple": "fpga64-xilinx-none"
+  },
+  "Args": {
+    "in_x": {
+      "index": "0",
+      "direction": "inout",
+      "srcType": "long unsigned int*",
+      "srcSize": "64",
+      "hwRefs": [
+        {
+          "type": "port",
+          "interface": "in_x_address0",
+          "name": "in_x_address0",
+          "usage": "address",
+          "direction": "out"
+        },
+        {
+          "type": "port",
+          "interface": "in_x_ce0",
+          "name": "in_x_ce0",
+          "usage": "control",
+          "direction": "out"
+        },
+        {
+          "type": "port",
+          "interface": "in_x_we0",
+          "name": "in_x_we0",
+          "usage": "control",
+          "direction": "out"
+        },
+        {
+          "type": "port",
+          "interface": "in_x_d0",
+          "name": "in_x_d0",
+          "usage": "data",
+          "direction": "out"
+        },
+        {
+          "type": "port",
+          "interface": "in_x_q0",
+          "name": "in_x_q0",
+          "usage": "data",
+          "direction": "in"
+        }
+      ]
+    },
+    "in_w": {
+      "index": "1",
+      "direction": "in",
+      "srcType": "long unsigned int const *",
+      "srcSize": "64",
+      "hwRefs": [
+        {
+          "type": "port",
+          "interface": "in_w_address0",
+          "name": "in_w_address0",
+          "usage": "address",
+          "direction": "out"
+        },
+        {
+          "type": "port",
+          "interface": "in_w_ce0",
+          "name": "in_w_ce0",
+          "usage": "control",
+          "direction": "out"
+        },
+        {
+          "type": "port",
+          "interface": "in_w_q0",
+          "name": "in_w_q0",
+          "usage": "data",
+          "direction": "in"
+        }
+      ]
+    },
+    "out_mod": {
+      "index": "2",
+      "direction": "in",
+      "srcType": "long unsigned int const *",
+      "srcSize": "64",
+      "hwRefs": [
+        {
+          "type": "port",
+          "interface": "out_mod_address0",
+          "name": "out_mod_address0",
+          "usage": "address",
+          "direction": "out"
+        },
+        {
+          "type": "port",
+          "interface": "out_mod_ce0",
+          "name": "out_mod_ce0",
+          "usage": "control",
+          "direction": "out"
+        },
+        {
+          "type": "port",
+          "interface": "out_mod_q0",
+          "name": "out_mod_q0",
+          "usage": "data",
+          "direction": "in"
+        }
+      ]
+    },
+    "out_k_half": {
+      "index": "3",
+      "direction": "in",
+      "srcType": "long unsigned int const *",
+      "srcSize": "64",
+      "hwRefs": [
+        {
+          "type": "port",
+          "interface": "out_k_half_address0",
+          "name": "out_k_half_address0",
+          "usage": "address",
+          "direction": "out"
+        },
+        {
+          "type": "port",
+          "interface": "out_k_half_ce0",
+          "name": "out_k_half_ce0",
+          "usage": "control",
+          "direction": "out"
+        },
+        {
+          "type": "port",
+          "interface": "out_k_half_q0",
+          "name": "out_k_half_q0",
+          "usage": "data",
+          "direction": "in"
+        }
+      ]
+    },
+    "out_m_barrett": {
+      "index": "4",
+      "direction": "in",
+      "srcType": "long unsigned int const *",
+      "srcSize": "64",
+      "hwRefs": [
+        {
+          "type": "port",
+          "interface": "out_m_barrett_address0",
+          "name": "out_m_barrett_address0",
+          "usage": "address",
+          "direction": "out"
+        },
+        {
+          "type": "port",
+          "interface": "out_m_barrett_ce0",
+          "name": "out_m_barrett_ce0",
+          "usage": "control",
+          "direction": "out"
+        },
+        {
+          "type": "port",
+          "interface": "out_m_barrett_q0",
+          "name": "out_m_barrett_q0",
+          "usage": "data",
+          "direction": "in"
+        }
+      ]
+    },
+    "sizeP": {
+      "index": "5",
+      "direction": "in",
+      "srcType": "int",
+      "srcSize": "32",
+      "hwRefs": [{
+          "type": "port",
+          "interface": "sizeP",
+          "name": "sizeP",
+          "usage": "data",
+          "direction": "in"
+        }]
+    }
+  },
+  "HlsSolution": {
+    "FlowTarget": "vivado",
+    "ProfileOption": "0",
+    "ProfileType": "none",
+    "KernelName": "Compute_BConv"
+  },
+  "ClockInfo": {
+    "ClockName": "ap_clk",
+    "ClockPeriod": "5",
+    "Uncertainty": "1.35",
+    "IsCombinational": "0",
+    "II": "undef",
+    "Latency": "undef"
+  },
+  "Xdc": {"OocClocks": ["create_clock -name ap_clk -period 5.000 [get_ports ap_clk]"]},
+  "Ipx": {
+    "Vendor": "xilinx.com",
+    "Library": "hls",
+    "Name": "Compute_BConv",
+    "Version": "1.0",
+    "DisplayName": "Compute_bconv",
+    "Revision": "2114568493",
+    "Description": "An IP generated by Vitis HLS",
+    "Taxonomy": "\/VITIS_HLS_IP",
+    "AutoFamilySupport": "",
+    "ZipFile": "xilinx_com_hls_Compute_BConv_1_0.zip"
+  },
+  "Files": {
+    "CSource": [
+      "..\/..\/src\/bconv_naive.cpp",
+      "..\/..\/src\/interleave.cpp",
+      "..\/..\/src\/ntt_kernel.cpp",
+      "..\/..\/src\/mod_mult_kernel.cpp",
+      "..\/..\/src\/mod_sub_kernel.cpp",
+      "..\/..\/src\/mod_add_kernel.cpp",
+      "..\/..\/src\/auto.cpp",
+      "..\/..\/src\/bconv.cpp",
+      "..\/..\/src\/arithmetic.cpp",
+      "..\/..\/src\/load.cpp",
+      "..\/..\/src\/top.cpp"
+    ],
+    "Vhdl": [
+      "impl\/vhdl\/Compute_BConv_Compute_BConv_Pipeline_Coeff_Loop.vhd",
+      "impl\/vhdl\/Compute_BConv_Compute_BConv_Pipeline_Load_Mod.vhd",
+      "impl\/vhdl\/Compute_BConv_Compute_BConv_Pipeline_Load_W_VITIS_LOOP_104_1.vhd",
+      "impl\/vhdl\/Compute_BConv_Compute_BConv_Pipeline_Load_W_VITIS_LOOP_214_1.vhd",
+      "impl\/vhdl\/Compute_BConv_Compute_BConv_Pipeline_Load_X_VITIS_LOOP_119_2_VITIS_LOOP_120_3.vhd",
+      "impl\/vhdl\/Compute_BConv_Compute_BConv_Pipeline_Load_X_VITIS_LOOP_229_2_VITIS_LOOP_230_3.vhd",
+      "impl\/vhdl\/Compute_BConv_Compute_BConv_Pipeline_Store_X_VITIS_LOOP_138_4_VITIS_LOOP_139_5.vhd",
+      "impl\/vhdl\/Compute_BConv_Compute_BConv_Pipeline_Store_X_VITIS_LOOP_244_4_VITIS_LOOP_245_5.vhd",
+      "impl\/vhdl\/Compute_BConv_Compute_BConv_Pipeline_Systolic_Loop.vhd",
+      "impl\/vhdl\/Compute_BConv_flow_control_loop_pipe_sequential_init.vhd",
+      "impl\/vhdl\/Compute_BConv_local_in_x_RAM_2P_BRAM_1R1W.vhd",
+      "impl\/vhdl\/Compute_BConv_mul_64ns_64ns_128_5_1.vhd",
+      "impl\/vhdl\/Compute_BConv_mul_64s_64s_64_5_1.vhd",
+      "impl\/vhdl\/Compute_BConv_MultMod.vhd",
+      "impl\/vhdl\/Compute_BConv_sparsemux_11_3_64_1_1.vhd",
+      "impl\/vhdl\/Compute_BConv.vhd"
+    ],
+    "Verilog": [
+      "impl\/verilog\/Compute_BConv_Compute_BConv_Pipeline_Coeff_Loop.v",
+      "impl\/verilog\/Compute_BConv_Compute_BConv_Pipeline_Load_Mod.v",
+      "impl\/verilog\/Compute_BConv_Compute_BConv_Pipeline_Load_W_VITIS_LOOP_104_1.v",
+      "impl\/verilog\/Compute_BConv_Compute_BConv_Pipeline_Load_W_VITIS_LOOP_214_1.v",
+      "impl\/verilog\/Compute_BConv_Compute_BConv_Pipeline_Load_X_VITIS_LOOP_119_2_VITIS_LOOP_120_3.v",
+      "impl\/verilog\/Compute_BConv_Compute_BConv_Pipeline_Load_X_VITIS_LOOP_229_2_VITIS_LOOP_230_3.v",
+      "impl\/verilog\/Compute_BConv_Compute_BConv_Pipeline_Store_X_VITIS_LOOP_138_4_VITIS_LOOP_139_5.v",
+      "impl\/verilog\/Compute_BConv_Compute_BConv_Pipeline_Store_X_VITIS_LOOP_244_4_VITIS_LOOP_245_5.v",
+      "impl\/verilog\/Compute_BConv_Compute_BConv_Pipeline_Systolic_Loop.v",
+      "impl\/verilog\/Compute_BConv_flow_control_loop_pipe_sequential_init.v",
+      "impl\/verilog\/Compute_BConv_local_in_x_RAM_2P_BRAM_1R1W.v",
+      "impl\/verilog\/Compute_BConv_mul_64ns_64ns_128_5_1.v",
+      "impl\/verilog\/Compute_BConv_mul_64s_64s_64_5_1.v",
+      "impl\/verilog\/Compute_BConv_MultMod.v",
+      "impl\/verilog\/Compute_BConv_sparsemux_11_3_64_1_1.v",
+      "impl\/verilog\/Compute_BConv.v"
+    ],
+    "IpMisc": ["impl\/misc\/logo.png"],
+    "CsynthXml": "syn\/report\/csynth.xml",
+    "DebugDir": ".debug",
+    "KernelXml": ".autopilot\/db\/kernel.internal.xml",
+    "Xo": "",
+    "XoHlsDir": "",
+    "ProtoInst": [".debug\/Compute_BConv.protoinst"]
+  },
+  "SubcoreInfo": {
+    "HasXpmMemory": false,
+    "HasClockedDsp": false,
+    "Ip": []
+  },
+  "Interfaces": {
+    "ap_clk": {
+      "type": "clock",
+      "busTypeName": "clock",
+      "mode": "slave",
+      "busParams": {"ASSOCIATED_RESET": "ap_rst"},
+      "portMap": {"ap_clk": "CLK"},
+      "ports": ["ap_clk"]
+    },
+    "ap_rst": {
+      "type": "reset",
+      "busTypeName": "reset",
+      "mode": "slave",
+      "busParams": {"POLARITY": "ACTIVE_HIGH"},
+      "portMap": {"ap_rst": "RST"},
+      "ports": ["ap_rst"]
+    },
+    "ap_ctrl": {
+      "type": "ap_ctrl",
+      "busTypeName": "acc_handshake",
+      "mode": "slave",
+      "portMap": {
+        "ap_start": "start",
+        "ap_done": "done",
+        "ap_idle": "idle",
+        "ap_ready": "ready"
+      },
+      "ports": [
+        "ap_done",
+        "ap_idle",
+        "ap_ready",
+        "ap_start"
+      ]
+    },
+    "in_x_address0": {
+      "type": "data",
+      "busTypeName": "data",
+      "protocol": "ap_memory",
+      "mode": "master",
+      "dataWidth": "15",
+      "portMap": {"in_x_address0": "DATA"},
+      "ports": ["in_x_address0"],
+      "constraints": [{
+          "constraint_type": "pragma interface",
+          "mode": "ap_memory",
+          "register_option": "0",
+          "argName": "in_x"
+        }]
+    },
+    "in_x_d0": {
+      "type": "data",
+      "busTypeName": "data",
+      "protocol": "ap_memory",
+      "mode": "master",
+      "dataWidth": "64",
+      "portMap": {"in_x_d0": "DATA"},
+      "ports": ["in_x_d0"],
+      "constraints": [{
+          "constraint_type": "pragma interface",
+          "mode": "ap_memory",
+          "register_option": "0",
+          "argName": "in_x"
+        }]
+    },
+    "in_x_q0": {
+      "type": "data",
+      "busTypeName": "data",
+      "protocol": "ap_memory",
+      "mode": "slave",
+      "dataWidth": "64",
+      "portMap": {"in_x_q0": "DATA"},
+      "ports": ["in_x_q0"],
+      "constraints": [{
+          "constraint_type": "pragma interface",
+          "mode": "ap_memory",
+          "register_option": "0",
+          "argName": "in_x"
+        }]
+    },
+    "in_w_address0": {
+      "type": "data",
+      "busTypeName": "data",
+      "protocol": "ap_memory",
+      "mode": "master",
+      "dataWidth": "4",
+      "portMap": {"in_w_address0": "DATA"},
+      "ports": ["in_w_address0"],
+      "constraints": [{
+          "constraint_type": "pragma interface",
+          "mode": "ap_memory",
+          "register_option": "0",
+          "argName": "in_w"
+        }]
+    },
+    "in_w_q0": {
+      "type": "data",
+      "busTypeName": "data",
+      "protocol": "ap_memory",
+      "mode": "slave",
+      "dataWidth": "64",
+      "portMap": {"in_w_q0": "DATA"},
+      "ports": ["in_w_q0"],
+      "constraints": [{
+          "constraint_type": "pragma interface",
+          "mode": "ap_memory",
+          "register_option": "0",
+          "argName": "in_w"
+        }]
+    },
+    "out_mod_address0": {
+      "type": "data",
+      "busTypeName": "data",
+      "protocol": "ap_memory",
+      "mode": "master",
+      "dataWidth": "3",
+      "portMap": {"out_mod_address0": "DATA"},
+      "ports": ["out_mod_address0"],
+      "constraints": [{
+          "constraint_type": "pragma interface",
+          "mode": "ap_memory",
+          "register_option": "0",
+          "argName": "out_mod"
+        }]
+    },
+    "out_mod_q0": {
+      "type": "data",
+      "busTypeName": "data",
+      "protocol": "ap_memory",
+      "mode": "slave",
+      "dataWidth": "64",
+      "portMap": {"out_mod_q0": "DATA"},
+      "ports": ["out_mod_q0"],
+      "constraints": [{
+          "constraint_type": "pragma interface",
+          "mode": "ap_memory",
+          "register_option": "0",
+          "argName": "out_mod"
+        }]
+    },
+    "out_k_half_address0": {
+      "type": "data",
+      "busTypeName": "data",
+      "protocol": "ap_memory",
+      "mode": "master",
+      "dataWidth": "3",
+      "portMap": {"out_k_half_address0": "DATA"},
+      "ports": ["out_k_half_address0"],
+      "constraints": [{
+          "constraint_type": "pragma interface",
+          "mode": "ap_memory",
+          "register_option": "0",
+          "argName": "out_k_half"
+        }]
+    },
+    "out_k_half_q0": {
+      "type": "data",
+      "busTypeName": "data",
+      "protocol": "ap_memory",
+      "mode": "slave",
+      "dataWidth": "64",
+      "portMap": {"out_k_half_q0": "DATA"},
+      "ports": ["out_k_half_q0"],
+      "constraints": [{
+          "constraint_type": "pragma interface",
+          "mode": "ap_memory",
+          "register_option": "0",
+          "argName": "out_k_half"
+        }]
+    },
+    "out_m_barrett_address0": {
+      "type": "data",
+      "busTypeName": "data",
+      "protocol": "ap_memory",
+      "mode": "master",
+      "dataWidth": "3",
+      "portMap": {"out_m_barrett_address0": "DATA"},
+      "ports": ["out_m_barrett_address0"],
+      "constraints": [{
+          "constraint_type": "pragma interface",
+          "mode": "ap_memory",
+          "register_option": "0",
+          "argName": "out_m_barrett"
+        }]
+    },
+    "out_m_barrett_q0": {
+      "type": "data",
+      "busTypeName": "data",
+      "protocol": "ap_memory",
+      "mode": "slave",
+      "dataWidth": "64",
+      "portMap": {"out_m_barrett_q0": "DATA"},
+      "ports": ["out_m_barrett_q0"],
+      "constraints": [{
+          "constraint_type": "pragma interface",
+          "mode": "ap_memory",
+          "register_option": "0",
+          "argName": "out_m_barrett"
+        }]
+    },
+    "sizeP": {
+      "type": "data",
+      "busTypeName": "data",
+      "protocol": "ap_none",
+      "mode": "slave",
+      "dataWidth": "32",
+      "portMap": {"sizeP": "DATA"},
+      "ports": ["sizeP"],
+      "constraints": [{
+          "constraint_type": "pragma interface",
+          "mode": "ap_none",
+          "register_option": "0",
+          "argName": "sizeP"
+        }]
+    }
+  },
+  "RtlPorts": {
+    "ap_clk": {
+      "dir": "in",
+      "width": "1"
+    },
+    "ap_rst": {
+      "dir": "in",
+      "width": "1"
+    },
+    "ap_start": {
+      "dir": "in",
+      "width": "1"
+    },
+    "ap_done": {
+      "dir": "out",
+      "width": "1"
+    },
+    "ap_idle": {
+      "dir": "out",
+      "width": "1"
+    },
+    "ap_ready": {
+      "dir": "out",
+      "width": "1"
+    },
+    "in_x_address0": {
+      "dir": "out",
+      "width": "15"
+    },
+    "in_x_ce0": {
+      "dir": "out",
+      "width": "1"
+    },
+    "in_x_we0": {
+      "dir": "out",
+      "width": "1"
+    },
+    "in_x_d0": {
+      "dir": "out",
+      "width": "64"
+    },
+    "in_x_q0": {
+      "dir": "in",
+      "width": "64"
+    },
+    "in_w_address0": {
+      "dir": "out",
+      "width": "4"
+    },
+    "in_w_ce0": {
+      "dir": "out",
+      "width": "1"
+    },
+    "in_w_q0": {
+      "dir": "in",
+      "width": "64"
+    },
+    "out_mod_address0": {
+      "dir": "out",
+      "width": "3"
+    },
+    "out_mod_ce0": {
+      "dir": "out",
+      "width": "1"
+    },
+    "out_mod_q0": {
+      "dir": "in",
+      "width": "64"
+    },
+    "out_k_half_address0": {
+      "dir": "out",
+      "width": "3"
+    },
+    "out_k_half_ce0": {
+      "dir": "out",
+      "width": "1"
+    },
+    "out_k_half_q0": {
+      "dir": "in",
+      "width": "64"
+    },
+    "out_m_barrett_address0": {
+      "dir": "out",
+      "width": "3"
+    },
+    "out_m_barrett_ce0": {
+      "dir": "out",
+      "width": "1"
+    },
+    "out_m_barrett_q0": {
+      "dir": "in",
+      "width": "64"
+    },
+    "sizeP": {
+      "dir": "in",
+      "width": "32"
+    }
+  },
+  "ModuleInfo": {
+    "Hierarchy": {
+      "ModuleName": "Compute_BConv",
+      "BindInstances": "local_in_x_U local_in_x_3_U local_in_x_4_U local_out_x_U local_out_x_5_U local_out_x_6_U local_out_x_7_U local_out_x_8_U icmp_ln166_fu_467_p2 icmp_fu_484_p2 cmp261_i_2_fu_491_p2 icmp42_fu_508_p2 cmp261_i_4_fu_515_p2",
+      "Instances": [
+        {
+          "ModuleName": "Compute_BConv_Pipeline_Load_W_VITIS_LOOP_214_1",
+          "InstanceName": "grp_Compute_BConv_Pipeline_Load_W_VITIS_LOOP_214_1_fu_230",
+          "BindInstances": "icmp_ln213_fu_288_p2 add_ln213_1_fu_294_p2 add_ln213_fu_306_p2 icmp_ln214_fu_312_p2 select_ln213_fu_318_p3 select_ln213_1_fu_326_p3 add_ln216_fu_346_p2 add_ln214_fu_357_p2"
+        },
+        {
+          "ModuleName": "Compute_BConv_Pipeline_Load_Mod",
+          "InstanceName": "grp_Compute_BConv_Pipeline_Load_Mod_fu_251",
+          "BindInstances": "icmp_ln220_fu_288_p2 add_ln220_fu_294_p2"
+        },
+        {
+          "ModuleName": "Compute_BConv_Pipeline_Load_X_VITIS_LOOP_229_2_VITIS_LOOP_230_3",
+          "InstanceName": "grp_Compute_BConv_Pipeline_Load_X_VITIS_LOOP_229_2_VITIS_LOOP_230_3_fu_276",
+          "BindInstances": "icmp_ln228_fu_180_p2 add_ln228_1_fu_186_p2 add_ln228_fu_209_p2 icmp_ln229_fu_215_p2 select_ln228_fu_221_p3 xor_ln228_fu_229_p2 icmp_ln230_fu_235_p2 and_ln228_fu_241_p2 select_ln228_1_fu_247_p3 add_ln229_fu_255_p2 empty_fu_261_p2 c_mid2_fu_267_p3 select_ln229_fu_275_p3 add_ln232_1_fu_299_p2 add_ln232_2_fu_329_p2 add_ln232_fu_339_p2 add_ln230_fu_345_p2 add_ln229_1_fu_351_p2 select_ln229_1_fu_357_p3"
+        },
+        {
+          "ModuleName": "Compute_BConv_Pipeline_Systolic_Loop",
+          "InstanceName": "grp_Compute_BConv_Pipeline_Systolic_Loop_fu_288",
+          "BindInstances": "icmp_ln84_fu_1451_p2 add_ln84_fu_1457_p2 empty_fu_1639_p3 add_ln112_fu_1480_p2 icmp_ln113_fu_1501_p2 empty_47_fu_1646_p3 add_ln112_1_fu_1507_p2 icmp_ln113_1_fu_1528_p2 empty_48_fu_1653_p3 icmp_ln155_fu_1933_p2 xor_ln155_fu_1938_p2 sum_tmp_39_fu_1944_p2 sum_tmp_40_fu_1949_p3 icmp_ln155_1_fu_1957_p2 xor_ln155_1_fu_1962_p2 sub_ln155_1_fu_1968_p2 sum_tmp_41_fu_1973_p3 icmp_ln155_2_fu_1981_p2 xor_ln155_2_fu_1986_p2 sum_tmp_42_fu_1992_p2 sum_tmp_43_fu_1997_p3 icmp_ln155_3_fu_2005_p2 xor_ln155_3_fu_2010_p2 sub_ln155_3_fu_2016_p2 sum_tmp_44_fu_2021_p3 icmp_ln155_4_fu_2029_p2 xor_ln155_4_fu_2034_p2 sum_tmp_45_fu_2040_p2 sum_tmp_46_fu_2045_p3 sum_tmp_47_fu_2053_p2 icmp_ln155_5_fu_2059_p2 xor_ln155_5_fu_2064_p2 sum_tmp_48_fu_2070_p2 sum_tmp_49_fu_2075_p3 sum_tmp_50_fu_2083_p2 icmp_ln155_6_fu_2089_p2 xor_ln155_6_fu_2094_p2 sub_ln155_6_fu_2100_p2 sum_tmp_51_fu_2105_p3 sum_tmp_52_fu_2113_p2 icmp_ln155_7_fu_2119_p2 xor_ln155_7_fu_2124_p2 sum_tmp_53_fu_2130_p2 sum_tmp_54_fu_2135_p3 sum_tmp_55_fu_2143_p2 icmp_ln155_8_fu_2149_p2 xor_ln155_8_fu_2154_p2 sub_ln155_8_fu_2160_p2 sum_tmp_56_fu_2165_p3 sum_tmp_57_fu_2173_p2 icmp_ln155_9_fu_2179_p2 xor_ln155_9_fu_2184_p2 sum_tmp_58_fu_2190_p2 sum_tmp_59_fu_2195_p3 sum_tmp_60_fu_2203_p2 icmp_ln155_10_fu_2209_p2 xor_ln155_10_fu_2214_p2 sum_tmp_61_fu_2220_p2 sum_tmp_62_fu_2225_p3 sum_tmp_63_fu_2233_p2 icmp_ln155_11_fu_2239_p2 xor_ln155_11_fu_2244_p2 sub_ln155_11_fu_2250_p2 sum_tmp_64_fu_2255_p3 sum_tmp_65_fu_2263_p2 icmp_ln155_12_fu_2269_p2 xor_ln155_12_fu_2274_p2 sum_tmp_66_fu_2280_p2 sum_tmp_67_fu_2285_p3 sum_tmp_68_fu_2293_p2 icmp_ln155_13_fu_2299_p2 xor_ln155_13_fu_2304_p2 sub_ln155_13_fu_2310_p2 sum_tmp_69_fu_2315_p3 sum_tmp_fu_2323_p2 icmp_ln155_14_fu_2329_p2 xor_ln155_14_fu_2334_p2 sum_tmp_37_fu_2340_p2 sum_tmp_70_fu_2345_p3 icmp_ln166_1_fu_1534_p2 icmp_ln166_2_fu_2363_p2 and_ln166_fu_2369_p2 and_ln166_1_fu_2374_p2 add_ln169_fu_2379_p2 icmp_ln166_3_fu_1550_p2 icmp_ln166_4_fu_2400_p2 and_ln166_2_fu_2406_p2 and_ln166_3_fu_2411_p2 add_ln169_1_fu_2416_p2 icmp_ln166_5_fu_1556_p2 icmp_ln166_6_fu_2437_p2 and_ln166_4_fu_2443_p2 and_ln166_5_fu_2448_p2 add_ln169_2_fu_2453_p2 icmp_ln166_7_fu_1562_p2 icmp_ln166_8_fu_2474_p2 and_ln166_6_fu_2480_p2 and_ln166_7_fu_2485_p2 add_ln169_3_fu_2490_p2 icmp_ln166_9_fu_1568_p2 icmp_ln166_10_fu_2511_p2 and_ln166_8_fu_2517_p2 and_ln166_9_fu_2522_p2 add_ln169_4_fu_2527_p2",
+          "Instances": [
+            {
+              "ModuleName": "MultMod",
+              "InstanceName": "grp_MultMod_fu_858",
+              "BindInstances": "mul_64ns_64ns_128_5_1_U39 add_ln79_fu_96_p2 lshr_ln79_fu_105_p2 mul_64ns_64ns_128_5_1_U40 add_ln87_fu_127_p2 lshr_ln87_fu_136_p2 mul_64s_64s_64_5_1_U41 r_fu_146_p2 icmp_ln99_fu_151_p2 xor_ln99_fu_155_p2 r_1_fu_161_p2 r_2_fu_165_p3 icmp_ln102_fu_172_p2 xor_ln102_fu_177_p2 r_3_fu_183_p2 ap_return"
+            },
+            {
+              "ModuleName": "MultMod",
+              "InstanceName": "grp_MultMod_fu_867",
+              "BindInstances": "mul_64ns_64ns_128_5_1_U39 add_ln79_fu_96_p2 lshr_ln79_fu_105_p2 mul_64ns_64ns_128_5_1_U40 add_ln87_fu_127_p2 lshr_ln87_fu_136_p2 mul_64s_64s_64_5_1_U41 r_fu_146_p2 icmp_ln99_fu_151_p2 xor_ln99_fu_155_p2 r_1_fu_161_p2 r_2_fu_165_p3 icmp_ln102_fu_172_p2 xor_ln102_fu_177_p2 r_3_fu_183_p2 ap_return"
+            },
+            {
+              "ModuleName": "MultMod",
+              "InstanceName": "grp_MultMod_fu_876",
+              "BindInstances": "mul_64ns_64ns_128_5_1_U39 add_ln79_fu_96_p2 lshr_ln79_fu_105_p2 mul_64ns_64ns_128_5_1_U40 add_ln87_fu_127_p2 lshr_ln87_fu_136_p2 mul_64s_64s_64_5_1_U41 r_fu_146_p2 icmp_ln99_fu_151_p2 xor_ln99_fu_155_p2 r_1_fu_161_p2 r_2_fu_165_p3 icmp_ln102_fu_172_p2 xor_ln102_fu_177_p2 r_3_fu_183_p2 ap_return"
+            },
+            {
+              "ModuleName": "MultMod",
+              "InstanceName": "grp_MultMod_fu_885",
+              "BindInstances": "mul_64ns_64ns_128_5_1_U39 add_ln79_fu_96_p2 lshr_ln79_fu_105_p2 mul_64ns_64ns_128_5_1_U40 add_ln87_fu_127_p2 lshr_ln87_fu_136_p2 mul_64s_64s_64_5_1_U41 r_fu_146_p2 icmp_ln99_fu_151_p2 xor_ln99_fu_155_p2 r_1_fu_161_p2 r_2_fu_165_p3 icmp_ln102_fu_172_p2 xor_ln102_fu_177_p2 r_3_fu_183_p2 ap_return"
+            },
+            {
+              "ModuleName": "MultMod",
+              "InstanceName": "grp_MultMod_fu_894",
+              "BindInstances": "mul_64ns_64ns_128_5_1_U39 add_ln79_fu_96_p2 lshr_ln79_fu_105_p2 mul_64ns_64ns_128_5_1_U40 add_ln87_fu_127_p2 lshr_ln87_fu_136_p2 mul_64s_64s_64_5_1_U41 r_fu_146_p2 icmp_ln99_fu_151_p2 xor_ln99_fu_155_p2 r_1_fu_161_p2 r_2_fu_165_p3 icmp_ln102_fu_172_p2 xor_ln102_fu_177_p2 r_3_fu_183_p2 ap_return"
+            },
+            {
+              "ModuleName": "MultMod",
+              "InstanceName": "grp_MultMod_fu_903",
+              "BindInstances": "mul_64ns_64ns_128_5_1_U39 add_ln79_fu_96_p2 lshr_ln79_fu_105_p2 mul_64ns_64ns_128_5_1_U40 add_ln87_fu_127_p2 lshr_ln87_fu_136_p2 mul_64s_64s_64_5_1_U41 r_fu_146_p2 icmp_ln99_fu_151_p2 xor_ln99_fu_155_p2 r_1_fu_161_p2 r_2_fu_165_p3 icmp_ln102_fu_172_p2 xor_ln102_fu_177_p2 r_3_fu_183_p2 ap_return"
+            },
+            {
+              "ModuleName": "MultMod",
+              "InstanceName": "grp_MultMod_fu_912",
+              "BindInstances": "mul_64ns_64ns_128_5_1_U39 add_ln79_fu_96_p2 lshr_ln79_fu_105_p2 mul_64ns_64ns_128_5_1_U40 add_ln87_fu_127_p2 lshr_ln87_fu_136_p2 mul_64s_64s_64_5_1_U41 r_fu_146_p2 icmp_ln99_fu_151_p2 xor_ln99_fu_155_p2 r_1_fu_161_p2 r_2_fu_165_p3 icmp_ln102_fu_172_p2 xor_ln102_fu_177_p2 r_3_fu_183_p2 ap_return"
+            },
+            {
+              "ModuleName": "MultMod",
+              "InstanceName": "grp_MultMod_fu_921",
+              "BindInstances": "mul_64ns_64ns_128_5_1_U39 add_ln79_fu_96_p2 lshr_ln79_fu_105_p2 mul_64ns_64ns_128_5_1_U40 add_ln87_fu_127_p2 lshr_ln87_fu_136_p2 mul_64s_64s_64_5_1_U41 r_fu_146_p2 icmp_ln99_fu_151_p2 xor_ln99_fu_155_p2 r_1_fu_161_p2 r_2_fu_165_p3 icmp_ln102_fu_172_p2 xor_ln102_fu_177_p2 r_3_fu_183_p2 ap_return"
+            },
+            {
+              "ModuleName": "MultMod",
+              "InstanceName": "grp_MultMod_fu_930",
+              "BindInstances": "mul_64ns_64ns_128_5_1_U39 add_ln79_fu_96_p2 lshr_ln79_fu_105_p2 mul_64ns_64ns_128_5_1_U40 add_ln87_fu_127_p2 lshr_ln87_fu_136_p2 mul_64s_64s_64_5_1_U41 r_fu_146_p2 icmp_ln99_fu_151_p2 xor_ln99_fu_155_p2 r_1_fu_161_p2 r_2_fu_165_p3 icmp_ln102_fu_172_p2 xor_ln102_fu_177_p2 r_3_fu_183_p2 ap_return"
+            },
+            {
+              "ModuleName": "MultMod",
+              "InstanceName": "grp_MultMod_fu_939",
+              "BindInstances": "mul_64ns_64ns_128_5_1_U39 add_ln79_fu_96_p2 lshr_ln79_fu_105_p2 mul_64ns_64ns_128_5_1_U40 add_ln87_fu_127_p2 lshr_ln87_fu_136_p2 mul_64s_64s_64_5_1_U41 r_fu_146_p2 icmp_ln99_fu_151_p2 xor_ln99_fu_155_p2 r_1_fu_161_p2 r_2_fu_165_p3 icmp_ln102_fu_172_p2 xor_ln102_fu_177_p2 r_3_fu_183_p2 ap_return"
+            },
+            {
+              "ModuleName": "MultMod",
+              "InstanceName": "grp_MultMod_fu_948",
+              "BindInstances": "mul_64ns_64ns_128_5_1_U39 add_ln79_fu_96_p2 lshr_ln79_fu_105_p2 mul_64ns_64ns_128_5_1_U40 add_ln87_fu_127_p2 lshr_ln87_fu_136_p2 mul_64s_64s_64_5_1_U41 r_fu_146_p2 icmp_ln99_fu_151_p2 xor_ln99_fu_155_p2 r_1_fu_161_p2 r_2_fu_165_p3 icmp_ln102_fu_172_p2 xor_ln102_fu_177_p2 r_3_fu_183_p2 ap_return"
+            },
+            {
+              "ModuleName": "MultMod",
+              "InstanceName": "grp_MultMod_fu_957",
+              "BindInstances": "mul_64ns_64ns_128_5_1_U39 add_ln79_fu_96_p2 lshr_ln79_fu_105_p2 mul_64ns_64ns_128_5_1_U40 add_ln87_fu_127_p2 lshr_ln87_fu_136_p2 mul_64s_64s_64_5_1_U41 r_fu_146_p2 icmp_ln99_fu_151_p2 xor_ln99_fu_155_p2 r_1_fu_161_p2 r_2_fu_165_p3 icmp_ln102_fu_172_p2 xor_ln102_fu_177_p2 r_3_fu_183_p2 ap_return"
+            },
+            {
+              "ModuleName": "MultMod",
+              "InstanceName": "grp_MultMod_fu_966",
+              "BindInstances": "mul_64ns_64ns_128_5_1_U39 add_ln79_fu_96_p2 lshr_ln79_fu_105_p2 mul_64ns_64ns_128_5_1_U40 add_ln87_fu_127_p2 lshr_ln87_fu_136_p2 mul_64s_64s_64_5_1_U41 r_fu_146_p2 icmp_ln99_fu_151_p2 xor_ln99_fu_155_p2 r_1_fu_161_p2 r_2_fu_165_p3 icmp_ln102_fu_172_p2 xor_ln102_fu_177_p2 r_3_fu_183_p2 ap_return"
+            },
+            {
+              "ModuleName": "MultMod",
+              "InstanceName": "grp_MultMod_fu_975",
+              "BindInstances": "mul_64ns_64ns_128_5_1_U39 add_ln79_fu_96_p2 lshr_ln79_fu_105_p2 mul_64ns_64ns_128_5_1_U40 add_ln87_fu_127_p2 lshr_ln87_fu_136_p2 mul_64s_64s_64_5_1_U41 r_fu_146_p2 icmp_ln99_fu_151_p2 xor_ln99_fu_155_p2 r_1_fu_161_p2 r_2_fu_165_p3 icmp_ln102_fu_172_p2 xor_ln102_fu_177_p2 r_3_fu_183_p2 ap_return"
+            },
+            {
+              "ModuleName": "MultMod",
+              "InstanceName": "grp_MultMod_fu_984",
+              "BindInstances": "mul_64ns_64ns_128_5_1_U39 add_ln79_fu_96_p2 lshr_ln79_fu_105_p2 mul_64ns_64ns_128_5_1_U40 add_ln87_fu_127_p2 lshr_ln87_fu_136_p2 mul_64s_64s_64_5_1_U41 r_fu_146_p2 icmp_ln99_fu_151_p2 xor_ln99_fu_155_p2 r_1_fu_161_p2 r_2_fu_165_p3 icmp_ln102_fu_172_p2 xor_ln102_fu_177_p2 r_3_fu_183_p2 ap_return"
+            }
+          ]
+        },
+        {
+          "ModuleName": "Compute_BConv_Pipeline_Store_X_VITIS_LOOP_244_4_VITIS_LOOP_245_5",
+          "InstanceName": "grp_Compute_BConv_Pipeline_Store_X_VITIS_LOOP_244_4_VITIS_LOOP_245_5_fu_335",
+          "BindInstances": "icmp_ln243_fu_220_p2 add_ln243_1_fu_225_p2 add_ln243_fu_371_p2 icmp_ln244_fu_234_p2 select_ln243_fu_270_p3 xor_ln243_fu_277_p2 icmp_ln245_fu_282_p2 and_ln243_fu_288_p2 select_ln243_1_fu_377_p3 add_ln244_fu_294_p2 empty_fu_300_p2 c_1_mid2_fu_305_p3 select_ln244_fu_313_p3 empty_49_fu_388_p2 add_ln247_1_fu_405_p2 add_ln247_2_fu_422_p2 add_ln247_fu_337_p2 sparsemux_11_3_64_1_1_U92 add_ln245_fu_352_p2 add_ln244_1_fu_240_p2 select_ln244_1_fu_246_p3"
+        }
+      ]
+    },
+    "Info": {
+      "Compute_BConv_Pipeline_Load_W_VITIS_LOOP_214_1": {
+        "FunctionProtocol": "ap_ctrl_hs",
+        "isTaskLevelControl": "0",
+        "isPipelined": "1",
+        "isCombinational": "0",
+        "isOneStateSeq": "0"
+      },
+      "Compute_BConv_Pipeline_Load_Mod": {
+        "FunctionProtocol": "ap_ctrl_hs",
+        "isTaskLevelControl": "0",
+        "isPipelined": "1",
+        "isCombinational": "0",
+        "isOneStateSeq": "0"
+      },
+      "Compute_BConv_Pipeline_Load_X_VITIS_LOOP_229_2_VITIS_LOOP_230_3": {
+        "FunctionProtocol": "ap_ctrl_hs",
+        "isTaskLevelControl": "0",
+        "isPipelined": "1",
+        "isCombinational": "0",
+        "isOneStateSeq": "0"
+      },
+      "MultMod": {
+        "FunctionProtocol": "ap_ctrl_hs",
+        "isTaskLevelControl": "0",
+        "isPipelined": "1",
+        "isCombinational": "0",
+        "isOneStateSeq": "0"
+      },
+      "Compute_BConv_Pipeline_Systolic_Loop": {
+        "FunctionProtocol": "ap_ctrl_hs",
+        "isTaskLevelControl": "0",
+        "isPipelined": "1",
+        "isCombinational": "0",
+        "isOneStateSeq": "0"
+      },
+      "Compute_BConv_Pipeline_Store_X_VITIS_LOOP_244_4_VITIS_LOOP_245_5": {
+        "FunctionProtocol": "ap_ctrl_hs",
+        "isTaskLevelControl": "0",
+        "isPipelined": "1",
+        "isCombinational": "0",
+        "isOneStateSeq": "0"
+      },
+      "Compute_BConv": {
+        "FunctionProtocol": "ap_ctrl_hs",
+        "isTaskLevelControl": "0",
+        "isPipelined": "0",
+        "isCombinational": "0",
+        "isOneStateSeq": "0"
+      }
+    },
+    "Metrics": {
+      "Compute_BConv_Pipeline_Load_W_VITIS_LOOP_214_1": {
+        "Latency": {
+          "LatencyBest": "17",
+          "LatencyAvg": "17",
+          "LatencyWorst": "17",
+          "PipelineII": "16",
+          "PipelineDepth": "",
+          "PipelineType": "loop auto-rewind (delay=0 clock cycles(s))"
+        },
+        "Timing": {
+          "Target": "5.00",
+          "Uncertainty": "1.35",
+          "Estimate": "2.659"
+        },
+        "Loops": [{
+            "Name": "Load_W_VITIS_LOOP_214_1",
+            "TripCount": "15",
+            "Latency": "15",
+            "PipelineII": "1",
+            "PipelineDepth": "2"
+          }],
+        "Area": {
+          "FF": "977",
+          "AVAIL_FF": "2607360",
+          "UTIL_FF": "~0",
+          "LUT": "144",
+          "AVAIL_LUT": "1303680",
+          "UTIL_LUT": "~0",
+          "BRAM_18K": "0",
+          "AVAIL_BRAM": "4032",
+          "UTIL_BRAM": "0",
+          "DSP": "0",
+          "AVAIL_DSP": "9024",
+          "UTIL_DSP": "0",
+          "URAM": "0",
+          "AVAIL_URAM": "960",
+          "UTIL_URAM": "0"
+        }
+      },
+      "Compute_BConv_Pipeline_Load_Mod": {
+        "Latency": {
+          "LatencyBest": "7",
+          "LatencyAvg": "7",
+          "LatencyWorst": "7",
+          "PipelineII": "6",
+          "PipelineDepth": "",
+          "PipelineType": "loop auto-rewind (delay=0 clock cycles(s))"
+        },
+        "Timing": {
+          "Target": "5.00",
+          "Uncertainty": "1.35",
+          "Estimate": "1.346"
+        },
+        "Loops": [{
+            "Name": "Load_Mod",
+            "TripCount": "5",
+            "Latency": "5",
+            "PipelineII": "1",
+            "PipelineDepth": "2"
+          }],
+        "Area": {
+          "FF": "969",
+          "AVAIL_FF": "2607360",
+          "UTIL_FF": "~0",
+          "LUT": "58",
+          "AVAIL_LUT": "1303680",
+          "UTIL_LUT": "~0",
+          "BRAM_18K": "0",
+          "AVAIL_BRAM": "4032",
+          "UTIL_BRAM": "0",
+          "DSP": "0",
+          "AVAIL_DSP": "9024",
+          "UTIL_DSP": "0",
+          "URAM": "0",
+          "AVAIL_URAM": "960",
+          "UTIL_URAM": "0"
+        }
+      },
+      "Compute_BConv_Pipeline_Load_X_VITIS_LOOP_229_2_VITIS_LOOP_230_3": {
+        "Latency": {
+          "LatencyBest": "12293",
+          "LatencyAvg": "12293",
+          "LatencyWorst": "12293",
+          "PipelineII": "12289",
+          "PipelineDepth": "",
+          "PipelineType": "loop auto-rewind (delay=0 clock cycles(s))"
+        },
+        "Timing": {
+          "Target": "5.00",
+          "Uncertainty": "1.35",
+          "Estimate": "3.567"
+        },
+        "Loops": [{
+            "Name": "Load_X_VITIS_LOOP_229_2_VITIS_LOOP_230_3",
+            "TripCount": "12288",
+            "Latency": "12291",
+            "PipelineII": "1",
+            "PipelineDepth": "5"
+          }],
+        "Area": {
+          "FF": "275",
+          "AVAIL_FF": "2607360",
+          "UTIL_FF": "~0",
+          "LUT": "374",
+          "AVAIL_LUT": "1303680",
+          "UTIL_LUT": "~0",
+          "BRAM_18K": "0",
+          "AVAIL_BRAM": "4032",
+          "UTIL_BRAM": "0",
+          "DSP": "0",
+          "AVAIL_DSP": "9024",
+          "UTIL_DSP": "0",
+          "URAM": "0",
+          "AVAIL_URAM": "960",
+          "UTIL_URAM": "0"
+        }
+      },
+      "MultMod": {
+        "Latency": {
+          "LatencyBest": "15",
+          "LatencyAvg": "15",
+          "LatencyWorst": "15",
+          "PipelineII": "1",
+          "PipelineDepth": "16",
+          "PipelineType": "yes"
+        },
+        "Timing": {
+          "Target": "5.00",
+          "Uncertainty": "1.35",
+          "Estimate": "3.513"
+        },
+        "Area": {
+          "DSP": "42",
+          "AVAIL_DSP": "9024",
+          "UTIL_DSP": "~0",
+          "FF": "1561",
+          "AVAIL_FF": "2607360",
+          "UTIL_FF": "~0",
+          "LUT": "2351",
+          "AVAIL_LUT": "1303680",
+          "UTIL_LUT": "~0",
+          "BRAM_18K": "0",
+          "AVAIL_BRAM": "4032",
+          "UTIL_BRAM": "0",
+          "URAM": "0",
+          "AVAIL_URAM": "960",
+          "UTIL_URAM": "0"
+        }
+      },
+      "Compute_BConv_Pipeline_Systolic_Loop": {
+        "Latency": {
+          "LatencyBest": "4126",
+          "LatencyAvg": "4126",
+          "LatencyWorst": "4126",
+          "PipelineII": "4108",
+          "PipelineDepth": "",
+          "PipelineType": "loop auto-rewind (delay=0 clock cycles(s))"
+        },
+        "Timing": {
+          "Target": "5.00",
+          "Uncertainty": "1.35",
+          "Estimate": "3.513"
+        },
+        "Loops": [{
+            "Name": "Systolic_Loop",
+            "TripCount": "4107",
+            "Latency": "4124",
+            "PipelineII": "1",
+            "PipelineDepth": "19"
+          }],
+        "Area": {
+          "DSP": "630",
+          "AVAIL_DSP": "9024",
+          "UTIL_DSP": "6",
+          "FF": "29943",
+          "AVAIL_FF": "2607360",
+          "UTIL_FF": "1",
+          "LUT": "40866",
+          "AVAIL_LUT": "1303680",
+          "UTIL_LUT": "3",
+          "BRAM_18K": "0",
+          "AVAIL_BRAM": "4032",
+          "UTIL_BRAM": "0",
+          "URAM": "0",
+          "AVAIL_URAM": "960",
+          "UTIL_URAM": "0"
+        }
+      },
+      "Compute_BConv_Pipeline_Store_X_VITIS_LOOP_244_4_VITIS_LOOP_245_5": {
+        "Latency": {
+          "LatencyBest": "",
+          "LatencyAvg": "",
+          "LatencyWorst": "",
+          "PipelineII": "0",
+          "PipelineDepth": "",
+          "PipelineType": "loop auto-rewind (delay=0 clock cycles(s))"
+        },
+        "Timing": {
+          "Target": "5.00",
+          "Uncertainty": "1.35",
+          "Estimate": "3.297"
+        },
+        "Loops": [{
+            "Name": "Store_X_VITIS_LOOP_244_4_VITIS_LOOP_245_5",
+            "TripCount": "",
+            "Latency": "",
+            "PipelineII": "1",
+            "PipelineDepth": "4"
+          }],
+        "Area": {
+          "FF": "206",
+          "AVAIL_FF": "2607360",
+          "UTIL_FF": "~0",
+          "LUT": "464",
+          "AVAIL_LUT": "1303680",
+          "UTIL_LUT": "~0",
+          "BRAM_18K": "0",
+          "AVAIL_BRAM": "4032",
+          "UTIL_BRAM": "0",
+          "DSP": "0",
+          "AVAIL_DSP": "9024",
+          "UTIL_DSP": "0",
+          "URAM": "0",
+          "AVAIL_URAM": "960",
+          "UTIL_URAM": "0"
+        }
+      },
+      "Compute_BConv": {
+        "Latency": {
+          "LatencyBest": "",
+          "LatencyAvg": "",
+          "LatencyWorst": "",
+          "PipelineII": "",
+          "PipelineDepth": "",
+          "PipelineType": "no"
+        },
+        "Timing": {
+          "Target": "5.00",
+          "Uncertainty": "1.35",
+          "Estimate": "3.567"
+        },
+        "Area": {
+          "BRAM_18K": "120",
+          "AVAIL_BRAM": "4032",
+          "UTIL_BRAM": "2",
+          "DSP": "630",
+          "AVAIL_DSP": "9024",
+          "UTIL_DSP": "6",
+          "FF": "32418",
+          "AVAIL_FF": "2607360",
+          "UTIL_FF": "1",
+          "LUT": "42390",
+          "AVAIL_LUT": "1303680",
+          "UTIL_LUT": "3",
+          "URAM": "0",
+          "AVAIL_URAM": "960",
+          "UTIL_URAM": "0"
+        }
+      }
+    }
+  },
+  "GenerateBdFiles": "0",
+  "GenData": {
+    "DataVersion": "0.2",
+    "Time": "2026-04-16 18:13:51 CST",
+    "ToolName": "vitis_hls",
+    "ToolVersion": "2024.1"
+  }
+}

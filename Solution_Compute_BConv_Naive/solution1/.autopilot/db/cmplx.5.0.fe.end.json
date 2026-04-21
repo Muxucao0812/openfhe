@@ -1,0 +1,108 @@
+{
+    "1": {
+        "name": "Compute_BConv_Naive_Pipeline_Load_Mod",
+        "file": "src\/bconv_naive.cpp",
+        "fileloc": "28",
+        "instructions": "43",
+        "total_instructions": "43",
+        "calls": "",
+        "basicblocks": "10",
+        "loads": {
+            "L": "6",
+            "T": "1"
+        },
+        "stores": {
+            "L": "7"
+        },
+        "loops": {
+            "L": "1"
+        }
+    },
+    "2": {
+        "name": "Compute_BConv_Naive_Pipeline_Load_W_VITIS_LOOP_40_1",
+        "file": "src\/bconv_naive.cpp",
+        "fileloc": "27",
+        "instructions": "112",
+        "total_instructions": "112",
+        "calls": "",
+        "basicblocks": "23",
+        "loads": {
+            "L": "18",
+            "T": "1"
+        },
+        "stores": {
+            "L": "21"
+        },
+        "loops": {
+            "L": "1"
+        }
+    },
+    "3": {
+        "name": "Compute_BConv_Naive_Pipeline_Store_X_VITIS_LOOP_88_6_VITIS_LOOP_89_7",
+        "file": "src\/bconv_naive.cpp",
+        "fileloc": "87",
+        "instructions": "76",
+        "total_instructions": "76",
+        "calls": "",
+        "basicblocks": "4",
+        "loads": {
+            "L": "10"
+        },
+        "stores": {
+            "L": "10",
+            "T": "1"
+        },
+        "loops": {
+            "L": "1"
+        }
+    },
+    "4": {
+        "name": "Compute_BConv_Naive_Pipeline_Compute_Loop_VITIS_LOOP_67_4",
+        "file": "src\/bconv_naive.cpp",
+        "fileloc": "66",
+        "instructions": "104",
+        "total_instructions": "104",
+        "calls": "",
+        "basicblocks": "10",
+        "loads": {
+            "L": "6"
+        },
+        "stores": {
+            "L": "11"
+        },
+        "loops": {
+            "L": "1"
+        }
+    },
+    "0": {
+        "name": "Compute_BConv_Naive",
+        "file": "src\/bconv_naive.cpp",
+        "fileloc": "3",
+        "instructions": "77",
+        "total_instructions": "484",
+        "calls": "2 1 5 4 3",
+        "basicblocks": "1",
+        "loads": {
+            "L": "20"
+        }
+    },
+    "5": {
+        "name": "Compute_BConv_Naive_Pipeline_Load_X_VITIS_LOOP_55_2_VITIS_LOOP_56_3",
+        "file": "src\/bconv_naive.cpp",
+        "fileloc": "54",
+        "instructions": "72",
+        "total_instructions": "72",
+        "calls": "",
+        "basicblocks": "8",
+        "loads": {
+            "L": "5",
+            "T": "1"
+        },
+        "stores": {
+            "L": "13"
+        },
+        "loops": {
+            "L": "1"
+        }
+    }
+}

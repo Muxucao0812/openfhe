@@ -64,11 +64,12 @@ void Top(
     #pragma HLS BIND_STORAGE variable=poly_buffer_2 type=ram_2p impl=bram
     #pragma HLS BIND_STORAGE variable=result_buffer type=ram_2p impl=bram
 
-    // Twiddle Factor: 8 个独立副本，complete dim=2 物理隔离，URAM 存储
+    // Twiddle Factor: PE_PARALLEL 个独立副本，complete dim=2 物理隔离，URAM 存储
+    // 注意：rom_1p + uram 在 U55C 上非法；且 OP_INIT 需要写入，必须用 ram 类型
     #pragma HLS ARRAY_PARTITION variable=NTTTwiddleFactor complete dim=2
     #pragma HLS ARRAY_PARTITION variable=INTTTwiddleFactor complete dim=2
-    #pragma HLS BIND_STORAGE variable=NTTTwiddleFactor type=rom_1p impl=uram
-    #pragma HLS BIND_STORAGE variable=INTTTwiddleFactor type=rom_1p impl=uram
+    #pragma HLS BIND_STORAGE variable=NTTTwiddleFactor type=ram_2p impl=uram
+    #pragma HLS BIND_STORAGE variable=INTTTwiddleFactor type=ram_2p impl=uram
 
     switch(opcode) {
         case OP_INIT: {
@@ -164,7 +165,8 @@ void Top(
 
         case OP_NTT:
             Load(mem_in1, poly_buffer_1, num_active_limbs, mod_index);
-            for (int l = 0; l < MAX_LIMBS; l++){
+            for (int l = mod_index; l < mod_index + num_active_limbs; l++){
+                #pragma HLS LOOP_TRIPCOUNT min=1 max=5 avg=3
                 InterLeave(poly_buffer_1[l], true);
             }
             Compute_NTT(poly_buffer_1, NTTTwiddleFactor, INTTTwiddleFactor, MODULUS, K_HALF, M, true, num_active_limbs, mod_index);
@@ -174,7 +176,8 @@ void Top(
         case OP_INTT:
             Load(mem_in1, poly_buffer_1, num_active_limbs, mod_index);
             Compute_NTT(poly_buffer_1, NTTTwiddleFactor, INTTTwiddleFactor, MODULUS, K_HALF, M, false, num_active_limbs, mod_index);
-            for (int l = 0; l < MAX_LIMBS; l++){
+            for (int l = mod_index; l < mod_index + num_active_limbs; l++){
+                #pragma HLS LOOP_TRIPCOUNT min=1 max=5 avg=3
                 InterLeave(poly_buffer_1[l], false);
             }
             Store(poly_buffer_1, mem_out, num_active_limbs, mod_index);

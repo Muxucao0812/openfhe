@@ -1,0 +1,176 @@
+---
+MainSourceFile:  /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/Solution_Compute_BConv/solution1/.autopilot/db/bconv.pp.0.cpp
+Diagnostics:     
+  - DiagnosticName:  xilinx-label-all-loops
+    Message:         'Added loop label VITIS_LOOP_1223_1:  '
+    FileOffset:      1223
+    FilePath:        /data-hdd/opt/Xilinx/Vitis_HLS/2024.1/common/technology/autopilot/etc/ap_int_base.h
+    Replacements:    
+      - FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/Solution_Compute_BConv/solution1/.autopilot/db/bconv.pp.0.cpp
+        Offset:          55503
+        Length:          0
+        ReplacementText: 'VITIS_LOOP_1223_1: '
+  - DiagnosticName:  xilinx-label-all-loops
+    Message:         'Added loop label VITIS_LOOP_676_1:  '
+    FileOffset:      676
+    FilePath:        /data-hdd/opt/Xilinx/Vitis_HLS/2024.1/common/technology/autopilot/etc/ap_int_ref.h
+    Replacements:    
+      - FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/Solution_Compute_BConv/solution1/.autopilot/db/bconv.pp.0.cpp
+        Offset:          283149
+        Length:          0
+        ReplacementText: 'VITIS_LOOP_676_1: '
+  - DiagnosticName:  xilinx-label-all-loops
+    Message:         'Added loop label VITIS_LOOP_690_1:  '
+    FileOffset:      690
+    FilePath:        /data-hdd/opt/Xilinx/Vitis_HLS/2024.1/common/technology/autopilot/etc/ap_int_ref.h
+    Replacements:    
+      - FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/Solution_Compute_BConv/solution1/.autopilot/db/bconv.pp.0.cpp
+        Offset:          283613
+        Length:          0
+        ReplacementText: 'VITIS_LOOP_690_1: '
+  - DiagnosticName:  xilinx-label-all-loops
+    Message:         'Added loop label VITIS_LOOP_704_1:  '
+    FileOffset:      704
+    FilePath:        /data-hdd/opt/Xilinx/Vitis_HLS/2024.1/common/technology/autopilot/etc/ap_int_ref.h
+    Replacements:    
+      - FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/Solution_Compute_BConv/solution1/.autopilot/db/bconv.pp.0.cpp
+        Offset:          284078
+        Length:          0
+        ReplacementText: 'VITIS_LOOP_704_1: '
+  - DiagnosticName:  xilinx-label-all-loops
+    Message:         'Added loop label VITIS_LOOP_1247_1:  '
+    FileOffset:      1247
+    FilePath:        /data-hdd/opt/Xilinx/Vitis_HLS/2024.1/common/technology/autopilot/etc/ap_fixed_base.h
+    Replacements:    
+      - FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/Solution_Compute_BConv/solution1/.autopilot/db/bconv.pp.0.cpp
+        Offset:          567748
+        Length:          0
+        ReplacementText: 'VITIS_LOOP_1247_1: '
+  - DiagnosticName:  xilinx-label-all-loops
+    Message:         'Added loop label VITIS_LOOP_47_1:  '
+    FileOffset:      47
+    FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/src/bconv.cpp
+    Replacements:    
+      - FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/Solution_Compute_BConv/solution1/.autopilot/db/bconv.pp.0.cpp
+        Offset:          2145686
+        Length:          0
+        ReplacementText: 'VITIS_LOOP_47_1: '
+  - DiagnosticName:  xilinx-label-all-loops
+    Message:         'Added loop label VITIS_LOOP_55_2:  '
+    FileOffset:      55
+    FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/src/bconv.cpp
+    Replacements:    
+      - FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/Solution_Compute_BConv/solution1/.autopilot/db/bconv.pp.0.cpp
+        Offset:          2145861
+        Length:          0
+        ReplacementText: 'VITIS_LOOP_55_2: '
+  - DiagnosticName:  xilinx-label-all-loops
+    Message:         'Added loop label VITIS_LOOP_63_3:  '
+    FileOffset:      63
+    FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/src/bconv.cpp
+    Replacements:    
+      - FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/Solution_Compute_BConv/solution1/.autopilot/db/bconv.pp.0.cpp
+        Offset:          2146034
+        Length:          0
+        ReplacementText: 'VITIS_LOOP_63_3: '
+  - DiagnosticName:  xilinx-label-all-loops
+    Message:         'Added loop label VITIS_LOOP_65_4:  '
+    FileOffset:      65
+    FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/src/bconv.cpp
+    Replacements:    
+      - FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/Solution_Compute_BConv/solution1/.autopilot/db/bconv.pp.0.cpp
+        Offset:          2146089
+        Length:          0
+        ReplacementText: 'VITIS_LOOP_65_4: '
+  - DiagnosticName:  xilinx-label-all-loops
+    Message:         'Added loop label VITIS_LOOP_95_5:  '
+    FileOffset:      95
+    FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/src/bconv.cpp
+    Replacements:    
+      - FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/Solution_Compute_BConv/solution1/.autopilot/db/bconv.pp.0.cpp
+        Offset:          2146781
+        Length:          0
+        ReplacementText: 'VITIS_LOOP_95_5: '
+  - DiagnosticName:  xilinx-label-all-loops
+    Message:         'Added loop label VITIS_LOOP_103_6:  '
+    FileOffset:      103
+    FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/src/bconv.cpp
+    Replacements:    
+      - FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/Solution_Compute_BConv/solution1/.autopilot/db/bconv.pp.0.cpp
+        Offset:          2146975
+        Length:          0
+        ReplacementText: 'VITIS_LOOP_103_6: '
+  - DiagnosticName:  xilinx-label-all-loops
+    Message:         'Added loop label VITIS_LOOP_128_7:  '
+    FileOffset:      128
+    FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/src/bconv.cpp
+    Replacements:    
+      - FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/Solution_Compute_BConv/solution1/.autopilot/db/bconv.pp.0.cpp
+        Offset:          2147567
+        Length:          0
+        ReplacementText: 'VITIS_LOOP_128_7: '
+  - DiagnosticName:  xilinx-label-all-loops
+    Message:         'Added loop label VITIS_LOOP_130_8:  '
+    FileOffset:      130
+    FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/src/bconv.cpp
+    Replacements:    
+      - FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/Solution_Compute_BConv/solution1/.autopilot/db/bconv.pp.0.cpp
+        Offset:          2147622
+        Length:          0
+        ReplacementText: 'VITIS_LOOP_130_8: '
+  - DiagnosticName:  clang-diagnostic-error
+    Message:         'Invalid Directive: for current device, ram_2p + bram is invalid combination for BIND_STORAGE''s option ''type + impl'''
+    FileOffset:      192
+    FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/src/bconv.cpp
+    Replacements:    
+  - DiagnosticName:  clang-diagnostic-error
+    Message:         'Invalid Directive: for current device, ram_2p + bram is invalid combination for BIND_STORAGE''s option ''type + impl'''
+    FileOffset:      197
+    FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/src/bconv.cpp
+    Replacements:    
+  - DiagnosticName:  xilinx-label-all-loops
+    Message:         'Added loop label VITIS_LOOP_214_1:  '
+    FileOffset:      214
+    FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/src/bconv.cpp
+    Replacements:    
+      - FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/Solution_Compute_BConv/solution1/.autopilot/db/bconv.pp.0.cpp
+        Offset:          2150252
+        Length:          0
+        ReplacementText: 'VITIS_LOOP_214_1: '
+  - DiagnosticName:  xilinx-label-all-loops
+    Message:         'Added loop label VITIS_LOOP_229_2:  '
+    FileOffset:      229
+    FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/src/bconv.cpp
+    Replacements:    
+      - FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/Solution_Compute_BConv/solution1/.autopilot/db/bconv.pp.0.cpp
+        Offset:          2150625
+        Length:          0
+        ReplacementText: 'VITIS_LOOP_229_2: '
+  - DiagnosticName:  xilinx-label-all-loops
+    Message:         'Added loop label VITIS_LOOP_230_3:  '
+    FileOffset:      230
+    FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/src/bconv.cpp
+    Replacements:    
+      - FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/Solution_Compute_BConv/solution1/.autopilot/db/bconv.pp.0.cpp
+        Offset:          2150670
+        Length:          0
+        ReplacementText: 'VITIS_LOOP_230_3: '
+  - DiagnosticName:  xilinx-label-all-loops
+    Message:         'Added loop label VITIS_LOOP_244_4:  '
+    FileOffset:      244
+    FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/src/bconv.cpp
+    Replacements:    
+      - FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/Solution_Compute_BConv/solution1/.autopilot/db/bconv.pp.0.cpp
+        Offset:          2150969
+        Length:          0
+        ReplacementText: 'VITIS_LOOP_244_4: '
+  - DiagnosticName:  xilinx-label-all-loops
+    Message:         'Added loop label VITIS_LOOP_245_5:  '
+    FileOffset:      245
+    FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/src/bconv.cpp
+    Replacements:    
+      - FilePath:        /home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/Solution_Compute_BConv/solution1/.autopilot/db/bconv.pp.0.cpp
+        Offset:          2151014
+        Length:          0
+        ReplacementText: 'VITIS_LOOP_245_5: '
+...

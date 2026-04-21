@@ -1,0 +1,19 @@
+{
+  "0": {
+    "basicblocks": 58,
+    "calls": "",
+    "file": "bconv_naive.cpp",
+    "fileloc": 3,
+    "instructions": 311,
+    "loads": {
+      "L": 8,
+      "T": 3
+    },
+    "name": "Compute_BConv_Naive",
+    "stores": {
+      "L": 8,
+      "T": 1
+    },
+    "total_instructions": 311
+  }
+}

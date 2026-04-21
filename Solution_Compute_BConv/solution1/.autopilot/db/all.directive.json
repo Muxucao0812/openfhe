@@ -1,0 +1,23 @@
+[
+  {
+    "functionLabel": "",
+    "functionName": "Compute_BConv",
+    "id": 0,
+    "ifcond": "",
+    "insert_position": "",
+    "label": "",
+    "pragma": {
+      "name": "TOP",
+      "option": [
+        {
+          "name": "name",
+          "value": "Compute_BConv"
+        }
+      ]
+    },
+    "slx": false,
+    "sourceFile": "/home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe-for-HKS-ACC/src/fpga_backend/csynth.tcl",
+    "sourceLine": 36,
+    "success": true
+  }
+]

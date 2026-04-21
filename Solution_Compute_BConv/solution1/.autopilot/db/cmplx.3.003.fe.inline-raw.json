@@ -1,0 +1,34 @@
+{
+  "0": {
+    "basicblocks": 39,
+    "calls": "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1",
+    "file": "bconv.cpp",
+    "fileloc": 178,
+    "instructions": 911,
+    "loads": {
+      "L": 84,
+      "T": 5
+    },
+    "name": "Compute_BConv",
+    "stores": {
+      "L": 256,
+      "T": 1
+    },
+    "total_instructions": 1556
+  },
+  "1": {
+    "basicblocks": 1,
+    "calls": "",
+    "file": "arithmetic.cpp",
+    "fileloc": 57,
+    "instructions": 43,
+    "loads": {
+      "L": 5
+    },
+    "name": "MultMod",
+    "stores": {
+      "L": 1
+    },
+    "total_instructions": 43
+  }
+}

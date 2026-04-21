@@ -1,0 +1,23 @@
+set SynModuleInfo {
+  {SRCNAME Compute_BConv_Naive_Pipeline_Load_W_VITIS_LOOP_40_1 MODELNAME Compute_BConv_Naive_Pipeline_Load_W_VITIS_LOOP_40_1 RTLNAME Compute_BConv_Naive_Compute_BConv_Naive_Pipeline_Load_W_VITIS_LOOP_40_1
+    SUBMODULES {
+      {MODELNAME Compute_BConv_Naive_flow_control_loop_pipe_sequential_init RTLNAME Compute_BConv_Naive_flow_control_loop_pipe_sequential_init BINDTYPE interface TYPE internal_upc_flow_control INSTNAME Compute_BConv_Naive_flow_control_loop_pipe_sequential_init_U}
+    }
+  }
+  {SRCNAME Compute_BConv_Naive_Pipeline_Load_Mod MODELNAME Compute_BConv_Naive_Pipeline_Load_Mod RTLNAME Compute_BConv_Naive_Compute_BConv_Naive_Pipeline_Load_Mod}
+  {SRCNAME Compute_BConv_Naive_Pipeline_Load_X_VITIS_LOOP_55_2_VITIS_LOOP_56_3 MODELNAME Compute_BConv_Naive_Pipeline_Load_X_VITIS_LOOP_55_2_VITIS_LOOP_56_3 RTLNAME Compute_BConv_Naive_Compute_BConv_Naive_Pipeline_Load_X_VITIS_LOOP_55_2_VITIS_LOOP_56_3}
+  {SRCNAME Compute_BConv_Naive_Pipeline_Compute_Loop_VITIS_LOOP_67_4 MODELNAME Compute_BConv_Naive_Pipeline_Compute_Loop_VITIS_LOOP_67_4 RTLNAME Compute_BConv_Naive_Compute_BConv_Naive_Pipeline_Compute_Loop_VITIS_LOOP_67_4
+    SUBMODULES {
+      {MODELNAME Compute_BConv_Naive_mul_64ns_64ns_128_2_1 RTLNAME Compute_BConv_Naive_mul_64ns_64ns_128_2_1 BINDTYPE op TYPE mul IMPL auto LATENCY 1 ALLOW_PRAGMA 1}
+      {MODELNAME Compute_BConv_Naive_sparsemux_11_3_64_1_1 RTLNAME Compute_BConv_Naive_sparsemux_11_3_64_1_1 BINDTYPE op TYPE sparsemux IMPL auto}
+      {MODELNAME Compute_BConv_Naive_urem_128ns_64ns_64_132_1 RTLNAME Compute_BConv_Naive_urem_128ns_64ns_64_132_1 BINDTYPE op TYPE urem IMPL auto LATENCY 131 ALLOW_PRAGMA 1}
+      {MODELNAME Compute_BConv_Naive_urem_64ns_64ns_64_68_1 RTLNAME Compute_BConv_Naive_urem_64ns_64ns_64_68_1 BINDTYPE op TYPE urem IMPL auto LATENCY 67 ALLOW_PRAGMA 1}
+    }
+  }
+  {SRCNAME Compute_BConv_Naive_Pipeline_Store_X_VITIS_LOOP_88_6_VITIS_LOOP_89_7 MODELNAME Compute_BConv_Naive_Pipeline_Store_X_VITIS_LOOP_88_6_VITIS_LOOP_89_7 RTLNAME Compute_BConv_Naive_Compute_BConv_Naive_Pipeline_Store_X_VITIS_LOOP_88_6_VITIS_LOOP_89_7}
+  {SRCNAME Compute_BConv_Naive MODELNAME Compute_BConv_Naive RTLNAME Compute_BConv_Naive IS_TOP 1
+    SUBMODULES {
+      {MODELNAME Compute_BConv_Naive_local_in_x_RAM_2P_BRAM_1R1W RTLNAME Compute_BConv_Naive_local_in_x_RAM_2P_BRAM_1R1W BINDTYPE storage TYPE ram_2p IMPL bram LATENCY 2 ALLOW_PRAGMA 1}
+    }
+  }
+}

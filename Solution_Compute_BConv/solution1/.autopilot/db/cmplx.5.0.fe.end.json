@@ -1,0 +1,117 @@
+{
+    "1": {
+        "name": "Compute_BConv_Pipeline_Load_W_VITIS_LOOP_214_1",
+        "file": "src\/bconv.cpp",
+        "fileloc": "213",
+        "instructions": "112",
+        "total_instructions": "112",
+        "calls": "",
+        "basicblocks": "23",
+        "loads": {
+            "L": "18",
+            "T": "1"
+        },
+        "stores": {
+            "L": "21"
+        },
+        "loops": {
+            "L": "1"
+        }
+    },
+    "2": {
+        "name": "Compute_BConv_Pipeline_Store_X_VITIS_LOOP_244_4_VITIS_LOOP_245_5",
+        "file": "src\/bconv.cpp",
+        "fileloc": "243",
+        "instructions": "76",
+        "total_instructions": "76",
+        "calls": "",
+        "basicblocks": "4",
+        "loads": {
+            "L": "10"
+        },
+        "stores": {
+            "L": "10",
+            "T": "1"
+        },
+        "loops": {
+            "L": "1"
+        }
+    },
+    "3": {
+        "name": "Compute_BConv_Pipeline_Systolic_Loop",
+        "file": "src\/bconv.cpp",
+        "fileloc": "240",
+        "instructions": "583",
+        "total_instructions": "1198",
+        "calls": "5 5 5 5 5 5 5 5 5 5 5 5 5 5 5",
+        "basicblocks": "14",
+        "loads": {
+            "L": "100"
+        },
+        "stores": {
+            "L": "187"
+        },
+        "loops": {
+            "L": "1"
+        }
+    },
+    "4": {
+        "name": "Compute_BConv_Pipeline_Load_X_VITIS_LOOP_229_2_VITIS_LOOP_230_3",
+        "file": "src\/bconv.cpp",
+        "fileloc": "228",
+        "instructions": "72",
+        "total_instructions": "72",
+        "calls": "",
+        "basicblocks": "8",
+        "loads": {
+            "L": "5",
+            "T": "1"
+        },
+        "stores": {
+            "L": "13"
+        },
+        "loops": {
+            "L": "1"
+        }
+    },
+    "5": {
+        "name": "MultMod",
+        "file": "src\/arithmetic.cpp",
+        "fileloc": "73",
+        "instructions": "41",
+        "total_instructions": "41",
+        "calls": "",
+        "basicblocks": "1"
+    },
+    "0": {
+        "name": "Compute_BConv",
+        "file": "src\/bconv.cpp",
+        "fileloc": "178",
+        "instructions": "104",
+        "total_instructions": "1651",
+        "calls": "1 6 4 3 2",
+        "basicblocks": "1",
+        "loads": {
+            "L": "30"
+        }
+    },
+    "6": {
+        "name": "Compute_BConv_Pipeline_Load_Mod",
+        "file": "src\/bconv.cpp",
+        "fileloc": "202",
+        "instructions": "89",
+        "total_instructions": "89",
+        "calls": "",
+        "basicblocks": "10",
+        "loads": {
+            "L": "16",
+            "T": "3"
+        },
+        "stores": {
+            "L": "17"
+        },
+        "loops": {
+            "L": "1"
+        }
+    }
+}

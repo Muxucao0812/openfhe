@@ -1,0 +1,37 @@
+<pragmas>
+<pragma file="" line="0" pragmaType="inline" parentfunction="checkOverflowCsim" off="0" region="0" recursive="0"/>
+<pragma file="/data-hdd/opt/Xilinx/Vitis_HLS/2024.1/common/technology/autopilot/etc/ap_common.h" line="523" pragmaType="inline" parentfunction="_ZN8ssdm_intILi192ELb0EEC2EDq192_j" off="0" region="0" recursive="0"/>
+<pragma file="" line="0" pragmaType="inline" parentfunction="ap_int_base<128, false>::ap_int_base(unsigned long)" off="0" region="0" recursive="0"/>
+<pragma file="" line="0" pragmaType="inline" parentfunction="ap_int_base<192, false>::ap_int_base<64, false>(ap_int_base<64, false> const&)" off="0" region="0" recursive="0"/>
+<pragma file="" line="0" pragmaType="inline" parentfunction="ap_uint<192>::ap_uint<192, false>(ap_int_base<192, false> const&)" off="0" region="0" recursive="0"/>
+<pragma file="/data-hdd/opt/Xilinx/Vitis_HLS/2024.1/common/technology/autopilot/etc/ap_common.h" line="523" pragmaType="inline" parentfunction="ssdm_int<128, false>::ssdm_int(unsigned __int128)" off="0" region="0" recursive="0"/>
+<pragma file="" line="0" pragmaType="inline" parentfunction="ap_int_base<128, false>::RType<64, false>::mult operator*<128, false, 64, false>(ap_int_base<128, false> const&, ap_int_base<64, false> const&)" off="0" region="0" recursive="0"/>
+<pragma file="" line="0" pragmaType="inline" parentfunction="ap_int_base<192, false>::ap_int_base<128, false>(ap_int_base<128, false> const&)" off="0" region="0" recursive="0"/>
+<pragma file="/data-hdd/opt/Xilinx/Vitis_HLS/2024.1/common/technology/autopilot/etc/ap_common.h" line="523" pragmaType="inline" parentfunction="ssdm_int<64, false>::ssdm_int(unsigned long)" off="0" region="0" recursive="0"/>
+<pragma file="" line="0" pragmaType="inline" parentfunction="ap_int_base<128, false>::ap_int_base<192, false>(ap_int_base<192, false> const&)" off="0" region="0" recursive="0"/>
+<pragma file="" line="0" pragmaType="inline" parentfunction="checkOverflowBaseC" off="0" region="0" recursive="0"/>
+<pragma file="" line="0" pragmaType="inline" parentfunction="ap_int_base<64, false>::ap_int_base(int)" off="0" region="0" recursive="0"/>
+<pragma file="" line="0" pragmaType="inline" parentfunction="ap_int_base<192, false>::ap_int_base(int)" off="0" region="0" recursive="0"/>
+<pragma file="" line="0" pragmaType="inline" parentfunction="ap_int_base<64, false>::ap_int_base(unsigned long)" off="0" region="0" recursive="0"/>
+<pragma file="" line="0" pragmaType="inline" parentfunction="ap_int_base<128, false>::RType<64, false>::mod operator%<128, false, 64, false>(ap_int_base<128, false> const&, ap_int_base<64, false> const&)" off="0" region="0" recursive="0"/>
+<pragma file="" line="0" pragmaType="inline" parentfunction="ap_uint<64>::ap_uint<64, false>(ap_int_base<64, false> const&)" off="0" region="0" recursive="0"/>
+<pragma file="" line="0" pragmaType="inline" parentfunction="ap_uint<128>::ap_uint(unsigned long)" off="0" region="0" recursive="0"/>
+<pragma file="" line="0" pragmaType="inline" parentfunction="ap_int_base<128, false>::RType<($_0)64, false>::mult operator*<128, false>(ap_int_base<128, false> const&, unsigned long)" off="0" region="0" recursive="0"/>
+<pragma file="" line="0" pragmaType="inline" parentfunction="ap_uint<128>::ap_uint<192>(ap_uint<192> const&)" off="0" region="0" recursive="0"/>
+<pragma file="" line="0" pragmaType="inline" parentfunction="ap_int_base<128, false>::RType<($_0)64, false>::mod operator%<128, false>(ap_int_base<128, false> const&, unsigned long)" off="0" region="0" recursive="0"/>
+<pragma file="" line="0" pragmaType="inline" parentfunction="ap_int_base<64, false>::operator unsigned long long() const" off="0" region="0" recursive="0"/>
+<pragma file="src/bconv_naive.cpp" line="11" pragmaType="inline" parentfunction="Compute_BConv_Naive" off="0" region="0" recursive="0"/>
+<pragma file="src/bconv_naive.cpp" line="90" pragmaType="pipeline" parentfunction="Compute_BConv_Naive" off="0" ii="1" rewind="0" style=""/>
+<pragma file="src/bconv_naive.cpp" line="68" pragmaType="pipeline" parentfunction="Compute_BConv_Naive" off="0" ii="1" rewind="0" style=""/>
+<pragma file="src/bconv_naive.cpp" line="57" pragmaType="pipeline" parentfunction="Compute_BConv_Naive" off="0" ii="1" rewind="0" style=""/>
+<pragma file="src/bconv_naive.cpp" line="47" pragmaType="pipeline" parentfunction="Compute_BConv_Naive" off="0" ii="1" rewind="0" style=""/>
+<pragma file="src/bconv_naive.cpp" line="41" pragmaType="pipeline" parentfunction="Compute_BConv_Naive" off="0" ii="1" rewind="0" style=""/>
+<pragma file="src/bconv_naive.cpp" line="18" pragmaType="bind_storage" parentfunction="Compute_BConv_Naive" op="666" impl="22" latency="-1" variable="local_in_x"/>
+<pragma file="src/bconv_naive.cpp" line="19" pragmaType="array_partition" parentfunction="Compute_BConv_Naive" dim="1" factor="0" mode="complete" dynamic="0" variable="local_in_x"/>
+<pragma file="src/bconv_naive.cpp" line="23" pragmaType="bind_storage" parentfunction="Compute_BConv_Naive" op="666" impl="22" latency="-1" variable="local_out_x"/>
+<pragma file="src/bconv_naive.cpp" line="24" pragmaType="array_partition" parentfunction="Compute_BConv_Naive" dim="1" factor="0" mode="complete" dynamic="0" variable="local_out_x"/>
+<pragma file="src/bconv_naive.cpp" line="31" pragmaType="array_partition" parentfunction="Compute_BConv_Naive" dim="0" factor="0" mode="complete" dynamic="0" variable="local_w"/>
+<pragma file="src/bconv_naive.cpp" line="32" pragmaType="array_partition" parentfunction="Compute_BConv_Naive" dim="0" factor="0" mode="complete" dynamic="0" variable="local_mod"/>
+<pragma file="src/bconv_naive.cpp" line="33" pragmaType="array_partition" parentfunction="Compute_BConv_Naive" dim="0" factor="0" mode="complete" dynamic="0" variable="local_k_half"/>
+<pragma file="src/bconv_naive.cpp" line="34" pragmaType="array_partition" parentfunction="Compute_BConv_Naive" dim="0" factor="0" mode="complete" dynamic="0" variable="local_m_barrett"/>
+</pragmas>

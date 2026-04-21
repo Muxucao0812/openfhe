@@ -1,0 +1,104 @@
+--- !Passed
+Pass:            reflow-infer-unroll
+Name:            ImplicitUnroll
+DebugLoc:        { File: src/bconv_naive.cpp, Line: 71, Column: 30 }
+Function:        _Z19Compute_BConv_NaivePA64_A64_mPA5_KmPS2_S5_S5_i
+Args:            
+  - String:          'Loop '''
+  - LoopName:        VITIS_LOOP_71_5
+  - String:          ''' is marked as complete unroll implied by the pipeline pragma'
+...
+--- !Passed
+Pass:            reflow-pragma-loop-unroll
+Name:            PragmaFullyUnroll
+DebugLoc:        { File: src/bconv_naive.cpp, Line: 10, Column: 0 }
+Function:        _Z19Compute_BConv_NaivePA64_A64_mPA5_KmPS2_S5_S5_i
+Args:            
+  - String:          'Unrolling loop '''
+  - LoopName:        VITIS_LOOP_71_5
+  - String:          ''' ('
+  - LoopLoc:         'src/bconv_naive.cpp:71:30'
+  - String:          ') '
+  - String:          'in function '''
+  - String:          Compute_BConv_Naive
+  - String:          ''' completely with a factor of '
+  - Factor:          '3'
+...
+--- !Passed
+Pass:            reflow-array-partition
+Name:            ArrayXform
+DebugLoc:        { File: src/bconv_naive.cpp, Line: 17, Column: 11 }
+Function:        _Z19Compute_BConv_NaivePA64_A64_mPA5_KmPS2_S5_S5_i
+Args:            
+  - String:          'Applying '
+  - String:          array_partition
+  - String:          ' to '''
+  - UOName:          local_in_x
+  - String:          ''':'
+  - String:          ' '
+  - Mode:            Complete
+  - String:          ' partitioning'
+  - String:          ' on dimension '
+  - Dim:             '1'
+  - String:          .
+...
+--- !Passed
+Pass:            reflow-array-partition
+Name:            ArrayXform
+DebugLoc:        { File: src/bconv_naive.cpp, Line: 22, Column: 11 }
+Function:        _Z19Compute_BConv_NaivePA64_A64_mPA5_KmPS2_S5_S5_i
+Args:            
+  - String:          'Applying '
+  - String:          array_partition
+  - String:          ' to '''
+  - UOName:          local_out_x
+  - String:          ''':'
+  - String:          ' '
+  - Mode:            Complete
+  - String:          ' partitioning'
+  - String:          ' on dimension '
+  - Dim:             '1'
+  - String:          .
+...
+--- !Passed
+Pass:            reflow-array-partition
+Name:            ArrayXform
+DebugLoc:        { File: src/bconv_naive.cpp, Line: 27, Column: 11 }
+Function:        _Z19Compute_BConv_NaivePA64_A64_mPA5_KmPS2_S5_S5_i
+Args:            
+  - String:          'Applying '
+  - String:          array_partition
+  - String:          ' to '''
+  - UOName:          local_w
+  - String:          ''':'
+  - String:          ' '
+  - Mode:            Complete
+  - String:          ' partitioning'
+  - String:          ' on dimension '
+  - Dim:             '1'
+  - String:          .
+  - String:          ' '
+  - Mode:            Complete
+  - String:          ' partitioning'
+  - String:          ' on dimension '
+  - Dim:             '2'
+  - String:          .
+...
+--- !Passed
+Pass:            reflow-array-partition
+Name:            ArrayXform
+DebugLoc:        { File: src/bconv_naive.cpp, Line: 28, Column: 14 }
+Function:        _Z19Compute_BConv_NaivePA64_A64_mPA5_KmPS2_S5_S5_i
+Args:            
+  - String:          'Applying '
+  - String:          array_partition
+  - String:          ' to '''
+  - UOName:          local_mod
+  - String:          ''':'
+  - String:          ' '
+  - Mode:            Complete
+  - String:          ' partitioning'
+  - String:          ' on dimension '
+  - Dim:             '1'
+  - String:          .
+...

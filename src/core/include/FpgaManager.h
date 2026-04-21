@@ -52,7 +52,7 @@
 
 inline std::string GetXclbinPath() {
     const char* mode = std::getenv("XCL_EMULATION_MODE");
-    std::string base = "/home/timhan/FHE/openfhe-for-HKS-ACC/src/fpga_backend/";
+    std::string base = "/home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe/src/fpga_backend/";
     if (mode && std::string(mode) == "sw_emu") 
         return base + "fhe_kernels_sw_emu.xclbin";
     else if (mode && std::string(mode) == "hw_emu") 

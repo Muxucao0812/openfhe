@@ -1,4 +1,4 @@
-#include "auto.h"
+#include "../include/auto.h"
 
 // CKKS automorphism in coefficient domain (OpenFHE poly-impl.h style):
 // For each output index o: in_raw = (o * kinv) mod 2N; negate = (in_raw >= N);
@@ -18,8 +18,8 @@ void Auto(
     uint64_t mod
 ) {
 #pragma HLS INLINE off
-#pragma HLS ARRAY_PARTITION variable=input  cyclic factor=M dim=2
-#pragma HLS ARRAY_PARTITION variable=output cyclic factor=M dim=2
+#pragma HLS ARRAY_PARTITION variable=input  cyclic factor=PE_PARALLEL dim=2
+#pragma HLS ARRAY_PARTITION variable=output cyclic factor=PE_PARALLEL dim=2
 
     (void)k;  // used by host to verify; kinv is sufficient for pull model
 
