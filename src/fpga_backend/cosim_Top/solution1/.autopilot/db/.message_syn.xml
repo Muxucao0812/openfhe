@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Messages>
+	<Message severity="ERROR" prefix="[HLS 200-70]" key="HLS_70_1315" tag="" content="&apos;csynth_design&apos; failed due to missing target device. Please use command &apos;set_part&apos; to specify the target device." resolution=""/>
+	<Message severity="INFO" prefix="[HLS 200-111]" key="HLS_111_966" tag="RUNTIME" content="Finished Command csynth_design CPU user time: 0.04 seconds. CPU system time: 0 seconds. Elapsed time: 0.04 seconds; current allocated memory: 0.340 MB." resolution=""/>
+	<Message severity="INFO" prefix="[HLS 200-1510]" key="HLS 200-1510" tag="" content="Running: export_design -flow syn -format ip_catalog" resolution=""/>
+</Messages>

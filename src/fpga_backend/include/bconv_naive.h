@@ -9,9 +9,11 @@
 extern "C" {
     // Naive BConv: 直接三重循环实现，性能较低但结构简单
     void Compute_BConv_Naive(
-        uint64_t in_x[MAX_LIMBS][SQRT][SQRT], 
-        const uint64_t in_w[LIMB_Q][MAX_OUT_COLS], 
+        uint64_t in_x[MAX_LIMBS][SQRT][SQRT],
+        const uint64_t in_w[LIMB_Q][MAX_OUT_COLS],
         const uint64_t out_mod[MAX_OUT_COLS],
+        const uint64_t out_k_half[MAX_OUT_COLS],
+        const uint64_t out_m_barrett[MAX_OUT_COLS],
         int sizeP
     );
 }

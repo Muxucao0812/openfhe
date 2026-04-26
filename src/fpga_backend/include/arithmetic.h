@@ -1,6 +1,9 @@
 #ifndef ARITHMETIC_H
 #define ARITHMETIC_H
 
+#ifndef FPGA_STANDALONE_TEST
+#include <ap_int.h>
+#endif
 #include "define.h"   // 包含项目的全局定义
 
 // is_add: True, ModAdd; False, SubAdd
@@ -18,7 +21,7 @@ extern "C"  {
         const uint64_t &b, 
         const uint64_t &mod, 
         const uint64_t &m, 
-        const uint64_t &k_half, 
+        const uint64_t &S,
         uint64_t       &res_mod
     );
 }

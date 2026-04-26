@@ -227,19 +227,23 @@ void Configurable_PE(
     } else {
         AddMod(input1_temp, input2_temp, modulus, true);
         temp1 = input1_temp;
-        
-        input1_temp = input1; 
+
+        input1_temp = input1;
         AddMod(input1_temp, input2_temp, modulus, false);
         res2_temp = input1_temp;
-        
-       
+
+
         res1 = (temp1 >> 1) + ((temp1 & 1) ? ((modulus + 1) >> 1) : 0);
-        
-        MultMod(res2_temp, twiddle_factor, modulus, M, K_HALF, temp);
-        
-       
+
+        // 用物理寄存器打拍替代 LATENCY 约束，截断 AddMod→MultMod 长组合路径
+        uint64_t mult_in = res2_temp;
+        #pragma HLS BIND_REGISTER variable=mult_in
+
+        MultMod(mult_in, twiddle_factor, modulus, M, K_HALF, temp);
+
+        // INTT 结果除以 2（乘以 2 的逆元），同时处理奇数情况（模加上半模）
         res2 = (temp >> 1) + ((temp & 1) ? ((modulus + 1) >> 1) : 0);
-    } 
+    }
 }
 
 void NTT_Kernel(
@@ -295,10 +299,17 @@ void NTT_Kernel(
     // ============================================================
     INIT_ROWS:
     for (int i = 0; i < SQRT; i++) {
-        INIT_COLS:
-        for (int l = 0; l < SQRT; l++) {
-            #pragma HLS UNROLL
-            buf_A[i][l] = in_memory[i][l];
+        INIT_BLOCKS:
+        // 每次跳过 PE_PARALLEL (如 8) 个元素
+        for (int l = 0; l < SQRT; l += PE_PARALLEL) {
+            #pragma HLS PIPELINE II=1
+            
+            INIT_UNROLL:
+            // 严格只展开这 PE_PARALLEL 个元素的拷贝
+            for (int p = 0; p < PE_PARALLEL; p++) {
+                #pragma HLS UNROLL
+                buf_A[i][l + p] = in_memory[i][l + p];
+            }
         }
     }
 
@@ -311,11 +322,21 @@ void NTT_Kernel(
     // ============================================================
     STAGE_LOOP:
     for (int j = 0; j < STAGE; j++) {
+        // 关键：禁止外层循环展平，保证 Ping-Pong 层级之间流水线排空后再进入下一 stage
+        // 否则 k 循环尾部的写操作与下一 j 首部的读操作会在同一 BRAM bank 同一地址冲突 → Co-Sim 卡死
+        #pragma HLS LOOP_FLATTEN off
+
         ROW_LOOP:
         for (int k = 0; k < SQRT; k++) {
-            #pragma HLS PIPELINE II=1
-            #pragma HLS DEPENDENCE variable=buf_A inter false
-            #pragma HLS DEPENDENCE variable=buf_B inter false
+            // 【刻意不写 PIPELINE II=1】
+            //   buf_A/buf_B 按 factor=PE_PARALLEL(=8) 切片，单周期最多吞吐 8 数据；
+            //   而每次 k 迭代底层需要 SQRT(=64) 宽度的读/写，II=1 会迫使 HLS 生成
+            //   残疾的交错调度状态机（并把内层循环强制全展），与 BRAM 端口物理带宽
+            //   冲突，Co-Sim 中立即死锁。让 HLS 自行推导 II（通常=8）即可。
+            // 标准依赖声明：跨迭代对 buf_A/buf_B 无 RAW/WAW 冲突（ping-pong 保证）
+            #pragma HLS dependence variable=buf_A type=inter dependent=false direction=RAW
+            #pragma HLS dependence variable=buf_B type=inter dependent=false direction=RAW
+            #pragma HLS dependence variable=buf_B type=inter dependent=false direction=WAW
 
             // -- 计算 stage 索引（NTT 正序，INTT 逆序）
             if (is_ntt) {
@@ -362,17 +383,21 @@ void NTT_Kernel(
 
     // ============================================================
     // 回写：将结果拷贝回 in_memory
-    // STAGE=12 为偶数 → 最后一级 j=11 (奇) 写 buf_A → 结果在 buf_A
     // ============================================================
     WRITEBACK_ROWS:
     for (int i = 0; i < SQRT; i++) {
-        WRITEBACK_COLS:
-        for (int l = 0; l < SQRT; l++) {
-            #pragma HLS UNROLL
-            if ((STAGE & 1) == 0) {
-                in_memory[i][l] = buf_A[i][l];
-            } else {
-                in_memory[i][l] = buf_B[i][l];
+        WRITEBACK_BLOCKS:
+        for (int l = 0; l < SQRT; l += PE_PARALLEL) {
+            #pragma HLS PIPELINE II=1
+            
+            WRITEBACK_UNROLL:
+            for (int p = 0; p < PE_PARALLEL; p++) {
+                #pragma HLS UNROLL
+                if ((STAGE & 1) == 0) {
+                    in_memory[i][l + p] = buf_A[i][l + p];
+                } else {
+                    in_memory[i][l + p] = buf_B[i][l + p];
+                }
             }
         }
     }

@@ -390,6 +390,9 @@ std::shared_ptr<std::vector<DCRTPoly>> KeySwitchHYBRID::EvalKeySwitchPrecomputeC
     stats.alpha       = (int)alpha;
     stats.ring_dim    = (int)paramsQl->GetCyclotomicOrder() / 2;
 
+    auto& mtrk = GetMemoryTracker();
+    const int64_t tower_bytes = (int64_t)stats.ring_dim * sizeof(uint64_t);
+
     // -----------------------------------------------------------------------
     // MP: Phase 1 - INTT all digits first (global barrier before BConv)
     // -----------------------------------------------------------------------
@@ -426,11 +429,13 @@ std::shared_ptr<std::vector<DCRTPoly>> KeySwitchHYBRID::EvalKeySwitchPrecomputeC
                 cryptoParams->GetPartQlHatModp(sizeQl - 1, part),
                 cryptoParams->GetmodComplPartqBarrettMu(sizeQl - 1, part));
             stats.bconv++;
+            mtrk.alloc((int64_t)sizeP * tower_bytes, "BConv", (int)part);
 
             // DC: NTT happens per-digit after BConv; MP: NTT in Phase 3 below
             if (strategy == HKSStrategy::DC) {
                 partsCtCompl[part].SetFormat(Format::EVALUATION);
                 stats.ntt_poly++;
+                mtrk.free((int64_t)sizeP * tower_bytes, "NTT+Assemble", (int)part);
             }
         }
 
@@ -461,6 +466,10 @@ std::shared_ptr<std::vector<DCRTPoly>> KeySwitchHYBRID::EvalKeySwitchPrecomputeC
             }
             for (usint i = endPartIdx; i < sizeQlP; ++i) {
                 partsCtExt[part].SetElementAtIndex(i, partsCtCompl[part].GetElementAtIndex(i - sizePartQl));
+            }
+
+            if (strategy == HKSStrategy::MP) {
+                mtrk.free((int64_t)sizeP * tower_bytes, "Assemble", (int)part);
             }
         }
     }
@@ -503,8 +512,7 @@ std::shared_ptr<std::vector<DCRTPoly>> KeySwitchHYBRID::EvalKeySwitchPrecomputeC
                     cryptoParams->GetPartQlHatModp(sizeQl - 1, part),
                     cryptoParams->GetmodComplPartqBarrettMu(sizeQl - 1, part));
                 stats.bconv++;
-
-                // Tower p in QlP space is at index sizeQl+p.
+                mtrk.alloc(tower_bytes, "BConv", (int)part, (int)p);
                 // The assembly mapping (same as DC): compl[i - sizePartQl] → ext[i] for i>=endPartIdx
                 // → compl index for P-tower p = (sizeQl + p) - sizePartQl
                 usint startPartIdx = alpha * part;
@@ -532,6 +540,7 @@ std::shared_ptr<std::vector<DCRTPoly>> KeySwitchHYBRID::EvalKeySwitchPrecomputeC
                 tower.SetFormat(Format::EVALUATION);
                 stats.ntt_limb++;
                 partsCtExt[part].SetElementAtIndex(extPIdx, tower);
+                mtrk.free(tower_bytes, "Assemble", (int)part, (int)p);
             }
             // After this iteration: tower p is fully assembled across all digits
         }

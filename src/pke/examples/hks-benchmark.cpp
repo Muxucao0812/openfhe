@@ -6,6 +6,7 @@
 
 #include <chrono>
 #include <cstring>
+#include <fstream>
 #include <iostream>
 
 using namespace lbcrypto;
@@ -112,6 +113,7 @@ int main(int argc, char* argv[]) {
     // Capture per-operation stats (single call after warm-up)
     // -------------------------------------------------------------------------
     ResetHKSStats();
+    ResetMemoryTracker();
     cc->EvalRotate(ctxt, 1);
     HKSStats s = GetHKSStats();
 
@@ -139,6 +141,19 @@ int main(int argc, char* argv[]) {
     std::cout << "  P-towers held   : " << s.peak_p_towers << "\n";
     std::cout << "  Buffer size     : " << p_tower_bytes << " bytes"
               << "  (" << p_tower_bytes / 1024.0 << " KB)\n";
+    std::cout << "  Tracker peak    : " << GetMemoryTracker().peak() << " bytes"
+              << "  (" << GetMemoryTracker().peak() / 1024.0 << " KB)\n";
+    std::cout << "----------------------------------------------------\n";
+
+    // Dump memory watermark CSV to file
+    {
+        std::string csv_name = std::string("memory_trace_") + sname + ".csv";
+        std::ofstream csv(csv_name);
+        if (csv.is_open()) {
+            GetMemoryTracker().dump_csv(csv);
+            std::cout << "  Memory trace    : " << csv_name << "\n";
+        }
+    }
     std::cout << "----------------------------------------------------\n";
 
     // -------------------------------------------------------------------------

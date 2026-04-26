@@ -10,12 +10,12 @@ xclbin Information
    Version:                2.16.204
    Kernels:                Top
    Signature:              
-   Content:                SW Emulation Binary
-   UUID (xclbin):          136bf511-d3b0-44ac-f94d-3162b8677787
-   UUID (IINTF):           a8880c2311a2a42b5fb76899d385acee
+   Content:                HW Emulation Binary
+   UUID (xclbin):          6eef540c-6c69-d1fd-4836-4a1b7d106ca3
    Sections:               BITSTREAM, MEM_TOPOLOGY, IP_LAYOUT, CONNECTIVITY, 
-                           BUILD_METADATA, EMBEDDED_METADATA, SYSTEM_METADATA, 
-                           PARTITION_METADATA, GROUP_CONNECTIVITY, GROUP_TOPOLOGY
+                           CLOCK_FREQ_TOPOLOGY, BUILD_METADATA, 
+                           EMBEDDED_METADATA, SYSTEM_METADATA, 
+                           GROUP_CONNECTIVITY, GROUP_TOPOLOGY
 ==============================================================================
 Hardware Platform (Shell) Information
 -------------------------------------
@@ -25,17 +25,25 @@ Hardware Platform (Shell) Information
    Version:                202210.1
    Generated Version:      Vivado 2022.1 (SW Build: 3510589)
    Created:
-               Thu Mar 31 09:04:14 2022   FPGA Device:            xcu250
+               Thu Mar 31 07:42:58 2022   FPGA Device:            xcu250
    Board Vendor:           xilinx.com
    Board Name:             xilinx.com:au250:1.4
    Board Part:             xilinx.com:au250:part0:1.4
-   Platform VBNV:          <not defined>
-   Static UUID:            a8880c23-11a2-a42b-5fb7-6899d385acee
+   Platform VBNV:          xilinx_u250_gen3x16_xdma_4_1_202210_1
+   Static UUID:            00000000-0000-0000-0000-000000000000
    Feature ROM TimeStamp:  0
 
 Scalable Clocks
 ---------------
-   No scalable clock data available.
+   Name:      DATA_CLK
+   Index:     0
+   Type:      DATA
+   Frequency: 300 MHz
+
+   Name:      KERNEL_CLK
+   Index:     1
+   Type:      KERNEL
+   Frequency: 300 MHz
 
 System Clocks
 ------
@@ -65,68 +73,68 @@ System Clocks
 
 Memory Configuration
 --------------------
-   Name:         DDR[0]
+   Name:         bank0
    Index:        0
    Type:         MEM_DDR4
-   Base Address: 0x0
-   Address Size: 0x100000000000
-   Bank Used:    Yes
+   Base Address: 0x4000000000
+   Address Size: 0x400000000
+   Bank Used:    No
 
-   Name:         DDR[1]
+   Name:         bank1
    Index:        1
    Type:         MEM_DDR4
-   Base Address: 0x1
-   Address Size: 0x100000000000
+   Base Address: 0x5000000000
+   Address Size: 0x400000000
    Bank Used:    Yes
 
-   Name:         DDR[2]
+   Name:         bank2
    Index:        2
-   Type:         MEM_DDR4
-   Base Address: 0x2
-   Address Size: 0x100000000000
-   Bank Used:    Yes
+   Type:         MEM_DRAM
+   Base Address: 0x6000000000
+   Address Size: 0x400000000
+   Bank Used:    No
 
-   Name:         DDR[3]
+   Name:         bank3
    Index:        3
-   Type:         MEM_DDR4
-   Base Address: 0x3
-   Address Size: 0x100000000000
-   Bank Used:    Yes
-
-   Name:         HOST[0]
-   Index:        4
-   Type:         MEM_DDR4
-   Base Address: 0x4
-   Address Size: 0x100000000000
-   Bank Used:    Yes
+   Type:         MEM_DRAM
+   Base Address: 0x7000000000
+   Address Size: 0x400000000
+   Bank Used:    No
 
    Name:         PLRAM[0]
-   Index:        5
-   Type:         MEM_DDR4
-   Base Address: 0x5
-   Address Size: 0x100000000000
-   Bank Used:    Yes
+   Index:        4
+   Type:         MEM_DRAM
+   Base Address: 0x3000000000
+   Address Size: 0x20000
+   Bank Used:    No
 
    Name:         PLRAM[1]
-   Index:        6
-   Type:         MEM_DDR4
-   Base Address: 0x6
-   Address Size: 0x100000000000
-   Bank Used:    Yes
+   Index:        5
+   Type:         MEM_DRAM
+   Base Address: 0x3000200000
+   Address Size: 0x20000
+   Bank Used:    No
 
    Name:         PLRAM[2]
-   Index:        7
-   Type:         MEM_DDR4
-   Base Address: 0x7
-   Address Size: 0x100000000000
-   Bank Used:    Yes
+   Index:        6
+   Type:         MEM_DRAM
+   Base Address: 0x3000400000
+   Address Size: 0x20000
+   Bank Used:    No
 
    Name:         PLRAM[3]
+   Index:        7
+   Type:         MEM_DRAM
+   Base Address: 0x3000600000
+   Address Size: 0x20000
+   Bank Used:    No
+
+   Name:         HOST[0]
    Index:        8
-   Type:         MEM_DDR4
-   Base Address: 0x8
-   Address Size: 0x100000000000
-   Bank Used:    Yes
+   Type:         MEM_DRAM
+   Base Address: 0x2000000000
+   Address Size: 0x400000000
+   Bank Used:    No
 ==============================================================================
 Kernel: Top
 
@@ -145,7 +153,7 @@ Ports
    Port:          M_AXI_GMEM1
    Mode:          master
    Range (bytes): 0xFFFFFFFF
-   Data Width:    64 bits
+   Data Width:    128 bits
    Port Type:     addressable
 
    Port:          M_AXI_GMEM2
@@ -162,22 +170,22 @@ Ports
 
 --------------------------
 Instance:        Top_1
-   Base Address: 0x0
+   Base Address: 0x1d010000
 
    Argument:          mem_in1
    Register Offset:   0x10
    Port:              M_AXI_GMEM0
-   Memory:            DDR[0] (MEM_DDR4)
+   Memory:            bank1 (MEM_DDR4)
 
    Argument:          mem_in2
    Register Offset:   0x1C
    Port:              M_AXI_GMEM1
-   Memory:            DDR[0] (MEM_DDR4)
+   Memory:            bank1 (MEM_DDR4)
 
    Argument:          mem_out
    Register Offset:   0x28
    Port:              M_AXI_GMEM2
-   Memory:            DDR[0] (MEM_DDR4)
+   Memory:            bank1 (MEM_DDR4)
 
    Argument:          opcode
    Register Offset:   0x34
@@ -198,21 +206,17 @@ Generated By
 ------------
    Command:       v++
    Version:       2023.2 - 2023-10-11-15:42:10 (SW BUILD: 4026344)
-   Command Line:  v++ --config connectivity.ini --connectivity.sp Top.mem_in1:HBM[0] --connectivity.sp Top.mem_in2:HBM[1] --connectivity.sp Top.mem_out:HBM[2] --include ./include --include ./src --input_files temp.xo --link --optimize 0 --output fhe_kernels_sw_emu.xclbin --platform xilinx_u250_gen3x16_xdma_4_1_202210_1 --report_level 0 --save-temps --target sw_emu 
-   Options:       --config connectivity.ini
-                  --connectivity.sp Top.mem_in1:HBM[0]
-                  --connectivity.sp Top.mem_in2:HBM[1]
-                  --connectivity.sp Top.mem_out:HBM[2]
-                  --include ./include
+   Command Line:  v++ --include ./include --include ./src --input_files temp.xo --link --optimize 0 --output fhe_kernels_hw_emu.xclbin --platform xilinx_u250_gen3x16_xdma_4_1_202210_1 --report_level 0 --save-temps --target hw_emu 
+   Options:       --include ./include
                   --include ./src
                   --input_files temp.xo
                   --link
                   --optimize 0
-                  --output fhe_kernels_sw_emu.xclbin
+                  --output fhe_kernels_hw_emu.xclbin
                   --platform xilinx_u250_gen3x16_xdma_4_1_202210_1
                   --report_level 0
                   --save-temps
-                  --target sw_emu 
+                  --target hw_emu 
 ==============================================================================
 User Added Key Value Pairs
 --------------------------

@@ -390,6 +390,8 @@ PolyImpl<VecType> PolyImpl<VecType>::AutomorphismTransform(uint32_t k, const std
         FpgaManager::GetInstance().NttInverseOffload(inBuf.data(), outBuf.data(), q.ConvertToInt(), n);
     
         for (uint32_t i = 0; i < n; ++i) (*tmp.m_values)[i] = IntType(outBuf[i]);
+        //FIXME: 这里的格式切换需要手动更新为 COEFFICIENT (自然序)，因为 FPGA 卸载后是自然序的结果
+        //TODO: 需要在 FPGA 卸载接口中增加一个参数来指示输出格式，以避免这里的手动更新
         //tmp.SetFormat(Format::COEFFICIENT);// 手动更新为 COEFFICIENT (自然序)
     } else
 #endif

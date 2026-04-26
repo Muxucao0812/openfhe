@@ -1,0 +1,13 @@
+<AutoPilot:solution xmlns:AutoPilot="com.autoesl.autopilot.solution">
+    <config>
+        <config_export flow="syn" format="ip_catalog"/>
+    </config>
+    <name>
+        <value string="solution1"/>
+    </name>
+    <project>
+        <value string="cosim_Top"/>
+    </project>
+    <flowTarget value="vivado"/>
+</AutoPilot:solution>
+

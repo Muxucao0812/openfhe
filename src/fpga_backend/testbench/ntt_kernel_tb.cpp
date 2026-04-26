@@ -95,25 +95,15 @@ static void compute_barrett_params(uint64_t mod,
                                    uint64_t &K_HALF_out,
                                    uint64_t &M_out)
 {
-    // 与 arithmetic.cpp MultMod 中使用的计算方式一致：
-    //   k_half = bit width of mod（即 ceil(log2(mod+1))）
-    //   M      = floor(2^(2*k_half) / mod)
-    // 验证：(a*b >> (k_half-1)) * M >> (k_half+1)
-    //     = a*b * M >> (2*k_half)  ≈  a*b / mod  ✓
+    // 与 arithmetic.cpp MultMod 的 S 参数语义一致：S = bitwidth(mod) + 62
+    // M = floor(2^S / mod)
     uint64_t tmp = mod;
     int bits = 0;
     while (tmp) { tmp >>= 1; ++bits; }
-    uint64_t k = (uint64_t)bits;
-    K_HALF_out = k;
-
-    // M = floor(2^(2k) / mod)
-    if (2 * k <= 127) {
-        unsigned __int128 numer = (unsigned __int128)1 << (2 * k);
-        M_out = (uint64_t)(numer / mod);
-    } else {
-        unsigned __int128 numer = (unsigned __int128)1 << 127;
-        M_out = (uint64_t)(numer / mod);
-    }
+    uint64_t S = (uint64_t)bits + 62;
+    K_HALF_out = S;
+    unsigned __int128 numer = (unsigned __int128)1 << S;
+    M_out = (uint64_t)(numer / mod);
 }
 
 // ============================================================
@@ -137,22 +127,18 @@ static void compute_barrett_params(uint64_t mod,
 //   ...
 //   table[(1<<s)-1 + i] = w^(i * N / (2^(s+1)))
 // 其中 N = RING_DIM，w 为 2N 次本原单位根（负包绕 NTT）
-static void build_twiddle_table(uint64_t *table, uint64_t mod, uint64_t root_2N)
+static void build_twiddle_table(uint64_t table[PE_PARALLEL][RING_DIM], uint64_t mod, uint64_t root_2N)
 {
     // root_2N = 2N 次本原单位根 w（满足 w^N ≡ -1 mod p）
-    // stage s 需要 w^(N/(2^(s+1))), 即 root_2N 的 2^s 次方
+    // 每个旋转因子广播到所有 PE_PARALLEL 个副本，消除 Bank Conflict
     for (int s = 0; s < STAGE; s++) {
-        int cnt   = 1 << s;                          // 该 stage 有 cnt 个旋转因子
-        int base  = cnt - 1;                          // 在表中的起始偏移
-        // step_exp = 2N / (2*cnt) = N / cnt = RING_DIM / cnt
-        // 即 w^(N/cnt) = root_2N^(2N / (2*cnt)) ...
-        // 更直接：该 stage 的旋转因子序列为 root_2N^0, root_2N^step, ..., root_2N^((cnt-1)*step)
-        // 其中 step = 2*RING_DIM / (2*cnt) = RING_DIM / cnt
-        // （因为 root_2N 是 2N 次根，所以 N 步转一圈/2）
+        int cnt   = 1 << s;
+        int base  = cnt - 1;
         uint64_t step = sw_powmod(root_2N, (uint64_t)(2 * RING_DIM / (2 * cnt)), mod);
         uint64_t w = 1;
         for (int i = 0; i < cnt; i++) {
-            table[base + i] = w;
+            for (int p = 0; p < PE_PARALLEL; p++)
+                table[p][base + i] = w;
             w = sw_mulmod(w, step, mod);
         }
     }
@@ -475,9 +461,9 @@ static void test_ntt_kernel_roundtrip() {
     // 2*RING_DIM 次本原根 = ROOT^((MOD-1)/(2*RING_DIM))
     uint64_t root_2N = sw_powmod(ROOT, (MOD - 1) / (2 * RING_DIM), MOD);
 
-    // 构造 twiddle 表
-    static uint64_t ntt_tw[RING_DIM];
-    static uint64_t intt_tw[RING_DIM];
+    // 构造 twiddle 表（每个旋转因子广播到 PE_PARALLEL 个副本）
+    static uint64_t ntt_tw[PE_PARALLEL][RING_DIM];
+    static uint64_t intt_tw[PE_PARALLEL][RING_DIM];
     build_twiddle_table(ntt_tw,  MOD, root_2N);
     // INTT 用逆根
     uint64_t inv_root_2N = sw_powmod(root_2N, MOD - 2, MOD);
@@ -538,8 +524,8 @@ static void test_compute_ntt_roundtrip() {
     uint64_t root_2N     = sw_powmod(ROOT, (MOD - 1) / (2 * RING_DIM), MOD);
     uint64_t inv_root_2N = sw_powmod(root_2N, MOD - 2, MOD);
 
-    static uint64_t ntt_tw[MAX_LIMBS][RING_DIM];
-    static uint64_t intt_tw[MAX_LIMBS][RING_DIM];
+    static uint64_t ntt_tw[MAX_LIMBS][PE_PARALLEL][RING_DIM];
+    static uint64_t intt_tw[MAX_LIMBS][PE_PARALLEL][RING_DIM];
     for (int li = 0; li < MAX_LIMBS; li++) {
         build_twiddle_table(ntt_tw[li],  MOD, root_2N);
         build_twiddle_table(intt_tw[li], MOD, inv_root_2N);
@@ -626,8 +612,9 @@ static void test_permute_twiddle_factors() {
     std::mt19937_64 rng(333);
     std::uniform_int_distribution<uint64_t> dis(0, UINT64_MAX);
 
-    static uint64_t tw_ram[RING_DIM];
-    for (int i = 0; i < RING_DIM; i++) tw_ram[i] = dis(rng);
+    static uint64_t tw_ram[PE_PARALLEL][RING_DIM];
+    for (int p = 0; p < PE_PARALLEL; p++)
+        for (int i = 0; i < RING_DIM; i++) tw_ram[p][i] = dis(rng);
 
     for (int t = 0; t < 50 && all_pass; t++) {
         int stage = (int)(rng() % STAGE);
@@ -639,7 +626,7 @@ static void test_permute_twiddle_factors() {
         permute_twiddle_factors(tf, tw_ram, tw_idx);
 
         for (int i = 0; i < BU_NUM; i++) {
-            if (tf[i] != tw_ram[tw_idx[i]]) {
+            if (tf[i] != tw_ram[i % PE_PARALLEL][tw_idx[i]]) {
                 all_pass = false;
                 break;
             }

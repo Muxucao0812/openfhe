@@ -46,12 +46,24 @@
 #define OP_BCONV  6
 #define OP_AUTO   7
 
-#define MAX_LIMBS 5 
+// ---- 必须与 FPGA 端 define.h 保持一致 ----
+// MAX_LIMBS = LIMB_Q (3) + MAX_OUT_COLS (5) = 8
+// OP_INIT 时 FPGA 会按 MAX_LIMBS 个 limb 读取 CG-NTT 旋转因子表，
+// 若 Host 端分配不足会发生 AXI 越界。
+#define MAX_LIMBS 8
+#define FPGA_LIMB_Q 3
+#define FPGA_LIMB_P 2
 #define FPGA_RING_DIM  4096
-#define STAGE_NUM 12 
+#define STAGE_NUM 12
+#define CG_HALF_N  (FPGA_RING_DIM / 2)          // 2048
+#define CG_TF_SIZE (STAGE_NUM * CG_HALF_N)      // 12 * 2048 = 24576
 
 inline std::string GetXclbinPath() {
+    const char* env_path = std::getenv("XCLBIN_PATH");
+    if (env_path) return std::string(env_path);
+
     const char* mode = std::getenv("XCL_EMULATION_MODE");
+<<<<<<< HEAD
     std::string base = "/home/CONNECT/xmeng027/work/HKS-Accelerator-hanxu/openfhe/src/fpga_backend/";
     if (mode && std::string(mode) == "sw_emu") 
         return base + "fhe_kernels_sw_emu.xclbin";
@@ -164,18 +176,68 @@ public:
     }
 
 
-    static std::vector<int> GenerateTwiddleIndices(int n) {
-        std::vector<int> index = {0};
-        for (int i = 0; i < STAGE_NUM; ++i) {
-            std::vector<int> index_temp;
-            int offset = n / (1 << (i + 1));
-            for (int j : index) {
-                index_temp.push_back(j + offset);
+    // ---------------------------------------------------------
+    // CG-NTT 旋转因子预计算（Host 端）
+    //
+    // 输出布局：out[s * CG_HALF_N + t]，s ∈ [0, STAGE_NUM)，t ∈ [0, CG_HALF_N)
+    // 算法：模拟 perfect-shuffle 路由网络，记录每层实际使用的 ψ 幂次。
+    //   - 初始排列 perm[i] = bit_reverse(i, STAGE_NUM)
+    //   - 每经过一层，新排列：np[2i]=perm[i]，np[2i+1]=perm[i+N/2]
+    //   - 第 s 层、位置 i 的指数 = (perm[i] mod 2^s) * N / 2^s
+    //
+    // 与 FPGA 端 cg_ntt.cpp 中 cg_twiddle[s][t] 的顺序完全匹配。
+    // root_2N 是 2N-th primitive root of unity（ψ）。
+    // ---------------------------------------------------------
+    static int BitReverse(int x, int bits) {
+        int r = 0;
+        for (int b = 0; b < bits; b++) { r = (r << 1) | (x & 1); x >>= 1; }
+        return r;
+    }
+
+ // ---------------------------------------------------------
+    // 统一的 CG-NTT 旋转因子生成器：通过模拟硬件洗牌路径来定位 TF
+    // ---------------------------------------------------------
+    static void BuildCgTwiddle_Unified(uint64_t* out, int n, uint64_t mod, uint64_t root, bool is_ntt) {
+        std::vector<int> logical_idx(n);
+        for(int i=0; i<n; i++) logical_idx[i] = i; // 初始逻辑索引
+
+        for(int s=0; s<STAGE_NUM; s++) {
+            // OpenFHE Negacyclic 参数：NTT 阶段 m 递增，INTT 阶段 m 递减
+            int m = is_ntt ? (1 << s) : (n >> (s + 1));
+            int t = is_ntt ? (n >> (s + 1)) : (1 << s);
+
+            for(int i=0; i<CG_HALF_N; i++) {
+                // 根据硬件读模式确定逻辑索引
+                // NTT (DIT) 硬件读 i 和 i + N/2
+                // INTT (DIF) 硬件读 2i 和 2i + 1
+                int idx = is_ntt ? logical_idx[i] : logical_idx[2*i];
+                int group = idx / (2 * t);
+                
+                uint64_t power = BitReverse(m + group, STAGE_NUM);
+                uint64_t tf = Power(root, power, mod);
+
+
+                int target_row = is_ntt ? s : (STAGE_NUM - 1 - s);
+                out[target_row * CG_HALF_N + i] = tf;
             }
-            index.insert(index.end(), index_temp.begin(), index_temp.end());
+
+            // --- 核心：模拟硬件在 Stage 结束后的物理洗牌行为 ---
+            std::vector<int> next(n);
+            if(is_ntt) {
+                // NTT 硬件执行 Perfect Shuffle 写回：2i <- i, 2i+1 <- i+N/2
+                for(int i=0; i<CG_HALF_N; i++) {
+                    next[2*i] = logical_idx[i];
+                    next[2*i+1] = logical_idx[i + CG_HALF_N];
+                }
+            } else {
+                // INTT 硬件执行 Perfect Unshuffle 写回：i <- 2i, i+N/2 <- 2i+1
+                for(int i=0; i<CG_HALF_N; i++) {
+                    next[i] = logical_idx[2*i];
+                    next[i + CG_HALF_N] = logical_idx[2*i+1];
+                }
+            }
+            logical_idx = next;
         }
-        index.erase(index.begin());
-        return index;
     }
 };
 
@@ -218,66 +280,61 @@ public:
         std::vector<uint64_t> K_vals(total_limbs), M_vals(total_limbs);
         for(size_t i=0; i<total_limbs; i++) {
             uint64_t p = m_stored_moduli[i];
-            int k = (int)std::ceil(std::log2((double)p));
-            unsigned __int128 power = (unsigned __int128)1 << (2 * k);
+            int pbits = 64 - __builtin_clzll(p);
+            int S = pbits + 62;  // 全精度总移位量，不再除以 2
+            unsigned __int128 power = (unsigned __int128)1 << S;
             uint64_t m = (uint64_t)(power / p);
-            K_vals[i] = k;
+            K_vals[i] = S;
             M_vals[i] = m;
-            std::cout << "  [Barrett] idx=" << i << ": mod=" << p << ", k=" << k << ", m=" << m << std::endl;
+            std::cout << "  [Barrett] idx=" << i << ": mod=" << p << ", S=" << S << ", m=" << m << std::endl;
         }
 
-        std::vector<uint64_t> all_ntt_twiddles(total_limbs * N);
-        std::vector<uint64_t> all_intt_twiddles(total_limbs * N);
+        // ---- CG-NTT 旋转因子预计算 ----
+        // 每 limb 生成 [STAGE_NUM][CG_HALF_N] = 24576 个 TF，与 FPGA cg_twiddle[s][t] 顺序完全对齐。
+        // 按 MAX_LIMBS 尺寸分配（FPGA OP_INIT 按 MAX_LIMBS × CG_TF_SIZE 搬运，不足槽位以 0 填充）。
+        std::vector<uint64_t> all_ntt_twiddles(MAX_LIMBS * CG_TF_SIZE, 0);
+        std::vector<uint64_t> all_intt_twiddles(MAX_LIMBS * CG_TF_SIZE, 0);
 
-        for(size_t limb = 0; limb < total_limbs; limb++) {
+        for(size_t limb = 0; limb < total_limbs && limb < (size_t)MAX_LIMBS; limb++) {
             uint64_t mod = m_stored_moduli[limb];
-            
-            // 🔥 直接使用 CPU 提取好的单位根，绝对不再自己瞎算！
-            uint64_t psi = combined_roots[limb]; 
+            uint64_t psi = combined_roots[limb];
             uint64_t psi_inv = MathUtils::ModInverse(psi, mod);
 
-            uint64_t w = 1;
-            uint64_t w_inv = 1;
-
-            for(int i = 0; i < N; i++) {
-                all_ntt_twiddles[limb * N + i] = w;
-                all_intt_twiddles[limb * N + i] = w_inv;
-                w = ((unsigned __int128)w * psi) % mod;
-                w_inv = ((unsigned __int128)w_inv * psi_inv) % mod;
-            }
+            // 正向
+            MathUtils::BuildCgTwiddle_Unified(
+                all_ntt_twiddles.data() + limb * CG_TF_SIZE, N, mod, psi, true);
+            
+            // 逆向
+            MathUtils::BuildCgTwiddle_Unified(
+                all_intt_twiddles.data() + limb * CG_TF_SIZE, N, mod, psi_inv, false);
         }
+        
 
-        std::vector<int> perm_index = MathUtils::GenerateTwiddleIndices(N);
-        std::vector<uint64_t> permuted_ntt(total_limbs * N);
-        std::vector<uint64_t> permuted_intt(total_limbs * N);
-
-        for (size_t limb = 0; limb < total_limbs; limb++) {
-            size_t base_offset = limb * N;
-            for (size_t i = 0; i < perm_index.size(); ++i) {
-                permuted_ntt[base_offset + i]  = all_ntt_twiddles[base_offset + perm_index[i]];
-                permuted_intt[base_offset + i] = all_intt_twiddles[base_offset + perm_index[i]];
-            }
+        const int PARAMS_PER_LIMB = 3;
+        // 重要：header 偏移必须与 FPGA 端 top.cpp 中 NTT_TF_BASE = LIMB_Q*3 / INTT_TF_BASE = LIMB_P*3
+        // 完全一致，并按 MAX_LIMBS × CG_TF_SIZE 分配尾部 TF 区域（FPGA OP_INIT 按该尺寸搬运）。
+        size_t buf1_size = FPGA_LIMB_Q * PARAMS_PER_LIMB + MAX_LIMBS * CG_TF_SIZE;
+        std::vector<uint64_t> buf1_Q(buf1_size, 0);
+        for(size_t i=0; i<n_q && i<(size_t)FPGA_LIMB_Q; i++) {
+            buf1_Q[i]                      = m_stored_moduli[i];
+            buf1_Q[FPGA_LIMB_Q + i]        = K_vals[i];
+            buf1_Q[FPGA_LIMB_Q * 2 + i]    = M_vals[i];
         }
+        memcpy(buf1_Q.data() + FPGA_LIMB_Q * PARAMS_PER_LIMB,
+               all_ntt_twiddles.data(),
+               MAX_LIMBS * CG_TF_SIZE * sizeof(uint64_t));
 
-        const int PARAMS_PER_LIMB = 3; 
-        size_t buf1_size = n_q * PARAMS_PER_LIMB + total_limbs * N;
-        std::vector<uint64_t> buf1_Q(buf1_size);
-        for(size_t i=0; i<n_q; i++) {
-            buf1_Q[i] = m_stored_moduli[i];           
-            buf1_Q[n_q + i] = K_vals[i];              
-            buf1_Q[n_q*2 + i] = M_vals[i];            
+        size_t buf2_size = FPGA_LIMB_P * PARAMS_PER_LIMB + MAX_LIMBS * CG_TF_SIZE;
+        std::vector<uint64_t> buf2_P(buf2_size, 0);
+        for(size_t i=0; i<n_p && i<(size_t)FPGA_LIMB_P; i++) {
+            size_t global_idx = n_q + i;
+            buf2_P[i]                      = m_stored_moduli[global_idx];
+            buf2_P[FPGA_LIMB_P + i]        = K_vals[global_idx];
+            buf2_P[FPGA_LIMB_P * 2 + i]    = M_vals[global_idx];
         }
-        memcpy(buf1_Q.data() + n_q * PARAMS_PER_LIMB, permuted_ntt.data(), total_limbs * N * sizeof(uint64_t));
-
-        size_t buf2_size = n_p * PARAMS_PER_LIMB + total_limbs * N;
-        std::vector<uint64_t> buf2_P(buf2_size);
-        for(size_t i=0; i<n_p; i++) {
-            size_t global_idx = n_q + i; 
-            buf2_P[i] = m_stored_moduli[global_idx];        
-            buf2_P[n_p + i] = K_vals[global_idx];           
-            buf2_P[n_p*2 + i] = M_vals[global_idx];         
-        }
-        memcpy(buf2_P.data() + n_p * PARAMS_PER_LIMB, permuted_intt.data(), total_limbs * N * sizeof(uint64_t));
+        memcpy(buf2_P.data() + FPGA_LIMB_P * PARAMS_PER_LIMB,
+               all_intt_twiddles.data(),
+               MAX_LIMBS * CG_TF_SIZE * sizeof(uint64_t));
 
         // 探针：如果这里打印出来了，说明准备工作完毕，即将呼叫硬件
         std::cout << "[DEBUG] Ready to allocate XRT buffers..." << std::endl;
@@ -320,15 +377,15 @@ public:
             bo_in1.write(in1);
             bo_in1.sync(XCL_BO_SYNC_BO_TO_DEVICE);
 
-            xrt::bo bo_in2;
-            if (in2 && in2 != in1) {
-                size_t in2_size_bytes = size_bytes;
-                bo_in2 = xrt::bo(m_device, in2_size_bytes, m_kernel_top.group_id(1));
+            // Always allocate bo_in2 in group_id(1) (HBM[1]) to match connectivity.ini.
+            // Reusing bo_in1 (HBM[0]) causes a bank mismatch and XRT execution failure.
+            auto bo_in2 = xrt::bo(m_device, size_bytes, m_kernel_top.group_id(1));
+            if (in2) {
                 bo_in2.write(in2);
-                bo_in2.sync(XCL_BO_SYNC_BO_TO_DEVICE);
-            } else { 
-                bo_in2 = bo_in1; 
+            } else {
+                bo_in2.write(in1);  // NTT/INTT: kernel ignores in2, but buffer must be valid
             }
+            bo_in2.sync(XCL_BO_SYNC_BO_TO_DEVICE);
 
             auto run = m_kernel_top(bo_in1, bo_in2, bo_out, opcode, num_limbs, mod_idx);
             run.wait();
@@ -365,6 +422,7 @@ public:
             return;
         }
         Execute(OP_NTT, in, nullptr, out, 1, mod_idx);
+
         if (std::getenv("OPENFHE_NTT_DUMP")) {
             const size_t dumpLen = std::min(n, (size_t)16);
             std::cerr << "[NTT_DUMP] NTT forward first " << dumpLen << " in/out (mod=" << modulus << "):" << std::endl;
@@ -382,6 +440,7 @@ public:
         std::cout << "=== [FPGA] Execute INTT ===" << std::endl;
         int mod_idx = GetModIndex(modulus);
         Execute(OP_INTT, in, nullptr, out, 1, mod_idx);
+
         if (std::getenv("OPENFHE_NTT_DUMP")) {
             const size_t dumpLen = std::min(n, (size_t)16);
             std::cerr << "[NTT_DUMP] INTT first " << dumpLen << " in/out (mod=" << modulus << "):" << std::endl;
@@ -500,39 +559,68 @@ public:
         const uint64_t* w,              // 权重: [KERNEL_LIMB_Q × KERNEL_MAX_OUT_COLS]
         const uint64_t* out_mod,        // 输出模数: [sizeP]
         uint64_t* result,               // 输出: [sizeP × RING_DIM]
-        size_t ringDim, 
+        size_t ringDim,
         int sizeP                       // 实际输出列数
     ) {
     #ifdef OPENFHE_FPGA_ENABLE
         if (!m_is_ready) return;
-        
+
         std::cout << "=== [FPGA] Execute BConv === sizeP=" << sizeP << std::endl;
 
         try {
             // Buffer sizes
             size_t in_size = KERNEL_LIMB_Q * ringDim * sizeof(uint64_t);
-            // mem_in2 = weights + out_mod
-            size_t weights_count = KERNEL_LIMB_Q * KERNEL_MAX_OUT_COLS;
-            size_t mod_count = KERNEL_MAX_OUT_COLS;
-            size_t meta_size = (weights_count + mod_count) * sizeof(uint64_t);
             size_t out_size = sizeP * ringDim * sizeof(uint64_t);
-            
-            // Pack weights + moduli into single buffer
-            std::vector<uint64_t> meta_buffer(weights_count + mod_count, 0);
-            // Copy weights
+
+            // -------------------------------------------------------
+            // FPGA Kernel (top.cpp OP_BCONV) 从 mem_in2 的布局：
+            //   [0           .. LIMB_Q*MAX_OUT_COLS-1]  : weights  (15 个)
+            //   [LIMB_Q*MAX_OUT_COLS .. +MAX_OUT_COLS-1]: out_mod  (5 个)
+            //   [+MAX_OUT_COLS       .. +MAX_OUT_COLS-1]: k_half   (5 个)
+            //   [+MAX_OUT_COLS       .. +MAX_OUT_COLS-1]: m_barrett(5 个)
+            // 总共: 15 + 5 + 5 + 5 = 30 个 uint64_t
+            // -------------------------------------------------------
+            size_t weights_count = KERNEL_LIMB_Q * KERNEL_MAX_OUT_COLS;  // 15
+            size_t total_meta = weights_count + 3 * KERNEL_MAX_OUT_COLS; // 15 + 15 = 30
+            size_t meta_size = total_meta * sizeof(uint64_t);
+
+            std::vector<uint64_t> meta_buffer(total_meta, 0);
+
+            // (1) Copy weights [0..14]
             std::memcpy(meta_buffer.data(), w, weights_count * sizeof(uint64_t));
-            // Copy output moduli (padded with 0)
-            for (int i = 0; i < sizeP && i < KERNEL_MAX_OUT_COLS; i++) {
-                meta_buffer[weights_count + i] = out_mod[i];
+
+            // (2) Copy output moduli + 计算 Barrett 参数 k_half 和 m_barrett
+            size_t mod_offset   = weights_count;                       // 15
+            size_t khalf_offset = mod_offset + KERNEL_MAX_OUT_COLS;    // 20
+            size_t m_offset     = khalf_offset + KERNEL_MAX_OUT_COLS;  // 25
+
+            for (int i = 0; i < KERNEL_MAX_OUT_COLS; i++) {
+                if (i < sizeP) {
+                    uint64_t p = out_mod[i];
+                    meta_buffer[mod_offset + i] = p;
+
+                    // Barrett 参数：全精度总移位量 S = bitwidth(p) + 62
+                    int pbits = 64 - __builtin_clzll(p);
+                    int S = pbits + 62;
+                    unsigned __int128 power = (unsigned __int128)1 << S;
+                    uint64_t m = (uint64_t)(power / p);
+
+                    meta_buffer[khalf_offset + i] = (uint64_t)S;   // S = 总移位量
+                    meta_buffer[m_offset + i]     = m;              // m_barrett
+                } else {
+                    meta_buffer[mod_offset + i]   = 0;
+                    meta_buffer[khalf_offset + i] = 0;
+                    meta_buffer[m_offset + i]     = 0;
+                }
             }
-            
+
             auto bo_in = xrt::bo(m_device, in_size, m_kernel_top.group_id(0));
             auto bo_meta = xrt::bo(m_device, meta_size, m_kernel_top.group_id(1));
             auto bo_out = xrt::bo(m_device, out_size, m_kernel_top.group_id(2));
 
             bo_in.write(x);
             bo_in.sync(XCL_BO_SYNC_BO_TO_DEVICE);
-            
+
             bo_meta.write(meta_buffer.data());
             bo_meta.sync(XCL_BO_SYNC_BO_TO_DEVICE);
 

@@ -54,8 +54,8 @@ void Compute_Auto(
     int mod_index
 ) {
 #pragma HLS INLINE off
-#pragma HLS ARRAY_PARTITION variable=input   cyclic factor=M dim=2
-#pragma HLS ARRAY_PARTITION variable=output  cyclic factor=M dim=2
+#pragma HLS ARRAY_PARTITION variable=input   cyclic factor=PE_PARALLEL dim=3
+#pragma HLS ARRAY_PARTITION variable=output  cyclic factor=PE_PARALLEL dim=3
 #pragma HLS ARRAY_PARTITION variable=MODULUS complete
 
     (void)k;

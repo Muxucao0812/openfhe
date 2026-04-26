@@ -1,6 +1,10 @@
 #ifndef LBCRYPTO_CRYPTO_KEYSWITCH_HKS_STRATEGY_H
 #define LBCRYPTO_CRYPTO_KEYSWITCH_HKS_STRATEGY_H
 
+#include <cstdint>
+#include <ostream>
+#include <vector>
+
 namespace lbcrypto {
 
 enum class HKSStrategy {
@@ -54,6 +58,66 @@ inline HKSStats& GetHKSStats() {
 
 inline void ResetHKSStats() {
     GetHKSStats() = HKSStats{};
+}
+
+// ---------------------------------------------------------------------------
+// Real-time intermediate-buffer memory tracker (software probe)
+// ---------------------------------------------------------------------------
+struct MemoryEvent {
+    int step;
+    int64_t delta;
+    int64_t watermark;
+    const char* op;
+    int digit;
+    int tower;
+};
+
+class MemoryTracker {
+    int64_t current_ = 0;
+    int64_t peak_    = 0;
+    int     step_    = 0;
+    std::vector<MemoryEvent> log_;
+
+public:
+    void alloc(int64_t bytes, const char* op, int digit, int tower = -1) {
+        current_ += bytes;
+        if (current_ > peak_) peak_ = current_;
+        log_.push_back({step_++, bytes, current_, op, digit, tower});
+    }
+
+    void free(int64_t bytes, const char* op, int digit, int tower = -1) {
+        current_ -= bytes;
+        if (current_ < 0) current_ = 0;
+        log_.push_back({step_++, -bytes, current_, op, digit, tower});
+    }
+
+    int64_t peak()    const { return peak_; }
+    int64_t current() const { return current_; }
+    const std::vector<MemoryEvent>& events() const { return log_; }
+
+    void reset() {
+        current_ = 0;
+        peak_    = 0;
+        step_    = 0;
+        log_.clear();
+    }
+
+    void dump_csv(std::ostream& os) const {
+        os << "step,op,digit,tower,delta_bytes,watermark_bytes\n";
+        for (auto& e : log_) {
+            os << e.step << "," << e.op << "," << e.digit << ","
+               << e.tower << "," << e.delta << "," << e.watermark << "\n";
+        }
+    }
+};
+
+inline MemoryTracker& GetMemoryTracker() {
+    static MemoryTracker t;
+    return t;
+}
+
+inline void ResetMemoryTracker() {
+    GetMemoryTracker().reset();
 }
 
 }  // namespace lbcrypto
